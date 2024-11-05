@@ -62,3 +62,8 @@ CameraDates <- data.frame(Days, CameraCount)
 
 ```
 
+## Save Processed Data
+```{r}
+
+```
+
