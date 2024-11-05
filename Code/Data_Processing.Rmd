@@ -8,22 +8,57 @@ date: "2024-11-05"
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
+## Complete Wildlife IDs
+```{r}
+id2021to2022 <- read.csv("~/ByndlossLiWilliams/Data/Raw/Wildlife Insights (2021-2022).csv")
+# I created a new column for date and time.
+id2021to2022$DT<-NA
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+# I established the format of the new date and time column.
+library(lubridate)
+id2021to2022$DT<-as_datetime(id2021to2022$date.time,format='%m/%d/%Y %H:%M')
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+# I added columns for date and time independently.
+id2021to2022$Date<-date(id2021to2022$DT)
+id2021to2022$Time<-hour(id2021to2022$DT)
 
-```{r cars}
-summary(cars)
+# I renamed the columns.
+id2021to2022$Species = id2021to2022$species
+id2021to2022$DateTime = id2021to2022$DT
+id2021to2022$CameraID = id2021to2022$deployment.id
 ```
 
-## Including Plots
+## Camera Counts Per Day (i.e., Sampling Effort)
+```{r}
+# I set a vector to correspond with the relevant time frame.
+start<-as_date("2021-06-28")
+end<-as_date("2022-05-19")
+Days<-vector()
+Days<-start:end
+Days<-as_date(Days)
 
-You can also embed plots, for example:
+deployments <- read.csv("~/ByndlossLiWilliams/Data/Raw/All Deployments (2019-2022).csv")
+# I adjusted the formatting to match the above vector.
+deployments$start_date<-as_date(deployments$start_date, format="%m/%d/%Y")
+deployments$end_date<-as_date(deployments$end_date, format="%m/%d/%Y")
+head(deployments)
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+# I counted the camera deployed for each date in the relevant time frame.
+CameraCount<-vector()
+for(i in 1:length(Days)) {
+  CameraCount[i]<-0
+    for(z in 1:((nrow(deployments)))){
+      if(deployments[z,2]<=Days[i]&deployments[z,3]>=Days[i]){CameraCount[i]<-CameraCount[i]+1}
+      }
+}
+CameraCount
+
+# I combined the two vectors into a single data frame.
+CameraDates <- data.frame(Days, CameraCount)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+## Daily Species Data (Filtered & Adjusted)
+```{r}
+
+```
+
