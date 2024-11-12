@@ -4,65 +4,213 @@ output: pdf_document
 date: "2024-11-05"
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
+Before uploading any data sets into RStudio, the relevant csv files were examined in Excel. The two csv files used in this project are from Prof. Malu Jorge at Vanderbilt University. Prof. Malu Jorge identifies one of the longest time periods of consistent data collection by her lab at multiple parks being from 06/28/2021 to 05/19/22. Although nine parks are listed within "cluster.name" of "Wildlife Insights (2021-2022).csv", only three parks cover the majority of the aforementioned time period based on the earliest "start_date" and latest "end_date" for each park in "All Deployments (2019-2022).csv". Those parks include Beaman (06/29/2021-12/31/2022), Bells Bend (06/28/2021-05/19/2022), and Mills Creek(06/20/2021-04/23/2022). To establish a consistent study period for this project in accordance with these three parks, the following time period will be used: 06/29/2021-4/23/2022 (298 days). The following two data sets created from these csv files will have to be filtered to include only the data associated with each of these parks for the chosen time period. 
 
-## Complete Wildlife IDs
+
+## Wildlife IDs from Prof. Malu Jorge's Lab at Vanderbilt University
+
+This section includes already identified camera trap data collected within nine local parks in Nashville, TN (including Beaman, Bells Bend, Blue Hole, Edwin Warner, Ellington, Hill Forest, Mill Creek, Percy Warner) from 06/28/2021 to 12/31/2022 (551 days). During this study period, GardePro A3, Browning Strike Force HD ProX, and HAPIMP PH770-8D trail cameras were used; these models have motion detectors and were programmed to have a delay between consecutive triggers.
+
 ```{r}
+# Read csv into dataframe
 id2021to2022 <- read.csv("~/ByndlossLiWilliams/Data/Raw/Wildlife Insights (2021-2022).csv")
-# I created a new column for date and time.
-id2021to2022$DT<-NA
 
-# I established the format of the new date and time column.
+# Establish the format of the date and time column
 library(lubridate)
-id2021to2022$DT<-as_datetime(id2021to2022$date.time,format='%m/%d/%Y %H:%M')
+id2021to2022$date.time<-as_datetime(id2021to2022$date.time,format='%m/%d/%Y %H:%M')
 
-# I added columns for date and time independently.
-id2021to2022$Date<-date(id2021to2022$DT)
-id2021to2022$Time<-hour(id2021to2022$DT)
+# Add columns for date and hour independently
+id2021to2022$date<-date(id2021to2022$date.time)
+id2021to2022$hour<-hour(id2021to2022$date.time)
 
-# I renamed the columns.
-id2021to2022$Species = id2021to2022$species
-id2021to2022$DateTime = id2021to2022$DT
-id2021to2022$CameraID = id2021to2022$deployment.id
+library(plyr)
+library(dplyr)
+BeamanID <- id2021to2022 %>%
+  filter(cluster.name == "beaman")
+
+BellsBendID <- id2021to2022 %>%
+  filter(cluster.name == "bells.bend")
+
+MillCreekID <- id2021to2022 %>%
+  filter(cluster.name == "mill.creek")
 ```
 
-## Camera Counts Per Day (i.e., Sampling Effort)
+
+## Camera Counts Per Day (i.e., sampling effort)
+
+This section includes deployment data on the camera traps set up within nine local parks in Nashville, TN (including Beaman, Bells Bend, Blue Hole, Edwin Warner, Ellington, Hill Forest, Mill Creek, Percy Warner) from 09/21/2019 to 12/31/2022. Lab members placed camera traps at various sites (one camera per site) within the forested areas of these parks.
+
 ```{r}
-# I set a vector to correspond with the relevant time frame.
-start<-as_date("2021-06-28")
-end<-as_date("2022-05-19")
+# Set a vector to correspond with the relevant time period
+start<-as_date("2021-06-29")
+end<-as_date("2022-04-23")
 Days<-vector()
 Days<-start:end
 Days<-as_date(Days)
 
 deployments <- read.csv("~/ByndlossLiWilliams/Data/Raw/All Deployments (2019-2022).csv")
-# I adjusted the formatting to match the above vector.
+
+# Adjust the formatting to match the above vector
 deployments$start_date<-as_date(deployments$start_date, format="%m/%d/%Y")
 deployments$end_date<-as_date(deployments$end_date, format="%m/%d/%Y")
-head(deployments)
 
-# I counted the camera deployed for each date in the relevant time frame.
-CameraCount<-vector()
+# Filter for each park's deployments
+BeamanDeploy <- deployments %>% 
+  filter(deployment_id == "beaman-s1-c20-y21" |
+           deployment_id == "beaman-s2-c21-y21" |
+           deployment_id == "beaman-s3-c22-y21" |
+           deployment_id == "beaman-s4-c23-y21" |
+           deployment_id == "beaman-s6-c21-y21" |
+           deployment_id == "beaman-s10-c18-y22" |
+           deployment_id == "beaman-s1-c20-y22" |
+           deployment_id == "beaman-s3-c22-y22" |
+           deployment_id == "beaman-s4-c23-y22" |
+           deployment_id == "beaman-s6-c21-y22" |
+           deployment_id == "beaman-s7-c12-y22" |
+           deployment_id == "beaman-s8-c3-y22" |
+           deployment_id == "beaman-s9-c33-y22")
+
+BellsBendDeploy <- deployments %>%
+  filter(deployment_id == "bells.bend-s1-c14-y21" | 
+           deployment_id == "bells.bend-s2-c15-y21" |
+           deployment_id == "bells.bend-s2-c16-y21" |
+           deployment_id == "bells.bend-s3-c16-y21" |
+           deployment_id == "bells.bend-s4-c17-y21" |
+           deployment_id == "bells.bend-s1-c14-y22" |
+           deployment_id == "bells.bend-s2-c15-y22" |
+           deployment_id == "bells.bend-s4-c17-y22")
+
+MillCreekDeploy <- deployments %>%
+  filter(deployment_id == "mill.creek-s1-c25-y21" | 
+           deployment_id == "mill.creek-s1-c2-y21" | 
+           deployment_id == "mill.creek-s2-c26-y21" | 
+           deployment_id == "mill.creek-s4-c11-y21" | 
+           deployment_id == "mill.creek-s5-c3-y21" |
+           deployment_id == "mill.creek-s1-c2-y22" |
+           deployment_id == "mill.creek-s4-c11-y22" |
+           deployment_id == "mill.creek-s5-c3-y22")
+
+# Count the cameras deployed at each part for every day in the time frame
+BeamanCameraCount<-vector()
 for(i in 1:length(Days)) {
-  CameraCount[i]<-0
-    for(z in 1:((nrow(deployments)))){
-      if(deployments[z,2]<=Days[i]&deployments[z,3]>=Days[i]){CameraCount[i]<-CameraCount[i]+1}
+  BeamanCameraCount[i]<-0
+    for(z in 1:((nrow(BeamanDeploy)))){
+      if(BeamanDeploy[z,2]<=Days[i]&BeamanDeploy[z,3]>=Days[i]){BeamanCameraCount[i]<-BeamanCameraCount[i]+1}
       }
 }
-CameraCount
 
-# I combined the two vectors into a single data frame.
-CameraDates <- data.frame(Days, CameraCount)
+BellsBendCameraCount<-vector()
+for(i in 1:length(Days)) {
+  BellsBendCameraCount[i]<-0
+    for(z in 1:((nrow(BellsBendDeploy)))){
+      if(BellsBendDeploy[z,2]<=Days[i]&BellsBendDeploy[z,3]>=Days[i]){BellsBendCameraCount[i]<-BellsBendCameraCount[i]+1}
+      }
+}
+
+MillCreekCameraCount<-vector()
+for(i in 1:length(Days)) {
+  MillCreekCameraCount[i]<-0
+    for(z in 1:((nrow(MillCreekDeploy)))){
+      if(MillCreekDeploy[z,2]<=Days[i]&MillCreekDeploy[z,3]>=Days[i]){MillCreekCameraCount[i]<-MillCreekCameraCount[i]+1}
+      }
+}
+
+# Combine the days and count vectors into a single data frame for each park
+BeamanCameraDates <- data.frame(Days, BeamanCameraCount)
+
+BellsBendCameraDates <- data.frame(Days, BellsBendCameraCount)
+
+MillCreekCameraDates <- data.frame(Days, MillCreekCameraCount)
 ```
 
-## Daily Species Data (Filtered & Adjusted)
+
+## Daily Species Data (accounting for sampling effort in wildlife IDs) !STILL WORKING ON THIS SECTION - currently, set to filter for only one species!
+
 ```{r}
+# Select the species of interest
+squirrel<-subset(CameraTraps,Species =="squirrel" | Species == "Eastern Gray Squirrel")
+
+# Filter by every hour
+Cameras<-levels(as.factor(squirrel$CameraID))
+squirrel$Independent<-T
+Filtered<-data.frame()
+
+A<-strptime("2:30", format = "%H:%M")
+B<-strptime("1:30", format = "%H:%M")
+filter<-A-B
+
+for(i in 1:length(Cameras)){
+  group<-subset(squirrel, CameraID == Cameras[i])
+  if(nrow(group) > 1){
+    for(z in 1:((nrow(group))-1)){
+      diff<-group[(z+1),3] - group[z,3]
+      if(diff < filter){
+        group[(z+1),6]<-F
+      }
+    }
+  }
+  Filtered<-rbind(Filtered,group)
+}
+squirrel<-subset(Filtered, Independent == T)
+
+# Create a new data frame containing the counts of the species of interest each day 
+# Also, adjust the species counts via dividing by the number of cameras; this accounts for sampling effort
+CountSquirrelRaw<-vector()
+CountSquirrelAdjusted<-vector()
+for(i in 1:nrow(CameraDates)){
+  group<-subset(squirrel, Date == CameraDates[i,1])
+  count<-nrow(group)
+  CountSquirrelRaw[i]<-count
+  CountSquirrelAdjusted[i]<-count / CameraDates[i,2]
+}
+
+DailySquirrel<-data.frame(CameraDates$Days,CountSquirrelRaw,CountSquirrelAdjusted)
+
+# Check to ensure the data frame is correct
+head(DailySquirrel)
+
+# Ensure the two data frames had the same names for alike data, in particular date
+DailySquirrel$DATE<-DailySquirrel$CameraDates.Days 
+# Merge the squirrel data with temperature data
+sqAllData<-merge(DailySquirrel, FNT, by="DATE", all.x = T)
+
+# Load the 'zoo' package
+library(zoo)
+# Create a column for the species count 7-day rolling average
+sqAllData$SquirrelMovingAvg<-rollmean(sqAllData$CountSquirrelAdjusted, k = 7, align = "center", na.pad = T)
 
 ```
 
-## Save Processed Data
+
+## Spatial Data
+
+This section includes spatial data on parks in Nashville, TN (retrieved from Nashville Open Data at the following link: https://datanashvillegov-nashville.hub.arcgis.com/datasets/13c1aa2bafdd43f4b3cd132e7256a172_0/explore?location=36.167341%2C-86.763938%2C9.17).
+
+```{r}
+# Read the shapefile into a  dataframe
+library(sf)
+library(here)
+library(mapview)
+parks <- st_read(here('~/ByndlossLiWilliams/Data/Raw/Parks_Properties.shp'))
+
+# Check for unique park names to ensure correct name for upcoming filter
+unique(parks$Name)
+
+# Filter for each park
+BeamanPark <- parks %>%
+  filter(Name == "Alvin G. Beaman Park")
+
+BellsBendPark <- parks %>%
+  filter(Name == "Bells Bend Park")
+
+MillCreekPark <- parks %>%
+  filter(Name == "Mill Creek Park")
+
+# Check to ensure the data frames are correct by mapping them
+mapView(BeamanPark) + mapView(BellsBendPark) + mapView(MillCreekPark)
+```
+
+## Save Processed Data !STILL WORKING ON THIS SECTION!
 ```{r}
 
 ```
