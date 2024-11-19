@@ -4,7 +4,7 @@ output: pdf_document
 date: "2024-11-05"
 ---
 
-Before uploading any data sets into RStudio, the relevant csv files were examined in Excel. The two csv files used in this project are from Prof. Malu Jorge at Vanderbilt University. Prof. Malu Jorge identifies one of the longest time periods of consistent data collection by her lab at multiple parks being from 06/28/2021 to 05/19/22. Although nine parks are listed within "cluster.name" of "Wildlife Insights (2021-2022).csv", only three parks cover the majority of the aforementioned time period based on the earliest "start_date" and latest "end_date" for each park in "All Deployments (2019-2022).csv". Those parks include Beaman (06/29/2021-12/31/2022), Bells Bend (06/28/2021-05/19/2022), and Mills Creek(06/20/2021-04/23/2022). To establish a consistent study period for this project in accordance with these three parks, the following time period will be used: 06/29/2021-4/23/2022 (298 days). The following two data sets created from these csv files will have to be filtered to include only the data associated with each of these parks for the chosen time period. 
+Before uploading any data sets into RStudio, the relevant csv files were examined in Excel. The two csv files used in this project are from Prof. Malu Jorge at Vanderbilt University. Prof. Malu Jorge identifies one of the longest time periods of consistent data collection by her lab at multiple parks being from 06/28/2021 to 05/19/22. Although nine parks are listed within "cluster.name" of "Wildlife Insights (2021-2022).csv", only three parks cover the majority of the aforementioned time period based on the earliest "start_date" and latest "end_date" for each park in "All Deployments (2019-2022).csv". Those parks include Beaman (06/29/2021-12/31/2022), Bells Bend (06/28/2021-05/19/2022), and Mills Creek(07/20/2021-04/23/2022). To establish a consistent study period for this project in accordance with these three parks, the following time period will be used: 07/20/2021-4/23/2022 (278 days). The following two data sets created from these csv files will have to be filtered to include only the data associated with each of these parks for the chosen time period. 
 
 
 ## Wildlife IDs from Prof. Malu Jorge's Lab at Vanderbilt University
@@ -17,7 +17,7 @@ id2021to2022 <- read.csv("~/ByndlossLiWilliams/Data/Raw/Wildlife Insights (2021-
 
 # Establish the format of the date and time column
 library(lubridate)
-id2021to2022$date.time<-as_datetime(id2021to2022$date.time,format='%m/%d/%Y %H:%M')
+id2021to2022$date.time <- parse_date_time(id2021to2022$date.time, orders = c("m/d/Y H:M"))
 
 # Add columns for date and hour independently
 id2021to2022$date<-date(id2021to2022$date.time)
@@ -42,17 +42,17 @@ This section includes deployment data on the camera traps set up within nine loc
 
 ```{r}
 # Set a vector to correspond with the relevant time period
-start<-as_date("2021-06-29")
-end<-as_date("2022-04-23")
-Days<-vector()
-Days<-start:end
-Days<-as_date(Days)
+start <- as_date("2021-07-20")
+end <- as_date("2022-04-23")
+Days <- vector()
+Days <- start:end
+Days <- as_date(Days)
 
 deployments <- read.csv("~/ByndlossLiWilliams/Data/Raw/All Deployments (2019-2022).csv")
 
 # Adjust the formatting to match the above vector
-deployments$start_date<-as_date(deployments$start_date, format="%m/%d/%Y")
-deployments$end_date<-as_date(deployments$end_date, format="%m/%d/%Y")
+deployments$start_date <- mdy(deployments$start_date)
+deployments$end_date <- mdy(deployments$end_date)
 
 # Filter for each park's deployments
 BeamanDeploy <- deployments %>% 
@@ -124,61 +124,244 @@ MillCreekCameraDates <- data.frame(Days, MillCreekCameraCount)
 ```
 
 
-## Daily Species Data (accounting for sampling effort in wildlife IDs) !STILL WORKING ON THIS SECTION - currently, set to filter for only one species!
+## Daily Species Data (filtered, adjusted, and totals) -> STILL NOT WORKING PROPERLY
+
+This section includes 1) filtering by hour, 2) adjusting counts based on sampling effort, and 3) calculating moving averages in wildlife IDs. To explain, first, the daily wildlife IDs for each species must be filtered by hour at every camera trap separately to remove repeated counts of the same individual(s). Second, to account for sampling effort, the daily wildlife IDs for each species need to be divided by the number of cameras out each day to standardize the data. Third, weekly, monthly, and full time period totals are calculated for future comparison of data between parks; in this case, totals can be used rather than averages or rolling averages since sampling effort is already accounted for, a consistent time period is already established across parks, and counts are not guaranteed each day.
 
 ```{r}
-# Select the species of interest
-squirrel<-subset(CameraTraps,Species =="squirrel" | Species == "Eastern Gray Squirrel")
+# Create a list of all unique species in each park's data set
+BeamanSpeciesList <- unique(BeamanID$species)
+BellsBendSpeciesList <- unique(BellsBendID$species)
+MillCreekSpeciesList <- unique(MillCreekID$species)
 
-# Filter by every hour
-Cameras<-levels(as.factor(squirrel$CameraID))
-squirrel$Independent<-T
-Filtered<-data.frame()
+# Establish an empty data frame to store the results and totals
+BeamanSpeciesResults <- data.frame()
+BeamanSpeciesMonthlyTotals <- data.frame()
+BeamanSpeciesFullPeriodTotal <- data.frame(Species = character(), FullPeriodTotal = numeric())
 
-A<-strptime("2:30", format = "%H:%M")
-B<-strptime("1:30", format = "%H:%M")
-filter<-A-B
+BellsBendSpeciesResults <- data.frame()
+BellsBendSpeciesMonthlyTotals <- data.frame()
+BellsBendSpeciesFullPeriodTotal <- data.frame(Species = character(), FullPeriodTotal = numeric())
 
-for(i in 1:length(Cameras)){
-  group<-subset(squirrel, CameraID == Cameras[i])
+MillCreekSpeciesResults <- data.frame()
+MillCreekSpeciesMonthlyTotals <- data.frame()
+MillCreekSpeciesFullPeriodTotal <- data.frame(Species = character(), FullPeriodTotal = numeric())
+
+# Load additional relevant package
+library(zoo)
+
+# BEAMAN: Loop through each species in the data set
+for (species in BeamanSpeciesList) {
+  
+  # Subset data for the current species
+  BeamanSpeciesData <- subset(BeamanID, BeamanID$species == species)
+  
+  # Ensure the date column is in the correct format
+  BeamanSpeciesData$date <- as.Date(BeamanSpeciesData$date)
+  
+  # Filter by every hour
+  BeamanCameras <- levels(as.factor(BeamanSpeciesData$deployment.id))
+  BeamanSpeciesData$Independent<-TRUE
+  BeamanFiltered <- data.frame()
+  
+  A <- strptime("2:30", format = "%H:%M")
+  B <- strptime("1:30", format = "%H:%M")
+  filter <- A - B
+    
+  for(i in 1:length(BeamanCameras)){
+  group <- subset(BeamanSpeciesData, deployment.id == BeamanCameras[i])
   if(nrow(group) > 1){
     for(z in 1:((nrow(group))-1)){
       diff<-group[(z+1),3] - group[z,3]
       if(diff < filter){
-        group[(z+1),6]<-F
+        group[(z+1),6]<-FALSE
+        }
       }
     }
+  BeamanFiltered <- rbind(BeamanFiltered, group)
   }
-  Filtered<-rbind(Filtered,group)
+  BeamanSpeciesData <- subset(BeamanFiltered, Independent == TRUE)
+    
+  # Create a new data frame containing the counts of species each day
+  # Also, adjust the species counts via dividing by the number of cameras; this accounts for sampling effort
+  CountRaw <- vector()
+  CountAdjusted<-vector()
+  for(i in 1:nrow(BeamanCameraDates)){
+    group <- subset(BeamanSpeciesData, date == BeamanCameraDates[i,1])
+    count <- nrow(group)
+    CountRaw[i] <- count
+    CountAdjusted[i] <- count / BeamanCameraDates[i,2]
+  }
+  
+  # Create the DailySpecies data frame
+  BeamanDailySpecies <- data.frame(BeamanCameraDates$Days,CountRaw,CountAdjusted)
+  names(BeamanDailySpecies) <- c("Date", "CountRaw", "CountAdjusted")
+  
+  # Add a column with the species name
+  BeamanDailySpecies$Species <- species
+  
+  # Store the daily result for the current species
+  BeamanSpeciesResults <- rbind(BeamanSpeciesResults, BeamanDailySpecies)
+  
+    # Create new column and extract month and year before calculating monthly totals
+  BeamanDailySpecies$Month <- format(BeamanDailySpecies$Date, "%Y-%m")
+  BeamanMonthlyTotals <- aggregate(CountAdjusted ~ Month + Species, data = BeamanDailySpecies, FUN = sum, na.rm = TRUE)
+  
+  # Store the monthly total results for the current species
+  BeamanSpeciesMonthlyTotals <- rbind(BeamanSpeciesMonthlyTotals, BeamanMonthlyTotals)
+  
+  # Calculate full period total (total for all days)
+  BeamanFullPeriodTotal <- sum(BeamanDailySpecies$CountAdjusted, na.rm = TRUE)
+  
+  # Store the full period total results for the current species
+  BeamanSpeciesFullPeriodTotal <- rbind(BeamanFullPeriodTotal, data.frame(Species = species, FullPeriodTotal = BeamanFullPeriodTotal))
 }
-squirrel<-subset(Filtered, Independent == T)
 
-# Create a new data frame containing the counts of the species of interest each day 
-# Also, adjust the species counts via dividing by the number of cameras; this accounts for sampling effort
-CountSquirrelRaw<-vector()
-CountSquirrelAdjusted<-vector()
-for(i in 1:nrow(CameraDates)){
-  group<-subset(squirrel, Date == CameraDates[i,1])
-  count<-nrow(group)
-  CountSquirrelRaw[i]<-count
-  CountSquirrelAdjusted[i]<-count / CameraDates[i,2]
+# BELLSBEND: Loop through each species in the dataset
+for (species in BellsBendSpeciesList) {
+  
+  # Subset data for the current species
+  BellsBendSpeciesData <- subset(BellsBendID, BellsBendID$species == species)
+    
+  # Ensure the date column is in the correct format
+  BellsBendSpeciesData$date <- as.Date(BellsBendSpeciesData$date)
+  
+  # Filter by every hour
+  BellsBendCameras <- levels(as.factor(BellsBendSpeciesData$deployment.id))
+  BellsBendSpeciesData$Independent<-TRUE
+  BellsBendFiltered <- data.frame()
+  
+  A <- strptime("2:30", format = "%H:%M")
+  B <- strptime("1:30", format = "%H:%M")
+  filter <- A - B 
+  
+  for(i in 1:length(BellsBendCameras)){
+  group <- subset(BellsBendSpeciesData, deployment.id == BellsBendCameras[i])
+  if(nrow(group) > 1){
+    for(z in 1:((nrow(group))-1)){
+      diff<-group[(z+1),3] - group[z,3]
+      if(diff < filter){
+        group[(z+1),6]<-FALSE
+        }
+      }
+    }
+  BellsBendFiltered <- rbind(BellsBendFiltered, group)
+  }
+  BellsBendSpeciesData <- subset(BellsBendFiltered, Independent == TRUE)
+  
+  # Create a new data frame containing the counts of species each day
+  # Also, adjust the species counts via dividing by the number of cameras; this accounts for sampling effort
+  CountRaw <- vector()
+  CountAdjusted<-vector()
+  for(i in 1:nrow(BellsBendCameraDates)){
+    group <- subset(BellsBendSpeciesData, date == BellsBendCameraDates[i,1])
+    count <- nrow(group)
+    CountRaw[i] <- count
+    CountAdjusted[i] <- count / BellsBendCameraDates[i,2]
+  }
+  
+  # Create the DailySpecies data frame
+  BellsBendDailySpecies <- data.frame(BellsBendCameraDates$Days,CountRaw,CountAdjusted)
+  names(BellsBendDailySpecies) <- c("Date", "CountRaw", "CountAdjusted")
+  
+  # Add a column with the species name
+  BellsBendDailySpecies$Species <- species
+  
+  # Store the daily result for the current species
+  BellsBendSpeciesResults <- rbind(BellsBendSpeciesResults, BellsBendDailySpecies)
+  
+  # Create new column and extract month and year before calculating monthly totals
+  BellsBendDailySpecies$Month <- format(BellsBendDailySpecies$Date, "%Y-%m")
+  BellsBendMonthlyTotals <- aggregate(CountAdjusted ~ Month + Species, data = BellsBendDailySpecies, FUN = sum, na.rm = TRUE)
+  
+  # Store the monthly total results for the current species
+  BellsBendSpeciesMonthlyTotals <- rbind(BellsBendSpeciesMonthlyTotals, BellsBendMonthlyTotals)
+  
+  # Calculate full period total (total for all days)
+  BellsBendFullPeriodTotal <- sum(BellsBendDailySpecies$CountAdjusted, na.rm = TRUE)
+  
+  # Store the full period total results for the current species
+  BellsBendSpeciesFullPeriodTotal <- rbind(BellsBendFullPeriodTotal, data.frame(Species = species, FullPeriodTotal = BellsBendFullPeriodTotal))
 }
 
-DailySquirrel<-data.frame(CameraDates$Days,CountSquirrelRaw,CountSquirrelAdjusted)
+# MILLCREEK: Loop through each species in the dataset
+for (species in MillCreekSpeciesList) {
+  
+  # Subset data for the current species
+  MillCreekSpeciesData <- subset(MillCreekID, MillCreekID$species == species)
+  
+  # Ensure the date column is in the correct format
+  MillCreekSpeciesData$date <- as.Date(MillCreekSpeciesData$date)
+  
+  # Filter by every hour
+  MillCreekCameras <- levels(as.factor(MillCreekSpeciesData$deployment.id))
+  MillCreekSpeciesData$Independent <- TRUE
+  MillCreekFiltered <- data.frame()
+  
+  A<-strptime("2:30", format = "%H:%M")
+  B<-strptime("1:30", format = "%H:%M")
+  filter <- A - B
+  
+  for(i in 1:length(MillCreekCameras)){
+  group <- subset(MillCreekSpeciesData, deployment.id == MillCreekCameras[i])
+  if(nrow(group) > 1){
+    for(z in 1:((nrow(group))-1)){
+      diff<-group[(z+1),3] - group[z,3]
+      if(diff < filter){
+        group[(z+1),6]<-FALSE
+        }
+      }
+    }
+  MillCreekFiltered <- rbind(MillCreekFiltered, group)
+  }
+  MillCreekSpeciesData <- subset(MillCreekFiltered, Independent == TRUE)
+  
+  # Create a new data frame containing the counts of species each day
+  # Also, adjust the species counts via dividing by the number of cameras; this accounts for sampling effort
+  CountRaw <- vector()
+  CountAdjusted<-vector()
+  for(i in 1:nrow(MillCreekCameraDates)){
+    group <- subset(MillCreekSpeciesData, date == MillCreekCameraDates[i,1])
+    count <- nrow(group)
+    CountRaw[i] <- count
+    CountAdjusted[i] <- count / MillCreekCameraDates[i,2]
+  }
 
-# Check to ensure the data frame is correct
-head(DailySquirrel)
+  # Create the DailySpecies data frame
+  MillCreekDailySpecies <- data.frame(MillCreekCameraDates$Days,CountRaw,CountAdjusted)
+  names(MillCreekDailySpecies) <- c("Date", "CountRaw", "CountAdjusted")
+  
+  # Add a column with the species name
+  MillCreekDailySpecies$Species <- species
+  
+  # Store the daily result for the current species
+  MillCreekSpeciesResults <- rbind(MillCreekSpeciesResults, MillCreekDailySpecies)
+    
+    # Create new column and extract month and year before calculating monthly totals for each species
+  MillCreekDailySpecies$Month <- format(MillCreekDailySpecies$Date, "%Y-%m")
+  MillCreekMonthlyTotals <- aggregate(CountAdjusted ~ Month + Species, data = MillCreekDailySpecies, FUN = sum, na.rm = TRUE)
+  
+  # Store the monthly total results for the current species
+  MillCreekSpeciesMonthlyTotals <- rbind(MillCreekSpeciesMonthlyTotals, MillCreekMonthlyTotals)
+  
+  # Calculate full period total (total for all days)
+  MillCreekFullPeriodTotal <- sum(MillCreekDailySpecies$CountAdjusted, na.rm = TRUE)
+  
+  # Store the full period total results for the current species
+  MillCreekSpeciesFullPeriodTotal <- rbind(MillCreekFullPeriodTotal, data.frame(Species = species, FullPeriodTotal = MillCreekFullPeriodTotal))
+}
+```
 
-# Ensure the two data frames had the same names for alike data, in particular date
-DailySquirrel$DATE<-DailySquirrel$CameraDates.Days 
-# Merge the squirrel data with temperature data
-sqAllData<-merge(DailySquirrel, FNT, by="DATE", all.x = T)
 
-# Load the 'zoo' package
-library(zoo)
-# Create a column for the species count 7-day rolling average
-sqAllData$SquirrelMovingAvg<-rollmean(sqAllData$CountSquirrelAdjusted, k = 7, align = "center", na.pad = T)
+## Preparing data before ANOVA -> NOT YET COMPLETE
 
+This section includes...
+
+```{r}
+# Combine data into a long-format data frame
+AllSpeciesData <- bind_rows(BeamanSpeciesResults, BellsBendSpeciesResults, MillCreekSpeciesResults)
+
+# Check dependent variables are numeric
 ```
 
 
@@ -191,7 +374,7 @@ This section includes spatial data on parks in Nashville, TN (retrieved from Nas
 library(sf)
 library(here)
 library(mapview)
-parks <- st_read(here('~/ByndlossLiWilliams/Data/Raw/Parks_Properties.shp'))
+parks <- st_read('~/ByndlossLiWilliams/Data/Raw/Parks_Properties.shp')
 
 # Check for unique park names to ensure correct name for upcoming filter
 unique(parks$Name)
