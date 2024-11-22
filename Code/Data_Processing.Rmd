@@ -367,7 +367,7 @@ AllSpeciesData <- bind_rows(BeamanSpeciesResults, BellsBendSpeciesResults, MillC
 
 ## Spatial Data
 
-This section includes spatial data on parks in Nashville, TN (retrieved from Nashville Open Data at the following link: https://datanashvillegov-nashville.hub.arcgis.com/datasets/13c1aa2bafdd43f4b3cd132e7256a172_0/explore?location=36.167341%2C-86.763938%2C9.17).
+This section includes spatial data on parks in Nashville, TN (retrieved from Nashville Open Data at the following link: https://datanashvillegov-nashville.hub.arcgis.com/datasets/13c1aa2bafdd43f4b3cd132e7256a172_0/explore?location=36.167341%2C-86.763938%2C9.17). The csv version of this shapefile was examined in Excel prior to uploading to RStudio. From that initial examination, it became clear that numerous similarities exist between these three parks (e.g., being open daily, not allowing horseback riding, and not having any sports fields or courts available). Still, there are certain attributes that make each of these three parks unique from one another. To briefly explain, Beaman (a regional park established in 1996) is the largest of the three parks at 2170.89186 acres, open dawn to 11pm, and more restrictive with no walking or jogging on certain trails. Bells Bend (a regional park established in 2007) is an intermediate size at 809.59 acres, has a more restrictive schedule being open dawn to dusk, and allows more activities, including mountain biking, camping, and fishing. Lastly, Mill Creek (a community park established in 2013) is the smallest of the three parks at 85.62 acres, open dawn to 11pm, and has no hiking trails.
 
 ```{r}
 # Read the shapefile into a  dataframe
