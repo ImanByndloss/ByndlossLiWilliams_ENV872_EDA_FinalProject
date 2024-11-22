@@ -389,6 +389,8 @@ BellsBendPark <- parks %>%
 MillCreekPark <- parks %>%
   filter(Name == "Mill Creek Park")
 
+CombinedParks <- rbind(BeamanPark, BellsBendPark, MillCreekPark)
+
 # Check to ensure the data frames are correct by mapping them
 mapView(BeamanPark) + mapView(BellsBendPark) + mapView(MillCreekPark)
 ```
