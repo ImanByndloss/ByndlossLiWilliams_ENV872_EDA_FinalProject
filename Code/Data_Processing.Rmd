@@ -161,8 +161,8 @@ MillCreekSpeciesFullPeriodTotal <- data.frame(Species = character(), FullPeriodT
 # BEAMAN: Loop through each species in the data set
 for (species in BeamanSpeciesList) {
   
-  # Subset data for the current species
-  BeamanSpeciesData <- subset(BeamanID, BeamanID$species == species)
+  # Filter data for the current species
+  BeamanSpeciesData <- BeamanID %>% filter(BeamanID$species == !!species)
   
   # Ensure the date column is in the correct format
   BeamanSpeciesData$date <- as.Date(BeamanSpeciesData$date)
@@ -182,7 +182,7 @@ for (species in BeamanSpeciesList) {
   
   # Iterate through each camera and filter records  
   for(i in 1:length(BeamanCameras)){
-  group <- subset(BeamanSpeciesData, deployment.id == BeamanCameras[i])
+  group <- BeamanSpeciesData %>% filter(deployment.id == BeamanCameras[i])
   if(nrow(group) > 1){
     for(z in 1:((nrow(group))-1)){
       diff<-group[(z+1),3] - group[z,3]
@@ -193,14 +193,14 @@ for (species in BeamanSpeciesList) {
     }
   BeamanFiltered <- rbind(BeamanFiltered, group)
   }
-  BeamanSpeciesData <- subset(BeamanFiltered, Independent == TRUE)
+  BeamanSpeciesData <- BeamanFiltered %>% filter(Independent == TRUE)
     
   # Create a new data frame containing the counts of species each day, accounting for the number of active cameras (i.e., sampling effort)
   # Also, adjust the species counts via dividing by the number of cameras; this accounts for sampling effort
   CountRaw <- vector()
   CountAdjusted<-vector()
   for(i in 1:nrow(BeamanCameraDates)){
-    group <- subset(BeamanSpeciesData, date == BeamanCameraDates[i,1])
+    group <- BeamanSpeciesData %>% filter(date == BeamanCameraDates[i,1])
     count <- nrow(group)
     CountRaw[i] <- count
     CountAdjusted[i] <- count / BeamanCameraDates[i,2]
@@ -227,14 +227,14 @@ for (species in BeamanSpeciesList) {
   BeamanFullPeriodTotal <- sum(BeamanDailySpecies$CountAdjusted, na.rm = TRUE)
   
   # Store the full period total results for the current species
-  BeamanSpeciesFullPeriodTotal <- rbind(BeamanFullPeriodTotal, data.frame(Species = species, FullPeriodTotal = BeamanFullPeriodTotal))
+  BeamanSpeciesFullPeriodTotal <- rbind(BeamanSpeciesFullPeriodTotal, data.frame(Species = species, FullPeriodTotal = BeamanFullPeriodTotal))
 }
 
 # BELLSBEND: Loop through each species in the dataset
 for (species in BellsBendSpeciesList) {
   
-  # Subset data for the current species
-  BellsBendSpeciesData <- subset(BellsBendID, BellsBendID$species == species)
+  # Filter data for the current species
+  BellsBendSpeciesData <- BellsBendID %>% filter(BellsBendID$species == !!species)
     
   # Ensure the date column is in the correct format
   BellsBendSpeciesData$date <- as.Date(BellsBendSpeciesData$date)
@@ -249,7 +249,7 @@ for (species in BellsBendSpeciesList) {
   filter <- A - B 
   
   for(i in 1:length(BellsBendCameras)){
-  group <- subset(BellsBendSpeciesData, deployment.id == BellsBendCameras[i])
+  group <- BellsBendSpeciesData %>% filter(deployment.id == BellsBendCameras[i])
   if(nrow(group) > 1){
     for(z in 1:((nrow(group))-1)){
       diff<-group[(z+1),3] - group[z,3]
@@ -260,14 +260,14 @@ for (species in BellsBendSpeciesList) {
     }
   BellsBendFiltered <- rbind(BellsBendFiltered, group)
   }
-  BellsBendSpeciesData <- subset(BellsBendFiltered, Independent == TRUE)
+  BellsBendSpeciesData <- BellsBendFiltered %>% filter(Independent == TRUE)
   
   # Create a new data frame containing the counts of species each day
   # Also, adjust the species counts via dividing by the number of cameras; this accounts for sampling effort
   CountRaw <- vector()
   CountAdjusted<-vector()
   for(i in 1:nrow(BellsBendCameraDates)){
-    group <- subset(BellsBendSpeciesData, date == BellsBendCameraDates[i,1])
+    group <- BellsBendSpeciesData %>% filter(date == BellsBendCameraDates[i,1])
     count <- nrow(group)
     CountRaw[i] <- count
     CountAdjusted[i] <- count / BellsBendCameraDates[i,2]
@@ -294,14 +294,14 @@ for (species in BellsBendSpeciesList) {
   BellsBendFullPeriodTotal <- sum(BellsBendDailySpecies$CountAdjusted, na.rm = TRUE)
   
   # Store the full period total results for the current species
-  BellsBendSpeciesFullPeriodTotal <- rbind(BellsBendFullPeriodTotal, data.frame(Species = species, FullPeriodTotal = BellsBendFullPeriodTotal))
+  BellsBendSpeciesFullPeriodTotal <- rbind(BellsBendSpeciesFullPeriodTotal, data.frame(Species = species, FullPeriodTotal = BellsBendFullPeriodTotal))
 }
 
 # MILLCREEK: Loop through each species in the dataset
 for (species in MillCreekSpeciesList) {
   
-  # Subset data for the current species
-  MillCreekSpeciesData <- subset(MillCreekID, MillCreekID$species == species)
+  # Filter data for the current species
+  MillCreekSpeciesData <- MillCreekID %>% filter(MillCreekID$species == !!species)
   
   # Ensure the date column is in the correct format
   MillCreekSpeciesData$date <- as.Date(MillCreekSpeciesData$date)
@@ -316,7 +316,7 @@ for (species in MillCreekSpeciesList) {
   filter <- A - B
   
   for(i in 1:length(MillCreekCameras)){
-  group <- subset(MillCreekSpeciesData, deployment.id == MillCreekCameras[i])
+  group <- MillCreekSpeciesData %>% filter(deployment.id == MillCreekCameras[i])
   if(nrow(group) > 1){
     for(z in 1:((nrow(group))-1)){
       diff<-group[(z+1),3] - group[z,3]
@@ -327,14 +327,14 @@ for (species in MillCreekSpeciesList) {
     }
   MillCreekFiltered <- rbind(MillCreekFiltered, group)
   }
-  MillCreekSpeciesData <- subset(MillCreekFiltered, Independent == TRUE)
+  MillCreekSpeciesData <- MillCreekFiltered %>% filter(Independent == TRUE)
   
   # Create a new data frame containing the counts of species each day
   # Also, adjust the species counts via dividing by the number of cameras; this accounts for sampling effort
   CountRaw <- vector()
   CountAdjusted<-vector()
   for(i in 1:nrow(MillCreekCameraDates)){
-    group <- subset(MillCreekSpeciesData, date == MillCreekCameraDates[i,1])
+    group <- MillCreekSpeciesData %>% filter(date == MillCreekCameraDates[i,1])
     count <- nrow(group)
     CountRaw[i] <- count
     CountAdjusted[i] <- count / MillCreekCameraDates[i,2]
@@ -361,27 +361,32 @@ for (species in MillCreekSpeciesList) {
   MillCreekFullPeriodTotal <- sum(MillCreekDailySpecies$CountAdjusted, na.rm = TRUE)
   
   # Store the full period total results for the current species
-  MillCreekSpeciesFullPeriodTotal <- rbind(MillCreekFullPeriodTotal, data.frame(Species = species, FullPeriodTotal = MillCreekFullPeriodTotal))
+  MillCreekSpeciesFullPeriodTotal <- rbind(MillCreekSpeciesFullPeriodTotal, data.frame(Species = species, FullPeriodTotal = MillCreekFullPeriodTotal))
 }
-```
-```{r}
-# REWRITING THE PREVIOUS CODE CHUNK WITH TIDYVERSE
-# Create a function to process data for each park
-process_species_data <- function(id, camera_dates) {
-  
-}
-```
 
+# Add column with park name before combining similar park data frames
+BeamanSpeciesResults$ParkName <- "Alvin G. Beaman Park"
+BellsBendSpeciesResults$ParkName <- "Bells Bend Park"
+MillCreekSpeciesResults$ParkName <- "Mill Creek Park"
 
-## Preparing data before ANOVA -> NOT YET COMPLETE
+BeamanSpeciesMonthlyTotals$ParkName <- "Alvin G. Beaman Park"
+BellsBendSpeciesMonthlyTotals$ParkName <- "Bells Bend Park"
+MillCreekSpeciesMonthlyTotals$ParkName <- "Mill Creek Park"
 
-This section includes...
+BeamanSpeciesFullPeriodTotal$ParkName <- "Alvin G. Beaman Park"
+BellsBendSpeciesFullPeriodTotal$ParkName <- "Bells Bend Park"
+MillCreekSpeciesFullPeriodTotal$ParkName <- "Mill Creek Park"
 
-```{r}
-# Combine data into a long-format data frame
-AllSpeciesData <- bind_rows(BeamanSpeciesResults, BellsBendSpeciesResults, MillCreekSpeciesResults)
-
-# Check dependent variables are numeric
+# Combine the similar park data sets
+CombinedSpeciesResults <- bind_rows(BeamanSpeciesResults,
+                                    BellsBendSpeciesResults,
+                                    MillCreekSpeciesResults)
+CombinedMonthlyTotals <- bind_rows(BeamanSpeciesMonthlyTotals,
+                                   BellsBendSpeciesMonthlyTotals,
+                                   MillCreekSpeciesMonthlyTotals)
+CombinedFullPeriodTotals <- bind_rows(BeamanSpeciesFullPeriodTotal,
+                                      BellsBendSpeciesFullPeriodTotal,
+                                      MillCreekSpeciesFullPeriodTotal)
 ```
 
 
@@ -397,19 +402,19 @@ parks <- st_read('~/ByndlossLiWilliams/Data/Raw/Parks_Properties.shp')
 unique(parks$Name)
 
 # Filter for each park
-BeamanPark <- parks %>%
+BeamanAttributes <- parks %>%
   filter(Name == "Alvin G. Beaman Park")
 
-BellsBendPark <- parks %>%
+BellsBendAttributes <- parks %>%
   filter(Name == "Bells Bend Park")
 
-MillCreekPark <- parks %>%
+MillCreekAttributes <- parks %>%
   filter(Name == "Mill Creek Park")
 
-CombinedParks <- rbind(BeamanPark, BellsBendPark, MillCreekPark)
+CombinedParkAttributes <- rbind(BeamanAttributes, BellsBendAttributes, MillCreekAttributes)
 
 # Check to ensure the data frames are correct by mapping them
-mapView(BeamanPark) + mapView(BellsBendPark) + mapView(MillCreekPark)
+mapView(BeamanAttributes) + mapView(BellsBendAttributes) + mapView(MillCreekAttributes)
 ```
 
 ## Save Processed Data !STILL WORKING ON THIS SECTION!
