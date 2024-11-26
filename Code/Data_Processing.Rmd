@@ -13,6 +13,7 @@ Before uploading any data sets into RStudio, the relevant csv files were examine
 library(lubridate)
 library(plyr)
 library(dplyr)
+library(tidyverse)
 library(zoo)
 library(sf)
 library(here)
@@ -364,7 +365,11 @@ for (species in MillCreekSpeciesList) {
 }
 ```
 ```{r}
-
+# REWRITING THE PREVIOUS CODE CHUNK WITH TIDYVERSE
+# Create a function to process data for each park
+process_species_data <- function(id, camera_dates) {
+  
+}
 ```
 
 
