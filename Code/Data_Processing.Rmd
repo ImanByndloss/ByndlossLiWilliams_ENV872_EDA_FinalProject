@@ -7,6 +7,19 @@ date: "2024-11-05"
 Before uploading any data sets into RStudio, the relevant csv files were examined in Excel. The two csv files used in this project are from Prof. Malu Jorge at Vanderbilt University. Prof. Malu Jorge identifies one of the longest time periods of consistent data collection by her lab at multiple parks being from 06/28/2021 to 05/19/22. Although nine parks are listed within "cluster.name" of "Wildlife Insights (2021-2022).csv", only three parks cover the majority of the aforementioned time period based on the earliest "start_date" and latest "end_date" for each park in "All Deployments (2019-2022).csv". Those parks include Beaman (06/29/2021-12/31/2022), Bells Bend (06/28/2021-05/19/2022), and Mills Creek(07/20/2021-04/23/2022). To establish a consistent study period for this project in accordance with these three parks, the following time period will be used: 07/20/2021-4/23/2022 (278 days). The following two data sets created from these csv files will have to be filtered to include only the data associated with each of these parks for the chosen time period. 
 
 
+## Set up, loading packages
+```{r}
+# Load all relevant packages
+library(lubridate)
+library(plyr)
+library(dplyr)
+library(zoo)
+library(sf)
+library(here)
+library(mapview)
+```
+
+
 ## Wildlife IDs from Prof. Malu Jorge's Lab at Vanderbilt University
 
 This section includes already identified camera trap data collected within nine local parks in Nashville, TN (including Beaman, Bells Bend, Blue Hole, Edwin Warner, Ellington, Hill Forest, Mill Creek, Percy Warner) from 06/28/2021 to 12/31/2022 (551 days). During this study period, GardePro A3, Browning Strike Force HD ProX, and HAPIMP PH770-8D trail cameras were used; these models have motion detectors and were programmed to have a delay between consecutive triggers.
@@ -16,15 +29,12 @@ This section includes already identified camera trap data collected within nine 
 id2021to2022 <- read.csv("~/ByndlossLiWilliams/Data/Raw/Wildlife Insights (2021-2022).csv")
 
 # Establish the format of the date and time column
-library(lubridate)
 id2021to2022$date.time <- parse_date_time(id2021to2022$date.time, orders = c("m/d/Y H:M"))
 
 # Add columns for date and hour independently
 id2021to2022$date<-date(id2021to2022$date.time)
 id2021to2022$hour<-hour(id2021to2022$date.time)
 
-library(plyr)
-library(dplyr)
 BeamanID <- id2021to2022 %>%
   filter(cluster.name == "beaman")
 
@@ -147,9 +157,6 @@ MillCreekSpeciesResults <- data.frame()
 MillCreekSpeciesMonthlyTotals <- data.frame()
 MillCreekSpeciesFullPeriodTotal <- data.frame(Species = character(), FullPeriodTotal = numeric())
 
-# Load additional relevant package
-library(zoo)
-
 # BEAMAN: Loop through each species in the data set
 for (species in BeamanSpeciesList) {
   
@@ -159,15 +166,20 @@ for (species in BeamanSpeciesList) {
   # Ensure the date column is in the correct format
   BeamanSpeciesData$date <- as.Date(BeamanSpeciesData$date)
   
-  # Filter by every hour
+  # Prepare for filtering by every hour by...
+  # establishing new data frames for camera deployments and filtered data 
+  # ensuring only independent records of species data are kept
   BeamanCameras <- levels(as.factor(BeamanSpeciesData$deployment.id))
   BeamanSpeciesData$Independent<-TRUE
   BeamanFiltered <- data.frame()
   
+  # Calculate time differences to filter data, 
+  # defining a 1-hour interval to identify independent observations
   A <- strptime("2:30", format = "%H:%M")
   B <- strptime("1:30", format = "%H:%M")
   filter <- A - B
-    
+  
+  # Iterate through each camera and filter records  
   for(i in 1:length(BeamanCameras)){
   group <- subset(BeamanSpeciesData, deployment.id == BeamanCameras[i])
   if(nrow(group) > 1){
@@ -182,7 +194,7 @@ for (species in BeamanSpeciesList) {
   }
   BeamanSpeciesData <- subset(BeamanFiltered, Independent == TRUE)
     
-  # Create a new data frame containing the counts of species each day
+  # Create a new data frame containing the counts of species each day, accounting for the number of active cameras (i.e., sampling effort)
   # Also, adjust the species counts via dividing by the number of cameras; this accounts for sampling effort
   CountRaw <- vector()
   CountAdjusted<-vector()
@@ -351,6 +363,9 @@ for (species in MillCreekSpeciesList) {
   MillCreekSpeciesFullPeriodTotal <- rbind(MillCreekFullPeriodTotal, data.frame(Species = species, FullPeriodTotal = MillCreekFullPeriodTotal))
 }
 ```
+```{r}
+
+```
 
 
 ## Preparing data before ANOVA -> NOT YET COMPLETE
@@ -371,9 +386,6 @@ This section includes spatial data on parks in Nashville, TN (retrieved from Nas
 
 ```{r}
 # Read the shapefile into a  dataframe
-library(sf)
-library(here)
-library(mapview)
 parks <- st_read('~/ByndlossLiWilliams/Data/Raw/Parks_Properties.shp')
 
 # Check for unique park names to ensure correct name for upcoming filter
