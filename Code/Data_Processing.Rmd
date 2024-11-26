@@ -135,7 +135,7 @@ MillCreekCameraDates <- data.frame(Days, MillCreekCameraCount)
 ```
 
 
-## Daily Species Data (filtered, adjusted, and totals) -> STILL NOT WORKING PROPERLY
+## Daily Species Data (filtered, adjusted, and totals)
 
 This section includes 1) filtering by hour, 2) adjusting counts based on sampling effort, and 3) calculating monthly and full period totals in wildlife IDs. To explain, first, the daily wildlife IDs for each species must be filtered by hour at every camera trap separately to remove repeated counts of the same individual(s). Second, to account for sampling effort, the daily wildlife IDs for each species need to be divided by the number of cameras out each day to standardize the data. Third, monthly and full time period totals are calculated to compare data between parks; in this case, totals can be used rather than averages or rolling averages since sampling effort is already accounted for, a consistent time period is already established across parks, and counts are not guaranteed each day.
 
@@ -148,15 +148,15 @@ MillCreekSpeciesList <- unique(MillCreekID$species)
 # Establish an empty data frame to store the results and totals
 BeamanSpeciesResults <- data.frame()
 BeamanSpeciesMonthlyTotals <- data.frame()
-BeamanSpeciesFullPeriodTotal <- data.frame(Species = character(), FullPeriodTotal = numeric())
+BeamanSpeciesFullPeriodTotal <- data.frame(Species = character(), CountAdjusted = numeric())
 
 BellsBendSpeciesResults <- data.frame()
 BellsBendSpeciesMonthlyTotals <- data.frame()
-BellsBendSpeciesFullPeriodTotal <- data.frame(Species = character(), FullPeriodTotal = numeric())
+BellsBendSpeciesFullPeriodTotal <- data.frame(Species = character(), CountAdjusted = numeric())
 
 MillCreekSpeciesResults <- data.frame()
 MillCreekSpeciesMonthlyTotals <- data.frame()
-MillCreekSpeciesFullPeriodTotal <- data.frame(Species = character(), FullPeriodTotal = numeric())
+MillCreekSpeciesFullPeriodTotal <- data.frame(Species = character(), CountAdjusted = numeric())
 
 # BEAMAN: Loop through each species in the data set
 for (species in BeamanSpeciesList) {
@@ -227,7 +227,7 @@ for (species in BeamanSpeciesList) {
   BeamanFullPeriodTotal <- sum(BeamanDailySpecies$CountAdjusted, na.rm = TRUE)
   
   # Store the full period total results for the current species
-  BeamanSpeciesFullPeriodTotal <- rbind(BeamanSpeciesFullPeriodTotal, data.frame(Species = species, FullPeriodTotal = BeamanFullPeriodTotal))
+  BeamanSpeciesFullPeriodTotal <- rbind(BeamanSpeciesFullPeriodTotal, data.frame(Species = species, CountAdjusted = BeamanFullPeriodTotal))
 }
 
 # BELLSBEND: Loop through each species in the dataset
@@ -294,7 +294,7 @@ for (species in BellsBendSpeciesList) {
   BellsBendFullPeriodTotal <- sum(BellsBendDailySpecies$CountAdjusted, na.rm = TRUE)
   
   # Store the full period total results for the current species
-  BellsBendSpeciesFullPeriodTotal <- rbind(BellsBendSpeciesFullPeriodTotal, data.frame(Species = species, FullPeriodTotal = BellsBendFullPeriodTotal))
+  BellsBendSpeciesFullPeriodTotal <- rbind(BellsBendSpeciesFullPeriodTotal, data.frame(Species = species, CountAdjusted = BellsBendFullPeriodTotal))
 }
 
 # MILLCREEK: Loop through each species in the dataset
@@ -361,7 +361,7 @@ for (species in MillCreekSpeciesList) {
   MillCreekFullPeriodTotal <- sum(MillCreekDailySpecies$CountAdjusted, na.rm = TRUE)
   
   # Store the full period total results for the current species
-  MillCreekSpeciesFullPeriodTotal <- rbind(MillCreekSpeciesFullPeriodTotal, data.frame(Species = species, FullPeriodTotal = MillCreekFullPeriodTotal))
+  MillCreekSpeciesFullPeriodTotal <- rbind(MillCreekSpeciesFullPeriodTotal, data.frame(Species = species, CountAdjusted = MillCreekFullPeriodTotal))
 }
 
 # Add column with park name before combining similar park data frames
@@ -417,8 +417,24 @@ CombinedParkAttributes <- rbind(BeamanAttributes, BellsBendAttributes, MillCreek
 mapView(BeamanAttributes) + mapView(BellsBendAttributes) + mapView(MillCreekAttributes)
 ```
 
-## Save Processed Data !STILL WORKING ON THIS SECTION!
-```{r}
 
+## Save Processed Data
+```{r}
+# Save and rename the final processed data
+write.csv(CombinedSpeciesResults, 
+          row.names = FALSE, 
+          file = "./Data/Processed/Daily_Species_Counts.csv")
+
+write.csv(CombinedMonthlyTotals, 
+          row.names = FALSE, 
+          file = "./Data/Processed/Monthly_Species_Counts.csv")
+
+write.csv(CombinedFullPeriodTotals, 
+          row.names = FALSE, 
+          file = "./Data/Processed/Full_Period_Species_Counts.csv")
+
+write.csv(CombinedParkAttributes, 
+          row.names = FALSE, 
+          file = "./Data/Processed/Park_Attributes.csv")
 ```
 
