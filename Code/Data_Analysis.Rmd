@@ -24,8 +24,36 @@ Daily_Species_Count.data <- read.csv(
   stringsAsFactors = TRUE) 
 ```
 
+#Two-way ANOVA Test
+
+```{r, First ANOVA, message = FALSE, warning=FALSE}
+# Perform the two-way ANOVA with interaction
+first_anova_result <- aov(CountAdjusted ~ ParkName * Species, data = Daily_Species_Count.data)
+
+# View the ANOVA summary
+summary(first_anova_result)
 
 
+```
 
+>ANOVA Result Interpretation:
+>The two-way ANOVA analysis here evaluated the effects of park location and species type, as well as their interaction, on species activity levels (measured as adjusted counts). The results revealed a significant main effect of park location (F=99.91, p<0.001), indicating that species activity levels varied significantly between parks. Similarly, a highly significant main effect was observed for species type (F=142.86, p<0.001), suggesting that the activity levels differed substantially across the species studied.
 
+>In addition to the main effects, the interaction between park location and species type was also significant (F=127.19, p<0.001). This finding highlights that the effect of park location on species activity is not consistent across all species. In other words, the differences in species activity levels between parks are influenced by the specific species being observed.
 
+>These results suggest that both park-specific factors (e.g., habitat type, management practices) and species-specific traits (e.g., behavior, ecological preferences) play critical roles in determining activity levels. Moreover, the significant interaction effect emphasizes the importance of considering the combined influence of these two factors when analyzing species activity patterns.
+
+## Post-Hoc Test
+
+```{r, Post-Hoc Test after ANOVA, message = FALSE, warning=FALSE}
+# If the interaction term is significant, perform a post-hoc test
+Daily_Species_Count.data$ParkName <- as.factor(Daily_Species_Count.data$ParkName)
+Daily_Species_Count.data$Species <- as.factor(Daily_Species_Count.data$Species)
+
+# Tukey's HSD test for the interaction term (ParkName * Species)
+library(agricolae)
+tukey_result <- TukeyHSD(first_anova_result, "ParkName:Species")
+
+# View Tukey's test results
+print(tukey_result)
+```
