@@ -22,9 +22,13 @@ library(ggplot2)
 Daily_Species_Count.data <- read.csv(
   file = here("./Data/Processed/Daily_Species_Counts.csv"),
   stringsAsFactors = TRUE) 
+
+Monthly_Species_Count.data <- read.csv(
+  file = here("./Data/Processed/Monthly_Species_Counts.csv"),
+  stringsAsFactors = TRUE) 
 ```
 
-#Two-way ANOVA Test
+#Two-way ANOVA Test - Daily Species Activity and Parks
 
 ```{r, First ANOVA, message = FALSE, warning=FALSE}
 # Perform the two-way ANOVA with interaction
@@ -37,6 +41,7 @@ summary(first_anova_result)
 ```
 
 >ANOVA Result Interpretation:
+
 >The two-way ANOVA analysis here evaluated the effects of park location and species type, as well as their interaction, on species activity levels (measured as adjusted counts). The results revealed a significant main effect of park location (F=99.91, p<0.001), indicating that species activity levels varied significantly between parks. Similarly, a highly significant main effect was observed for species type (F=142.86, p<0.001), suggesting that the activity levels differed substantially across the species studied.
 
 >In addition to the main effects, the interaction between park location and species type was also significant (F=127.19, p<0.001). This finding highlights that the effect of park location on species activity is not consistent across all species. In other words, the differences in species activity levels between parks are influenced by the specific species being observed.
@@ -77,3 +82,54 @@ head(significant_tukey, 10)
 
 >4. Notable Inter-Park Variation in Woodchuck Activity: The activity of "Woodchucks" was significantly lower in Alvin G. Beaman Park compared to Bells Bend Park (diff = -1.33, 95% CI [-1.51, -1.15], p adj < 0.001). This highlights how habitat differences between parks may influence the presence or detectability of certain species.  Interpretation: These results reveal substantial variation in species activity both within and between parks. Certain species, such as "Nine-banded Armadillos" and "White-tailed Deer," exhibit pronounced activity trends influenced by the park's environmental conditions. The findings emphasize the importance of localized habitat characteristics and interspecies dynamics in shaping activity patterns.
 
+#Two-way ANOVA Test - Monthly Species Activity and Parks
+
+```{r, Second ANOVA, message = FALSE, warning=FALSE}
+# Perform the two-way ANOVA with interaction
+second_anova_result <- aov(CountAdjusted ~ ParkName * Species, data = Monthly_Species_Count.data)
+
+# View the ANOVA summary
+summary(second_anova_result)
+```
+
+>ANOVA Result Interpretation:
+
+>The main effect of ParkName was significant (F = 11.81, p = 1.11e-05), indicating that monthly species activity levels vary significantly across different parks. This suggests that environmental factors, habitat characteristics, or management practices unique to each park contribute to these differences.
+
+>Similarly, the main effect of Species was highly significant (F = 16.88, p < 2e-16), demonstrating that monthly activity levels differ substantially among species. This finding reflects species-specific behavior, ecological preferences, or adaptability to certain environments.
+
+>The interaction effect between ParkName and Species was also highly significant (F = 15.03, p < 2e-16). This indicates that the effect of park location on activity levels depends on the species observed, and vice versa. For instance, certain parks may be more conducive to higher activity levels for specific species due to habitat suitability or species-specific ecological requirements.
+
+## Post-Hoc Test
+
+```{r, Post-Hoc Test after second ANOVA, message = FALSE, warning=FALSE}
+# If the interaction term is significant, perform a post-hoc test
+Monthly_Species_Count.data$ParkName <- as.factor(Monthly_Species_Count.data$ParkName)
+Monthly_Species_Count.data$Species <- as.factor(Monthly_Species_Count.data$Species)
+
+# Tukey's HSD test for the interaction term (ParkName * Species)
+library(agricolae)
+second_tukey_result <- TukeyHSD(second_anova_result, "ParkName:Species")
+
+# Extract significant results
+second_tukey_df <- as.data.frame(second_tukey_result$`ParkName:Species`)
+second_tukey_df$Comparison <- rownames(second_tukey_result$`ParkName:Species`)
+rownames(tukey_df) <- NULL
+
+# Filter significant comparisons
+second_significant_tukey <- subset(second_tukey_df, `p adj` < 0.05)
+
+# Print the top 10 significant results
+head(second_significant_tukey, 10)
+
+```
+
+>Post-Hoc Result Interpretation
+
+>The Tukey test results on the monthly species activity dataset reveal significant differences in activity levels between species and parks. For instance, the activity of "Eastern Gray Squirrel" in Mill Creek Park was significantly higher compared to "American Beaver" in Bells Bend Park (difference: 50.58, 95% confidence interval: [36.02, 65.14], adjusted p-value: < 0.001). Similarly, "White-tailed Deer" in Bells Bend Park exhibited significantly higher activity compared to "American Beaver" in the same park (difference: 36.93, 95% confidence interval: [22.37, 51.49], adjusted p-value: < 0.001).
+
+>Within Bells Bend Park, "White-tailed Deer" consistently showed higher activity levels compared to other species. For example, their activity was significantly greater than "Bobcat" (difference: 34.83, 95% confidence interval: [20.27, 49.39], adjusted p-value: < 0.001) and "Virginia Opossum" (difference: 36.43, 95% confidence interval: [22.17, 50.99], adjusted p-value: < 0.001). These results indicate that "White-tailed Deer" dominate activity levels within this park.
+
+>Interspecies comparisons across parks also highlighted notable patterns. The activity of "Virginia Opossum" in Bells Bend Park was significantly lower than "Eastern Gray Squirrel" in Mill Creek Park (difference: -47.67, 95% confidence interval: [-62.22, -33.11], adjusted p-value: < 0.001). Similarly, within Mill Creek Park, "White-tailed Deer" showed higher activity compared to "Muskrat" (difference: 36.68, 95% confidence interval: [22.12, 51.24], adjusted p-value: < 0.001).
+
+>Overall, species such as "Eastern Gray Squirrel" in Mill Creek Park and "White-tailed Deer" in Bells Bend Park exhibited the highest activity levels. This may be attributed to favorable environmental conditions or species-specific behaviors in these parks. Conversely, species like "Virginia Opossum" and "American Beaver" consistently exhibited lower activity levels. These findings suggest that ecological or habitat-specific factors significantly influence species activity patterns across parks.
