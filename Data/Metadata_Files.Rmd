@@ -1,0 +1,55 @@
+---
+title: "Metadata Files"
+output: html_document
+date: "2024-11-30"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, loading packages, message=F, warning=F}
+
+# Load libraries
+library(readr)
+library(httr)
+
+# Load the dataset
+file_path <- "./Data/Raw/Wildlife Insights (2021-2022).csv"
+wildlife_data <- read_csv(file_path)
+
+file_path <- "./Data/Raw/All Deployments (2019-2022).csv"
+deployment_data <- read_csv(file_path)
+```
+
+#Metadata for Wildlife Insights.csv
+
+```{r, metadata info, message=FALSE, warning=FALSE}
+
+# Create Metadata
+metadata_wildlife_insights <- list(
+  Source = "xxx", #Need details on this
+  Description = "Dataset detailing wildlife insights from 2021 to 2022.",
+  Columns = colnames(wildlife_data),
+  Data_Types = sapply(wildlife_data, class),
+  Summary_Stats = summary(wildlife_data)
+)
+
+
+```
+
+#Metadata for All Deployments (2019-2022).csv
+
+```{r, metadata info, message=FALSE, warning=FALSE}
+
+# Create Metadata
+metadata_all_deployments <- list(
+  Source = "xxx", #Need details on this
+  Description = "Dataset of deployment IDs with their start and end dates.",
+  Columns = colnames(deployment_data),
+  Data_Types = sapply(deployment_data, class),
+  Summary_Stats = summary(deployment_data)
+)
+
+```
+
