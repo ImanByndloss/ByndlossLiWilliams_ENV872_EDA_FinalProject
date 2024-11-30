@@ -54,6 +54,26 @@ Daily_Species_Count.data$Species <- as.factor(Daily_Species_Count.data$Species)
 library(agricolae)
 tukey_result <- TukeyHSD(first_anova_result, "ParkName:Species")
 
-# View Tukey's test results
-print(tukey_result)
+# Extract significant results
+tukey_df <- as.data.frame(tukey_result$`ParkName:Species`)
+tukey_df$Comparison <- rownames(tukey_result$`ParkName:Species`)
+rownames(tukey_df) <- NULL
+
+# Filter significant comparisons
+significant_tukey <- subset(tukey_df, `p adj` < 0.05)
+
+# Print the top 10 significant results
+head(significant_tukey, 10)
+
 ```
+
+>Post-Hoc Result Interpretation
+
+>1. Species Differences Between Parks: The activity of "Nine-banded Armadillos" exhibited notable variation between parks.  For instance, their activity was significantly lower in Bells Bend Park compared to Mill Creek Park # (diff = -1.53, 95% CI [-1.71, -1.35], p adj < 0.001). Similarly, their activity in Alvin G. Beaman Park was also significantly lower compared to Mill Creek Park  (diff = -1.81, 95% CI [-1.99, -1.63], p adj < 0.001). These results suggest that the habitat or environmental factors in Mill Creek Park are more conducive to higher activity levels for this species.
+
+>2.Within-Park Differences Between Species: In Mill Creek Park, "Muskrat" activity was significantly lower than that of "Eastern Gray Squirrels" (diff = -1.81, 95% CI [-1.99, -1.63], p adj < 0.001). This could indicate competitive dynamics, differences in habitat preference,  or time-specific activity patterns between these species.
+
+>3. Activity Peaks for White-Tailed Deer: The White-tailed Deer in Bells Bend Park showed significantly higher activity compared to other species within the park (diff = 1.15, 95% CI [0.97, 1.32], p adj < 0.001). This finding suggests that this species might be particularly dominant in this park, potentially due to favorable environmental or ecological conditions.
+
+>4. Notable Inter-Park Variation in Woodchuck Activity: The activity of "Woodchucks" was significantly lower in Alvin G. Beaman Park compared to Bells Bend Park (diff = -1.33, 95% CI [-1.51, -1.15], p adj < 0.001). This highlights how habitat differences between parks may influence the presence or detectability of certain species.  Interpretation: These results reveal substantial variation in species activity both within and between parks. Certain species, such as "Nine-banded Armadillos" and "White-tailed Deer," exhibit pronounced activity trends influenced by the park's environmental conditions. The findings emphasize the importance of localized habitat characteristics and interspecies dynamics in shaping activity patterns.
+
