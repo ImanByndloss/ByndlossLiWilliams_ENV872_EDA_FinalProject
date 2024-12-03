@@ -377,6 +377,7 @@ BeamanSpeciesFullPeriodTotal$ParkName <- "Alvin G. Beaman Park"
 BellsBendSpeciesFullPeriodTotal$ParkName <- "Bells Bend Park"
 MillCreekSpeciesFullPeriodTotal$ParkName <- "Mill Creek Park"
 
+<<<<<<< HEAD
 # Combine the similar park data sets
 CombinedSpeciesResults <- bind_rows(BeamanSpeciesResults,
                                     BellsBendSpeciesResults,
@@ -387,6 +388,17 @@ CombinedMonthlyTotals <- bind_rows(BeamanSpeciesMonthlyTotals,
 CombinedFullPeriodTotals <- bind_rows(BeamanSpeciesFullPeriodTotal,
                                       BellsBendSpeciesFullPeriodTotal,
                                       MillCreekSpeciesFullPeriodTotal)
+=======
+```{r}
+# Combine data into a long-format data frame
+AllSpeciesData <- bind_rows(BeamanSpeciesResults, BellsBendSpeciesResults, MillCreekSpeciesResults)
+
+# Check dependent variables are numeric
+
+class(AllSpeciesData$CountRaw)
+class(AllSpeciesData$CountAdjusted)
+
+>>>>>>> 2582bc1 (Checked class of dependent variables.)
 ```
 
 
@@ -411,7 +423,12 @@ BellsBendAttributes <- parks %>%
 MillCreekAttributes <- parks %>%
   filter(Name == "Mill Creek Park")
 
+<<<<<<< HEAD
 CombinedParkAttributes <- rbind(BeamanAttributes, BellsBendAttributes, MillCreekAttributes)
+=======
+# Combined target park data frames
+CombinedParks <- rbind(BeamanPark, BellsBendPark, MillCreekPark)
+>>>>>>> 2582bc1 (Checked class of dependent variables.)
 
 # Check to ensure the data frames are correct by mapping them
 mapView(BeamanAttributes) + mapView(BellsBendAttributes) + mapView(MillCreekAttributes)
