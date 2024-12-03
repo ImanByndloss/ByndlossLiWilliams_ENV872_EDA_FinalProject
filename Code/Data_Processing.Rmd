@@ -377,7 +377,6 @@ BeamanSpeciesFullPeriodTotal$ParkName <- "Alvin G. Beaman Park"
 BellsBendSpeciesFullPeriodTotal$ParkName <- "Bells Bend Park"
 MillCreekSpeciesFullPeriodTotal$ParkName <- "Mill Creek Park"
 
-<<<<<<< HEAD
 # Combine the similar park data sets
 CombinedSpeciesResults <- bind_rows(BeamanSpeciesResults,
                                     BellsBendSpeciesResults,
@@ -388,7 +387,8 @@ CombinedMonthlyTotals <- bind_rows(BeamanSpeciesMonthlyTotals,
 CombinedFullPeriodTotals <- bind_rows(BeamanSpeciesFullPeriodTotal,
                                       BellsBendSpeciesFullPeriodTotal,
                                       MillCreekSpeciesFullPeriodTotal)
-=======
+```
+
 ```{r}
 # Combine data into a long-format data frame
 AllSpeciesData <- bind_rows(BeamanSpeciesResults, BellsBendSpeciesResults, MillCreekSpeciesResults)
