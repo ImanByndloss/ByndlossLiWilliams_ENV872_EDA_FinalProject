@@ -133,3 +133,10 @@ head(second_significant_tukey, 10)
 >Interspecies comparisons across parks also highlighted notable patterns. The activity of "Virginia Opossum" in Bells Bend Park was significantly lower than "Eastern Gray Squirrel" in Mill Creek Park (difference: -47.67, 95% confidence interval: [-62.22, -33.11], adjusted p-value: < 0.001). Similarly, within Mill Creek Park, "White-tailed Deer" showed higher activity compared to "Muskrat" (difference: 36.68, 95% confidence interval: [22.12, 51.24], adjusted p-value: < 0.001).
 
 >Overall, species such as "Eastern Gray Squirrel" in Mill Creek Park and "White-tailed Deer" in Bells Bend Park exhibited the highest activity levels. This may be attributed to favorable environmental conditions or species-specific behaviors in these parks. Conversely, species like "Virginia Opossum" and "American Beaver" consistently exhibited lower activity levels. These findings suggest that ecological or habitat-specific factors significantly influence species activity patterns across parks.
+
+```{r}
+#Draft plots, will fix as needed 
+
+#Most common species from monthly data
+ggplot(Monthly_Species_Count.data, aes(x=Species, y=CountAdjusted)) +geom_bar(stat = "identity")
+```
