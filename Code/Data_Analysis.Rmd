@@ -138,5 +138,5 @@ head(second_significant_tukey, 10)
 #Draft plots, will fix as needed 
 
 #Most common species from monthly data
-ggplot(Monthly_Species_Count.data, aes(x=Species, y=CountAdjusted)) +geom_bar(stat = "identity")
+ggplot(Monthly_Species_Count.data, aes(x=Species, y=CountAdjusted)) +geom_bar(stat = "identity") +facet_wrap(~ ParkName)
 ```
