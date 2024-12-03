@@ -138,5 +138,12 @@ head(second_significant_tukey, 10)
 #Draft plots, will fix as needed 
 
 #Most common species from monthly data
-ggplot(Monthly_Species_Count.data, aes(x=Species, y=CountAdjusted)) +geom_bar(stat = "identity") +facet_wrap(~ ParkName)
+ggplot(Monthly_Species_Count.data, aes(x=Species, y=CountAdjusted, fill=Species)) +geom_bar(stat = "identity") +facet_wrap(~ ParkName) + theme(legend.text = element_text(size = 6),        # Smaller legend text
+        legend.title = element_text(size = 8),       # Smaller legend title
+        legend.key.size = unit(0.5, "cm"),            # Smaller legend keys (color boxes)
+        legend.key.width = unit(1, "cm"),             # Adjust width of legend keys
+        legend.position = "bottom",                   # Move legend to the bottom
+        legend.spacing = unit(0.3, "cm"),axis.title.x = element_blank(),               # Remove x-axis label
+    axis.text.x = element_blank() ) +
+  labs(y = "Species Count")
 ```
