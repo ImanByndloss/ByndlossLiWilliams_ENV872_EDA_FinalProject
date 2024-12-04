@@ -19,12 +19,16 @@ library(here)
 library(ggplot2)
 
 #Upload species dataset
-Daily_Species_Count.data <- read.csv(
+Daily_Species_Counts <- read.csv(
   file = here("./Data/Processed/Daily_Species_Counts.csv"),
   stringsAsFactors = TRUE) 
 
-Monthly_Species_Count.data <- read.csv(
+Monthly_Species_Counts <- read.csv(
   file = here("./Data/Processed/Monthly_Species_Counts.csv"),
+  stringsAsFactors = TRUE) 
+
+Full_Period_Species_Counts <- read.csv(
+  file = here("./Data/Processed/Full_Period_Species_Counts.csv"),
   stringsAsFactors = TRUE) 
 ```
 
@@ -32,12 +36,10 @@ Monthly_Species_Count.data <- read.csv(
 
 ```{r, First ANOVA, message = FALSE, warning=FALSE}
 # Perform the two-way ANOVA with interaction
-first_anova_result <- aov(CountAdjusted ~ ParkName * Species, data = Daily_Species_Count.data)
+daily_anova_result <- aov(CountAdjusted ~ ParkName * Species, data = Daily_Species_Counts)
 
 # View the ANOVA summary
-summary(first_anova_result)
-
-
+summary(daily_anova_result)
 ```
 
 >ANOVA Result Interpretation:
@@ -52,24 +54,23 @@ summary(first_anova_result)
 
 ```{r, Post-Hoc Test after ANOVA, message = FALSE, warning=FALSE}
 # If the interaction term is significant, perform a post-hoc test
-Daily_Species_Count.data$ParkName <- as.factor(Daily_Species_Count.data$ParkName)
-Daily_Species_Count.data$Species <- as.factor(Daily_Species_Count.data$Species)
+Daily_Species_Counts$ParkName <- as.factor(Daily_Species_Counts$ParkName)
+Daily_Species_Counts$Species <- as.factor(Daily_Species_Counts$Species)
 
 # Tukey's HSD test for the interaction term (ParkName * Species)
 library(agricolae)
-tukey_result <- TukeyHSD(first_anova_result, "ParkName:Species")
+daily_tukey_result <- TukeyHSD(daily_anova_result, "ParkName:Species")
 
 # Extract significant results
-tukey_df <- as.data.frame(tukey_result$`ParkName:Species`)
-tukey_df$Comparison <- rownames(tukey_result$`ParkName:Species`)
-rownames(tukey_df) <- NULL
+daily_tukey_df <- as.data.frame(daily_tukey_result$`ParkName:Species`)
+daily_tukey_df$Comparison <- rownames(daily_tukey_result$`ParkName:Species`)
+rownames(daily_tukey_df) <- NULL
 
 # Filter significant comparisons
-significant_tukey <- subset(tukey_df, `p adj` < 0.05)
+daily_significant_tukey <- subset(daily_tukey_df, `p adj` < 0.05)
 
 # Print the top 10 significant results
-head(significant_tukey, 10)
-
+head(daily_significant_tukey, 10)
 ```
 
 >Post-Hoc Result Interpretation
@@ -86,10 +87,10 @@ head(significant_tukey, 10)
 
 ```{r, Second ANOVA, message = FALSE, warning=FALSE}
 # Perform the two-way ANOVA with interaction
-second_anova_result <- aov(CountAdjusted ~ ParkName * Species, data = Monthly_Species_Count.data)
+monthly_anova_result <- aov(CountAdjusted ~ ParkName * Species, data = Monthly_Species_Counts)
 
 # View the ANOVA summary
-summary(second_anova_result)
+summary(monthly_anova_result)
 ```
 
 >ANOVA Result Interpretation:
@@ -104,24 +105,23 @@ summary(second_anova_result)
 
 ```{r, Post-Hoc Test after second ANOVA, message = FALSE, warning=FALSE}
 # If the interaction term is significant, perform a post-hoc test
-Monthly_Species_Count.data$ParkName <- as.factor(Monthly_Species_Count.data$ParkName)
-Monthly_Species_Count.data$Species <- as.factor(Monthly_Species_Count.data$Species)
+Monthly_Species_Counts$ParkName <- as.factor(Monthly_Species_Counts$ParkName)
+Monthly_Species_Counts$Species <- as.factor(Monthly_Species_Counts$Species)
 
 # Tukey's HSD test for the interaction term (ParkName * Species)
 library(agricolae)
-second_tukey_result <- TukeyHSD(second_anova_result, "ParkName:Species")
+monthly_tukey_result <- TukeyHSD(monthly_anova_result, "ParkName:Species")
 
 # Extract significant results
-second_tukey_df <- as.data.frame(second_tukey_result$`ParkName:Species`)
-second_tukey_df$Comparison <- rownames(second_tukey_result$`ParkName:Species`)
-rownames(tukey_df) <- NULL
+monthly_tukey_df <- as.data.frame(monthly_tukey_result$`ParkName:Species`)
+monthly_tukey_df$Comparison <- rownames(monthly_tukey_result$`ParkName:Species`)
+rownames(monthly_tukey_df) <- NULL
 
 # Filter significant comparisons
-second_significant_tukey <- subset(second_tukey_df, `p adj` < 0.05)
+monthly_significant_tukey <- subset(monthly_tukey_df, `p adj` < 0.05)
 
 # Print the top 10 significant results
-head(second_significant_tukey, 10)
-
+head(monthly_significant_tukey, 10)
 ```
 
 >Post-Hoc Result Interpretation
@@ -134,11 +134,12 @@ head(second_significant_tukey, 10)
 
 >Overall, species such as "Eastern Gray Squirrel" in Mill Creek Park and "White-tailed Deer" in Bells Bend Park exhibited the highest activity levels. This may be attributed to favorable environmental conditions or species-specific behaviors in these parks. Conversely, species like "Virginia Opossum" and "American Beaver" consistently exhibited lower activity levels. These findings suggest that ecological or habitat-specific factors significantly influence species activity patterns across parks.
 
+
 ```{r}
 #Draft plots, will fix as needed 
 
 #Most common species from monthly data
-ggplot(Monthly_Species_Count.data, aes(x=Species, y=CountAdjusted, fill=Species)) +geom_bar(stat = "identity") +facet_wrap(~ ParkName) + theme(legend.text = element_text(size = 6),        # Smaller legend text
+ggplot(Monthly_Species_Counts, aes(x=Species, y=CountAdjusted, fill=Species)) +geom_bar(stat = "identity") +facet_wrap(~ ParkName) + theme(legend.text = element_text(size = 6),        # Smaller legend text
         legend.title = element_text(size = 8),       # Smaller legend title
         legend.key.size = unit(0.5, "cm"),            # Smaller legend keys (color boxes)
         legend.key.width = unit(1, "cm"),             # Adjust width of legend keys
