@@ -135,7 +135,7 @@ MillCreekCameraDates <- data.frame(Days, MillCreekCameraCount)
 ```
 
 
-## Daily Species Data (filtered, adjusted, and totals)
+## Species Data (filtered, adjusted, and totals)
 
 This section includes 1) filtering by hour, 2) adjusting counts based on sampling effort, and 3) calculating monthly and full period totals in wildlife IDs. To explain, first, the daily wildlife IDs for each species must be filtered by hour at every camera trap separately to remove repeated counts of the same individual(s). Second, to account for sampling effort, the daily wildlife IDs for each species need to be divided by the number of cameras out each day to standardize the data. Third, monthly and full time period totals are calculated to compare data between parks; in this case, totals can be used rather than averages or rolling averages since sampling effort is already accounted for, a consistent time period is already established across parks, and counts are not guaranteed each day.
 
@@ -389,18 +389,6 @@ CombinedFullPeriodTotals <- bind_rows(BeamanSpeciesFullPeriodTotal,
                                       MillCreekSpeciesFullPeriodTotal)
 ```
 
-```{r}
-# Combine data into a long-format data frame
-AllSpeciesData <- bind_rows(BeamanSpeciesResults, BellsBendSpeciesResults, MillCreekSpeciesResults)
-
-# Check dependent variables are numeric
-
-class(AllSpeciesData$CountRaw)
-class(AllSpeciesData$CountAdjusted)
-
->>>>>>> 2582bc1 (Checked class of dependent variables.)
-```
-
 
 ## Spatial Data
 
@@ -423,19 +411,44 @@ BellsBendAttributes <- parks %>%
 MillCreekAttributes <- parks %>%
   filter(Name == "Mill Creek Park")
 
-<<<<<<< HEAD
-CombinedParkAttributes <- rbind(BeamanAttributes, BellsBendAttributes, MillCreekAttributes)
-=======
-# Combined target park data frames
-CombinedParks <- rbind(BeamanPark, BellsBendPark, MillCreekPark)
->>>>>>> 2582bc1 (Checked class of dependent variables.)
-
 # Check to ensure the data frames are correct by mapping them
 mapView(BeamanAttributes) + mapView(BellsBendAttributes) + mapView(MillCreekAttributes)
+
+# Combine data frames for parks of interest
+CombinedParkAttributes <- rbind(BeamanAttributes, 
+                                BellsBendAttributes, 
+                                MillCreekAttributes)
+```
+
+
+## Merging Species and Spatial Data Frames
+
+This section merges both daily and monthly species data frames with the spatial data frame in preparation for the second round of ANOVAs that will be in the data analysis rmd file. The aforementioned second round of ANOVAs will attempt to determine which park attributes significantly influence any displayed differences in species activity between the three parks.
+
+```{r}
+# Rename column within combined data frame
+# Filter rows of interest before merging
+# Notably, chosen rows are according to unique differences in parks attributes
+FilteredParkAttributes <- CombinedParkAttributes %>%
+  dplyr::rename(ParkName = Name) %>%
+  select(ParkName, YearEstabl, Acres, Hours, 
+         Hiking, MountainBi, WalkJog, Camping, Fishing)
+
+# Merged daily and monthly species count with spatial data
+DailyMerge <- merge(CombinedSpeciesResults, 
+                    FilteredParkAttributes, 
+                    by = "ParkName")
+
+MonthlyMerge <- merge(CombinedMonthlyTotals, 
+                      FilteredParkAttributes, 
+                      by = "ParkName")
 ```
 
 
 ## Save Processed Data
+
+This section simply saves the final processed data frames into the "Processed" folder, which is within the "Data" folder of this project.
+
 ```{r}
 # Save and rename the final processed data
 write.csv(CombinedSpeciesResults, 
@@ -453,5 +466,13 @@ write.csv(CombinedFullPeriodTotals,
 write.csv(CombinedParkAttributes, 
           row.names = FALSE, 
           file = "./Data/Processed/Park_Attributes.csv")
+
+write.csv(DailyMerge, 
+          row.names = FALSE, 
+          file = "./Data/Processed/DailySpecies_ParkAttributes_Merge.csv")
+
+write.csv(MonthlyMerge, 
+          row.names = FALSE, 
+          file = "./Data/Processed/MonthlySpecies_ParkAttributes_Merge.csv")
 ```
 
