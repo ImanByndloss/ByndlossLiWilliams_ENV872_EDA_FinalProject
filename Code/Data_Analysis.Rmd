@@ -35,7 +35,7 @@ Daily_Merge <- read.csv(
   file = here("./Data/Processed/Daily_Merge.csv"),
   stringsAsFactors = TRUE) 
 
-Montly_Merge <- read.csv(
+Monthly_Merge <- read.csv(
   file = here("./Data/Processed/Monthly_Merge.csv"),
   stringsAsFactors = TRUE) 
 ```
@@ -197,4 +197,52 @@ D_t_test_disrupt
 
 C_t_test_disrupt <- t.test(CountAdjusted ~ DisruptiveActivities, data = dmCoyote)
 C_t_test_disrupt
+```
+### Monthly species activity
+```{r}
+
+mmSquirrel <- Monthly_Merge %>%
+  filter(Species == "Eastern Gray Squirrel")
+  
+mmDeer <- Monthly_Merge %>%
+  filter(Species == "White-tailed Deer")
+  
+mmCoyote <- Monthly_Merge %>%
+filter(Species == "Coyote")
+```
+
+### Park Classification (Regional vs. Community)
+```{r}
+SQ_t_test_class2 <- t.test(CountAdjusted ~ Classification, data = mmSquirrel)
+SQ_t_test_class2
+
+D_t_test_class2 <- t.test(CountAdjusted ~ Classification, data = mmDeer)
+D_t_test_class2
+
+C_t_test_class2 <- t.test(CountAdjusted ~ Classification, data = mmCoyote)
+C_t_test_class2
+```
+
+### Park Size (>1000ac vs <1000ac)
+```{r}
+SQ_t_test_size2 <- t.test(CountAdjusted ~ Size, data = mmSquirrel)
+SQ_t_test_size2
+
+D_t_test_size2 <- t.test(CountAdjusted ~ Size, data = mmDeer)
+D_t_test_size2
+
+C_t_test_size2 <- t.test(CountAdjusted ~ Size, data = mmCoyote)
+C_t_test_size2
+```
+
+### Disruptive Activity, i.e., mountain biking, camping and fishing (Yes vs No)
+```{r}
+SQ_t_test_disrupt2 <- t.test(CountAdjusted ~ DisruptiveActivities, data = mmSquirrel)
+SQ_t_test_disrupt2
+
+D_t_test_disrupt2 <- t.test(CountAdjusted ~ DisruptiveActivities, data = mmDeer)
+D_t_test_disrupt2
+
+C_t_test_disrupt2 <- t.test(CountAdjusted ~ DisruptiveActivities, data = mmCoyote)
+C_t_test_disrupt2
 ```
