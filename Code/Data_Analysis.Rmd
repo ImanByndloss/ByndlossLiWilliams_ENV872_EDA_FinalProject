@@ -150,50 +150,50 @@ head(monthly_significant_tukey, 10)
 
 ```{r}
 # Independently filter for three potentially important species: Eastern Gray Squirrel, White-tailed Deer, and Coyote
-Squirrel <- Daily_Merge %>% 
+dmSquirrel <- Daily_Merge %>% 
   filter(Species == "Eastern Gray Squirrel") 
-Deer <- Daily_Merge %>% 
+dmDeer <- Daily_Merge %>% 
   filter(Species == "White-tailed Deer") 
-Coyote <- Daily_Merge %>% 
+dmCoyote <- Daily_Merge %>% 
   filter(Species == "Coyote")
 ```
 
 ### Park Classification (Regional vs Community)
 ```{r}
 # Run a t-test for each species
-SQ_t_test_class <- t.test(CountAdjusted ~ Classification, data = Squirrel)
+SQ_t_test_class <- t.test(CountAdjusted ~ Classification, data = dmSquirrel)
 SQ_t_test_class
 
-D_t_test_class <- t.test(CountAdjusted ~ Classification, data = Deer)
+D_t_test_class <- t.test(CountAdjusted ~ Classification, data = dmDeer)
 D_t_test_class
 
-C_t_test_class <- t.test(CountAdjusted ~ Classification, data = Coyote)
+C_t_test_class <- t.test(CountAdjusted ~ Classification, data = dmCoyote)
 C_t_test_class
 ```
 
 ### Park Size (>1000ac vs <1000ac)
 ```{r}
 # Run a t-test for each species
-SQ_t_test_size <- t.test(CountAdjusted ~ Size, data = Squirrel)
+SQ_t_test_size <- t.test(CountAdjusted ~ Size, data = dmSquirrel)
 SQ_t_test_class
 
-D_t_test_size <- t.test(CountAdjusted ~ Size, data = Deer)
+D_t_test_size <- t.test(CountAdjusted ~ Size, data = dmDeer)
 D_t_test_class
 
-C_t_test_size <- t.test(CountAdjusted ~ Size, data = Coyote)
+C_t_test_size <- t.test(CountAdjusted ~ Size, data = dmCoyote)
 C_t_test_class
 ```
 
 ### Disruptive Activity, i.e., mountain biking, camping and fishing (Yes vs No)
 ```{r}
 # Run a t-test for each species
-SQ_t_test_disrupt <- t.test(CountAdjusted ~ DisruptiveActivities, data = Squirrel)
+SQ_t_test_disrupt <- t.test(CountAdjusted ~ DisruptiveActivities, data = dmSquirrel)
 SQ_t_test_disrupt
 
-D_t_test_disrupt <- t.test(CountAdjusted ~ DisruptiveActivities, data = Deer)
+D_t_test_disrupt <- t.test(CountAdjusted ~ DisruptiveActivities, data = dmDeer)
 D_t_test_disrupt
 
-C_t_test_disrupt <- t.test(CountAdjusted ~ DisruptiveActivities, data = Coyote)
+C_t_test_disrupt <- t.test(CountAdjusted ~ DisruptiveActivities, data = dmCoyote)
 C_t_test_disrupt
 ```
 
