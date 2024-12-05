@@ -18,6 +18,7 @@ The upcoming analyses seek to answer the following research questions: Do overal
 # Load relevant packages
 library(tidyverse)
 library(lubridate)
+library(dplyr)
 library(here)
 library(ggplot2)
 
@@ -147,22 +148,53 @@ head(monthly_significant_tukey, 10)
 
 ## Daily Species Activity 
 
+```{r}
+# Independently filter for three potentially important species: Eastern Gray Squirrel, White-tailed Deer, and Coyote
+Squirrel <- Daily_Merge %>% 
+  filter(Species == "Eastern Gray Squirrel") 
+Deer <- Daily_Merge %>% 
+  filter(Species == "White-tailed Deer") 
+Coyote <- Daily_Merge %>% 
+  filter(Species == "Coyote")
+```
+
 ### Park Classification (Regional vs Community)
 ```{r}
-t_test_class <- t.test(CountAdjusted ~ Classification, data = Daily_Merge)
-summary(t_test_class)
+# Run a t-test for each species
+SQ_t_test_class <- t.test(CountAdjusted ~ Classification, data = Squirrel)
+SQ_t_test_class
+
+D_t_test_class <- t.test(CountAdjusted ~ Classification, data = Deer)
+D_t_test_class
+
+C_t_test_class <- t.test(CountAdjusted ~ Classification, data = Coyote)
+C_t_test_class
 ```
 
 ### Park Size (>1000ac vs <1000ac)
 ```{r}
-t_test_size <- t.test(CountAdjusted ~ Size, data = Daily_Merge)
-summary(t_test_class)
+# Run a t-test for each species
+SQ_t_test_size <- t.test(CountAdjusted ~ Size, data = Squirrel)
+SQ_t_test_class
+
+D_t_test_size <- t.test(CountAdjusted ~ Size, data = Deer)
+D_t_test_class
+
+C_t_test_size <- t.test(CountAdjusted ~ Size, data = Coyote)
+C_t_test_class
 ```
 
 ### Disruptive Activity, i.e., mountain biking, camping and fishing (Yes vs No)
 ```{r}
-t_test_disrupt <- t.test(CountAdjusted ~ DisruptiveActivities, data = Daily_Merge)
-summary(t_test_disrupt)
+# Run a t-test for each species
+SQ_t_test_disrupt <- t.test(CountAdjusted ~ DisruptiveActivities, data = Squirrel)
+SQ_t_test_disrupt
+
+D_t_test_disrupt <- t.test(CountAdjusted ~ DisruptiveActivities, data = Deer)
+D_t_test_disrupt
+
+C_t_test_disrupt <- t.test(CountAdjusted ~ DisruptiveActivities, data = Coyote)
+C_t_test_disrupt
 ```
 
 
