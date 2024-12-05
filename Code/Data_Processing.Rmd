@@ -421,27 +421,34 @@ CombinedParkAttributes <- rbind(BeamanAttributes,
 ```
 
 
-## Merging Species and Spatial Data Frames
+## Merging Data Frames (species and spatial data)
 
-This section merges both daily and monthly species data frames with the spatial data frame in preparation for the second round of ANOVAs that will be in the data analysis rmd file. The aforementioned second round of ANOVAs will attempt to determine which park attributes significantly influence any displayed differences in species activity between the three parks.
+This section merges the daily and monthly species data frames with the park attributes data frame. These merges are completed in preparation for a second round of ANOVAs in the data analysis rmd file (which seeks to determine if the number of acres or allowance of disruptive activities influences species activity).
 
 ```{r}
 # Rename column within combined data frame
-# Filter rows of interest before merging
-# Notably, chosen rows are according to unique differences in parks attributes
+# Filter rows of interest before merging;
+# Notably, chosen rows contain the unique differences between parks 
+# that are suspected of having the most highest influence on species activity
 FilteredParkAttributes <- CombinedParkAttributes %>%
   dplyr::rename(ParkName = Name) %>%
-  select(ParkName, YearEstabl, Acres, Hours, 
-         Hiking, MountainBi, WalkJog, Camping, Fishing)
+   mutate(DisruptiveActivities = ifelse(MountainBi == "Yes" & 
+                                          Camping == "Yes" & 
+                                          Fishing == "Yes", 
+                                        "Yes", "No")) %>%
+  select(ParkName, Acres, DisruptiveActivities)
 
 # Merged daily and monthly species count with spatial data
+# Removed geometry since it is not necessary for intended ANOVAs
 DailyMerge <- merge(CombinedSpeciesResults, 
                     FilteredParkAttributes, 
-                    by = "ParkName")
+                    by = "ParkName")  %>%
+  select(-geometry)
 
 MonthlyMerge <- merge(CombinedMonthlyTotals, 
                       FilteredParkAttributes, 
-                      by = "ParkName")
+                      by = "ParkName") %>%
+  select(-geometry)
 ```
 
 
@@ -469,10 +476,10 @@ write.csv(CombinedParkAttributes,
 
 write.csv(DailyMerge, 
           row.names = FALSE, 
-          file = "./Data/Processed/DailySpecies_ParkAttributes_Merge.csv")
+          file = "./Data/Processed/Daily_Merge.csv")
 
 write.csv(MonthlyMerge, 
           row.names = FALSE, 
-          file = "./Data/Processed/MonthlySpecies_ParkAttributes_Merge.csv")
+          file = "./Data/Processed/Monthly_Merge.csv")
 ```
 
