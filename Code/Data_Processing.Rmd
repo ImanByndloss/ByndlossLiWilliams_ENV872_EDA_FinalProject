@@ -7,7 +7,7 @@ date: "2024-11-05"
 Before uploading any data sets into RStudio, the relevant csv files were examined in Excel. The two csv files used in this project are from Prof. Malu Jorge at Vanderbilt University. Prof. Malu Jorge identifies one of the longest time periods of consistent data collection by her lab at multiple parks being from 06/28/2021 to 05/19/22. Although nine parks are listed within "cluster.name" of "Wildlife Insights (2021-2022).csv", only three parks cover the majority of the aforementioned time period based on the earliest "start_date" and latest "end_date" for each park in "All Deployments (2019-2022).csv". Those parks include Beaman (06/29/2021-12/31/2022), Bells Bend (06/28/2021-05/19/2022), and Mills Creek(07/20/2021-04/23/2022). To establish a consistent study period for this project in accordance with these three parks, the following time period will be used: 07/20/2021-4/23/2022 (278 days). The following two data sets created from these csv files will have to be filtered to include only the data associated with each of these parks for the chosen time period. 
 
 
-## Set up, loading packages
+## Set up (loading packages)
 ```{r}
 # Load all relevant packages
 library(lubridate)
