@@ -9,7 +9,10 @@ date: "2024-11-29"
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Set Up; Uploading Datasets
+The upcoming analyses seek to answer the following research questions: Do overall daily, monthly, and full study period mammalian species activity differ across three Nashville parks (Beaman, Bells Bend, and Mill Creek)? And do any park attributes (i.e., size and available activities) have a significant impact on species activity?
+
+
+## Set Up (loading packages and uploading datasets)
 
 ```{r,  set up R session, message = FALSE, warning=FALSE}
 #Load packages
@@ -26,13 +29,11 @@ Daily_Species_Counts <- read.csv(
 Monthly_Species_Counts <- read.csv(
   file = here("./Data/Processed/Monthly_Species_Counts.csv"),
   stringsAsFactors = TRUE) 
-
-Full_Period_Species_Counts <- read.csv(
-  file = here("./Data/Processed/Full_Period_Species_Counts.csv"),
-  stringsAsFactors = TRUE) 
 ```
 
-#Two-way ANOVA Test - Daily Species Activity and Parks
+# Two-way ANOVA Test 
+
+## Daily Species Activity and Parks
 
 ```{r, First ANOVA, message = FALSE, warning=FALSE}
 # Perform the two-way ANOVA with interaction
@@ -50,7 +51,7 @@ summary(daily_anova_result)
 
 >These results suggest that both park-specific factors (e.g., habitat type, management practices) and species-specific traits (e.g., behavior, ecological preferences) play critical roles in determining activity levels. Moreover, the significant interaction effect emphasizes the importance of considering the combined influence of these two factors when analyzing species activity patterns.
 
-## Post-Hoc Test
+### Post-Hoc Test
 
 ```{r, Post-Hoc Test after ANOVA, message = FALSE, warning=FALSE}
 # If the interaction term is significant, perform a post-hoc test
@@ -83,7 +84,7 @@ head(daily_significant_tukey, 10)
 
 >4. Notable Inter-Park Variation in Woodchuck Activity: The activity of "Woodchucks" was significantly lower in Alvin G. Beaman Park compared to Bells Bend Park (diff = -1.33, 95% CI [-1.51, -1.15], p adj < 0.001). This highlights how habitat differences between parks may influence the presence or detectability of certain species.  Interpretation: These results reveal substantial variation in species activity both within and between parks. Certain species, such as "Nine-banded Armadillos" and "White-tailed Deer," exhibit pronounced activity trends influenced by the park's environmental conditions. The findings emphasize the importance of localized habitat characteristics and interspecies dynamics in shaping activity patterns.
 
-#Two-way ANOVA Test - Monthly Species Activity and Parks
+## Monthly Species Activity and Parks
 
 ```{r, Second ANOVA, message = FALSE, warning=FALSE}
 # Perform the two-way ANOVA with interaction
@@ -101,7 +102,7 @@ summary(monthly_anova_result)
 
 >The interaction effect between ParkName and Species was also highly significant (F = 15.03, p < 2e-16). This indicates that the effect of park location on activity levels depends on the species observed, and vice versa. For instance, certain parks may be more conducive to higher activity levels for specific species due to habitat suitability or species-specific ecological requirements.
 
-## Post-Hoc Test
+### Post-Hoc Test
 
 ```{r, Post-Hoc Test after second ANOVA, message = FALSE, warning=FALSE}
 # If the interaction term is significant, perform a post-hoc test
