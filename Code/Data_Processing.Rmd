@@ -470,9 +470,8 @@ write.csv(CombinedFullPeriodTotals,
           row.names = FALSE, 
           file = "./Data/Processed/Full_Period_Species_Counts.csv")
 
-write.csv(CombinedParkAttributes, 
-          row.names = FALSE, 
-          file = "./Data/Processed/Park_Attributes.csv")
+st_write(CombinedParkAttributes,
+          "./Data/Processed/Park_Attributes.shp")
 
 write.csv(DailyMerge, 
           row.names = FALSE, 
