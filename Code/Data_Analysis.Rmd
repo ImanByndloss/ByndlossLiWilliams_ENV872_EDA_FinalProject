@@ -169,19 +169,21 @@ D_t_test_class
 
 C_t_test_class <- t.test(CountAdjusted ~ Classification, data = dmCoyote)
 C_t_test_class
+
+#Squirrel and Deer both significant, coyote not. 
 ```
 
 ### Park Size (>1000ac vs <1000ac)
 ```{r}
 # Run a t-test for each species
 SQ_t_test_size <- t.test(CountAdjusted ~ Size, data = dmSquirrel)
-SQ_t_test_class
+SQ_t_test_size
 
 D_t_test_size <- t.test(CountAdjusted ~ Size, data = dmDeer)
-D_t_test_class
+D_t_test_size
 
 C_t_test_size <- t.test(CountAdjusted ~ Size, data = dmCoyote)
-C_t_test_class
+C_t_test_size
 ```
 
 ### Disruptive Activity, i.e., mountain biking, camping and fishing (Yes vs No)
