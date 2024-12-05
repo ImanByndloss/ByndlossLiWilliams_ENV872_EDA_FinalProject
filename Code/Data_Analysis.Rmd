@@ -15,19 +15,27 @@ The upcoming analyses seek to answer the following research questions: Do overal
 ## Set Up (loading packages and uploading datasets)
 
 ```{r,  set up R session, message = FALSE, warning=FALSE}
-#Load packages
+# Load relevant packages
 library(tidyverse)
 library(lubridate)
 library(here)
 library(ggplot2)
 
-#Upload species dataset
+# Load relevant processed data
 Daily_Species_Counts <- read.csv(
   file = here("./Data/Processed/Daily_Species_Counts.csv"),
   stringsAsFactors = TRUE) 
 
 Monthly_Species_Counts <- read.csv(
   file = here("./Data/Processed/Monthly_Species_Counts.csv"),
+  stringsAsFactors = TRUE) 
+
+Daily_Merge <- read.csv(
+  file = here("./Data/Processed/Daily_Merge.csv"),
+  stringsAsFactors = TRUE) 
+
+Montly_Merge <- read.csv(
+  file = here("./Data/Processed/Monthly_Merge.csv"),
   stringsAsFactors = TRUE) 
 ```
 
@@ -134,6 +142,28 @@ head(monthly_significant_tukey, 10)
 >Interspecies comparisons across parks also highlighted notable patterns. The activity of "Virginia Opossum" in Bells Bend Park was significantly lower than "Eastern Gray Squirrel" in Mill Creek Park (difference: -47.67, 95% confidence interval: [-62.22, -33.11], adjusted p-value: < 0.001). Similarly, within Mill Creek Park, "White-tailed Deer" showed higher activity compared to "Muskrat" (difference: 36.68, 95% confidence interval: [22.12, 51.24], adjusted p-value: < 0.001).
 
 >Overall, species such as "Eastern Gray Squirrel" in Mill Creek Park and "White-tailed Deer" in Bells Bend Park exhibited the highest activity levels. This may be attributed to favorable environmental conditions or species-specific behaviors in these parks. Conversely, species like "Virginia Opossum" and "American Beaver" consistently exhibited lower activity levels. These findings suggest that ecological or habitat-specific factors significantly influence species activity patterns across parks.
+
+# Two sample T-test
+
+## Daily Species Activity 
+
+### Park Classification (Regional vs Community)
+```{r}
+t_test_class <- t.test(CountAdjusted ~ Classification, data = Daily_Merge)
+summary(t_test_class)
+```
+
+### Park Size (>1000ac vs <1000ac)
+```{r}
+t_test_size <- t.test(CountAdjusted ~ Size, data = Daily_Merge)
+summary(t_test_class)
+```
+
+### Disruptive Activity, i.e., mountain biking, camping and fishing (Yes vs No)
+```{r}
+t_test_disrupt <- t.test(CountAdjusted ~ DisruptiveActivities, data = Daily_Merge)
+summary(t_test_disrupt)
+```
 
 
 ```{r}
