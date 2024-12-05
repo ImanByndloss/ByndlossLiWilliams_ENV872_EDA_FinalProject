@@ -423,7 +423,7 @@ CombinedParkAttributes <- rbind(BeamanAttributes,
 
 ## Merging Data Frames (species and spatial data)
 
-This section merges the daily and monthly species data frames with the park attributes data frame. These merges are completed in preparation for a second round of ANOVAs in the data analysis rmd file (which seeks to determine if the number of acres or allowance of disruptive activities influences species activity).
+This section merges the daily and monthly species data frames with the park attributes data frame. These merges are completed in preparation for a series of two-sample t-tests, which will appear in the data analysis rmd file. By selecting three unique park characteristics, each park gets the opportunity to be compared against the other two parks. To go into more detail, Mill Creek (being classified as a community park) will be compared to the regional parks; Beaman (being substantially larger) will be compared to the parks that are less than 1000 acres; and Bells Bend (allowing more disruptive activities, i.e., mountain biking, camping, and fishing) will be compared to parks with more restrictive rules for activities. Still, there are other characteristics that distinguish these parks from one another as mentioned in the previous section, but park classification, size, and disruptive activities are expected to have the largest influences on species activity. Notably, while park classification takes into account the size of the park, it also relates to the purpose of the park.
 
 ```{r}
 # Rename column within combined data frame
@@ -432,11 +432,13 @@ This section merges the daily and monthly species data frames with the park attr
 # that are suspected of having the most highest influence on species activity
 FilteredParkAttributes <- CombinedParkAttributes %>%
   dplyr::rename(ParkName = Name) %>%
+  dplyr::rename(Classification = Classifica) %>%
+  mutate(Size = ifelse(Acres > 1000, ">1000ac", "<1000ac")) %>%
    mutate(DisruptiveActivities = ifelse(MountainBi == "Yes" & 
                                           Camping == "Yes" & 
                                           Fishing == "Yes", 
                                         "Yes", "No")) %>%
-  select(ParkName, Acres, DisruptiveActivities)
+  select(ParkName, Classification, Size, DisruptiveActivities)
 
 # Merged daily and monthly species count with spatial data
 # Removed geometry since it is not necessary for intended ANOVAs
