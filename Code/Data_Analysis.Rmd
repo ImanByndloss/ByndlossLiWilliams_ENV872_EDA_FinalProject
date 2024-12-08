@@ -83,7 +83,7 @@ daily_significant_tukey <- subset(daily_tukey_df, `p adj` < 0.05)
 head(daily_significant_tukey, 10)
 ```
 
->Post-Hoc Result Interpretation
+>Post-Hoc Result Interpretation:
 
 >1. Species Differences Between Parks: The activity of "Nine-banded Armadillos" exhibited notable variation between parks.  For instance, their activity was significantly lower in Bells Bend Park compared to Mill Creek Park # (diff = -1.53, 95% CI [-1.71, -1.35], p adj < 0.001). Similarly, their activity in Alvin G. Beaman Park was also significantly lower compared to Mill Creek Park  (diff = -1.81, 95% CI [-1.99, -1.63], p adj < 0.001). These results suggest that the habitat or environmental factors in Mill Creek Park are more conducive to higher activity levels for this species.
 
@@ -134,7 +134,7 @@ monthly_significant_tukey <- subset(monthly_tukey_df, `p adj` < 0.05)
 head(monthly_significant_tukey, 10)
 ```
 
->Post-Hoc Result Interpretation
+>Post-Hoc Result Interpretation:
 
 >The Tukey test results on the monthly species activity dataset reveal significant differences in activity levels between species and parks. For instance, the activity of "Eastern Gray Squirrel" in Mill Creek Park was significantly higher compared to "American Beaver" in Bells Bend Park (difference: 50.58, 95% confidence interval: [36.02, 65.14], adjusted p-value: < 0.001). Similarly, "White-tailed Deer" in Bells Bend Park exhibited significantly higher activity compared to "American Beaver" in the same park (difference: 36.93, 95% confidence interval: [22.37, 51.49], adjusted p-value: < 0.001).
 
@@ -173,6 +173,14 @@ C_t_test_class
 #Squirrel and Deer both significant, coyote not. 
 ```
 
+>T-test Result Interpretation:
+
+>For eastern gray squirrel, community and regional parks have statistically different means (p-value < 2.2e-16). The sample estimate for community parks is about 1.82 while the sample estimate for regional parks is 0.201.
+
+>For white-tailed deer, community and regional parks have statistically different means (p-value < 2.2e-16). The sample estimate for community parks is about 0.176 while the sample estimate for regional parks is 0.853.
+
+>For coyote, community and regional parks have statistically the same means (p-value = 0.1471). The sample estimate for community parks is about 0.0363 while the sample estimate for regional parks is about 0.0575.
+
 ### Park Size (>1000ac vs <1000ac)
 ```{r}
 # Run a t-test for each species
@@ -186,6 +194,14 @@ C_t_test_size <- t.test(CountAdjusted ~ Size, data = dmCoyote)
 C_t_test_size
 ```
 
+>T-test Result Interpretation:
+
+>For eastern gray squirrel, parks less than 1000 acres and parks more than 1000 acres have statistically different means (p-value < 2.2e-16). The sample estimate for parks less than 1000 acres is about 1.00 while the sample estimate for parks more than 1000 acres is 0.215.
+
+>For white-tailed deer, parks less than 1000 acres and parks more than 1000 acres have statistically different means (p-value = 6.312e-07). The sample estimate for parks less than 1000 acres is about 0.754 while the sample estimate for parks more than 1000 acres is 0.374.
+
+>For coyote, parks less than 1000 acres and parks more than 1000 acres have statistically the same means (p-value = 0.1039). The sample estimate for parks less than 1000 acres is about 0.0578 while the sample estimate for parks more than 1000 acres is about 0.0357.
+
 ### Disruptive Activity, i.e., mountain biking, camping and fishing (Yes vs No)
 ```{r}
 # Run a t-test for each species
@@ -198,6 +214,15 @@ D_t_test_disrupt
 C_t_test_disrupt <- t.test(CountAdjusted ~ DisruptiveActivities, data = dmCoyote)
 C_t_test_disrupt
 ```
+
+>T-test Result Interpretation:
+
+>For eastern gray squirrel, parks without disruptive activities and parks with disruptive activities have statistically different means (p-value < 2.2e-16). The sample estimate for parks without disruptive activities is about 1.02 while the sample estimate for parks without disruptive activities is 0.187.
+
+>For white-tailed deer, parks without disruptive activities and parks with disruptive activities have statistically different means (p-value < 2.2e-16). The sample estimate for parks without disruptive activities is about 0.275 while the sample estimate for parks with disruptive activities is 1.33.
+
+>For coyote, parks without disruptive activities and parks with disruptive activities have statistically different means (p-value = 0.04813). The sample estimate for parks without disruptive activities is about 0.0360 while the sample estimate for parks with disruptive activities is about 0.0793.
+
 ### Monthly species activity
 ```{r}
 
@@ -223,6 +248,14 @@ C_t_test_class2 <- t.test(CountAdjusted ~ Classification, data = mmCoyote)
 C_t_test_class2
 ```
 
+>T-test Result Interpretation:
+
+>For eastern gray squirrel, community and regional parks have statistically different means (p-value = 0.004491). The sample estimate for community parks is about 50.7 while the sample estimate for regional parks is 5.58. 
+
+>For white-tailed deer, community and regional parks have statistically different means (p-value = 0.001046). The sample estimate for community parks is about 4.89 while the sample estimate for regional parks is 23.7.
+
+>For coyote, community and regional parks have statistically the same means (p-value = 0.3486). The sample estimate for community parks is about 1.01 while the sample estimate for regional parks is about 1.60.
+
 ### Park Size (>1000ac vs <1000ac)
 ```{r}
 SQ_t_test_size2 <- t.test(CountAdjusted ~ Size, data = mmSquirrel)
@@ -235,6 +268,14 @@ C_t_test_size2 <- t.test(CountAdjusted ~ Size, data = mmCoyote)
 C_t_test_size2
 ```
 
+>T-test Result Interpretation:
+
+>For eastern gray squirrel, parks less than 1000 acres and parks more than 1000 acres have statistically different means (p-value = 0.01198). The sample estimate for parks less than 1000 acres is about 27.9 while the sample estimate for parks more than 1000 acres is 5.98.
+
+>For white-tailed deer, parks less than 1000 acres and parks more than 1000 acres have statistically the same means (p-value = 0.07912). The sample estimate for parks less than 1000 acres is about 21.0 while the sample estimate for parks more than 1000 acres is 10.4.
+
+>For coyote, parks less than 1000 acres and parks more than 1000 acres have statistically the same means (p-value = 0.252). The sample estimate for parks less than 1000 acres is about 1.61 while the sample estimate for parks more than 1000 acres is about 0.992.
+
 ### Disruptive Activity, i.e., mountain biking, camping and fishing (Yes vs No)
 ```{r}
 SQ_t_test_disrupt2 <- t.test(CountAdjusted ~ DisruptiveActivities, data = mmSquirrel)
@@ -246,3 +287,11 @@ D_t_test_disrupt2
 C_t_test_disrupt2 <- t.test(CountAdjusted ~ DisruptiveActivities, data = mmCoyote)
 C_t_test_disrupt2
 ```
+
+>T-test Result Interpretation:
+
+>For eastern gray squirrel, parks without disruptive activities and parks with disruptive activities have statistically different means (p-value = 0.008249). The sample estimate for parks without disruptive activities is about 28.3 while the sample estimate for parks without disruptive activities is 5.19.
+
+>For white-tailed deer, parks without disruptive activities and parks with disruptive activities have statistically different means (p-value = 0.001368). The sample estimate for parks without disruptive activities is about 7.65 while the sample estimate for parks with disruptive activities is 37.0.
+
+>For coyote, parks without disruptive activities and parks with disruptive activities have statistically the same means (p-value = 0.1408). The sample estimate for parks without disruptive activities is about 1.00 while the sample estimate for parks with disruptive activities is about 2.20.
