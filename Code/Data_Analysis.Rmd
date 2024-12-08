@@ -9,7 +9,9 @@ date: "2024-11-29"
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-The upcoming analyses seek to answer the following research questions: Do overall daily, monthly, and full study period mammalian species activity differ across three Nashville parks (Beaman, Bells Bend, and Mill Creek)? And do any park attributes (i.e., size and available activities) have a significant impact on species activity?
+The upcoming analyses seek to answer the following research questions: Do overall daily and monthly mammalian species activity differ across three Nashville parks (Beaman, Bells Bend, and Mill Creek)? And do any park attributes (i.e., classification, size and disruptive activities) have a significant impact on the activity of three potentially important species? Assuming null hypotheses, there is no significant difference between overall daily and monthly activity for mammals in the three parks, and none of the tested park attributes significantly impact the activity of eastern gray squirrels, white-tailed deer, and coyote. These assumptions will be tested through two-way anova (for overall activity across parks) and two-sample t-tests (for the impact of park attributes on specific activity).
+
+To describe the motivation behind this research, we are interested in understanding how different factors influence mammalian species activity in urban parks. Parks like Beaman, Bells Bend, and Mill Creek not only provide essential green spaces for humans but also serve as critical habitats for wildlife. Our curiosity lies in exploring how park attributes, such as size and unique features, shape species behavior over time. By understanding these dynamics, we hope to foster greater appreciation for biodiversity in urban environments and support park management practices. 
 
 
 ## Set Up (loading packages and uploading datasets)
