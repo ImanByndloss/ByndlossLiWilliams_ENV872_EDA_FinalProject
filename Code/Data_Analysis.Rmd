@@ -44,7 +44,7 @@ Monthly_Merge <- read.csv(
 
 # Two-way ANOVA Test 
 
-## Daily Species Activity and Parks
+## Daily Species Activity (Park and Species)
 
 ```{r, First ANOVA, message = FALSE, warning=FALSE}
 # Perform the two-way ANOVA with interaction
@@ -54,13 +54,11 @@ daily_anova_result <- aov(CountAdjusted ~ ParkName * Species, data = Daily_Speci
 summary(daily_anova_result)
 ```
 
->ANOVA Result Interpretation:
+> ANOVA Result Interpretation:
 
->The two-way ANOVA analysis here evaluated the effects of park location and species type, as well as their interaction, on species activity levels (measured as adjusted counts). The results revealed a significant main effect of park location (F=99.91, p<0.001), indicating that species activity levels varied significantly between parks. Similarly, a highly significant main effect was observed for species type (F=142.86, p<0.001), suggesting that the activity levels differed substantially across the species studied.
+> The two-way ANOVA analysis here evaluated the effects of park and species, as well as their interaction, on daily activity levels (measured as adjusted counts). In terms of the main effects, the results revealed daily activity levels differ significantly across parks (Df = 2, F-value = 99.91, p-value = <2e-16) and species (Df = 15, F-value = 142.86, p-value = <2e-16). In terms of the interaction effect, the interaction between park and species was also significant (Df = 19, F-value = 127.19, p-value = <2e-16). This finding highlights that the effect of park on daily activity is not consistent across all species and the effect of species on daily activity is not consistent across all parks. 
 
->In addition to the main effects, the interaction between park location and species type was also significant (F=127.19, p<0.001). This finding highlights that the effect of park location on species activity is not consistent across all species. In other words, the differences in species activity levels between parks are influenced by the specific species being observed.
-
->These results suggest that both park-specific factors (e.g., habitat type, management practices) and species-specific traits (e.g., behavior, ecological preferences) play critical roles in determining activity levels. Moreover, the significant interaction effect emphasizes the importance of considering the combined influence of these two factors when analyzing species activity patterns.
+> These results suggest that both park-specific factors (e.g., habitat type, management practices) and species-specific traits (e.g., behavior, ecological preferences) play critical roles in determining daily activity levels. Moreover, the significant interaction effect emphasizes the importance of considering the combined influence of these two factors when analyzing daily activity.
 
 ### Post-Hoc Test
 
@@ -87,6 +85,10 @@ head(daily_significant_tukey, 10)
 
 >Post-Hoc Result Interpretation:
 
+> In total,  the post-hoc test for daily activity levels revealed 214 significant comparisons.
+
+> The top 10 most significant results are between 1) Beaman Park eastern gray squirrel and Bells Bend Park American beaver, 2) Bells Bend Park eastern gray squirrel and Bells Bend Park American beaver, 3) Mill Creek Park eastern gray squirrel and Bells Bend Park American beaver, 4) Bells Bend Park nine-banded armadillo and Bells Bend Park American beaver, 5) Bells Bend Park northern raccoon and Bells Bend Park American beaver, 6) Mill Creek Park northern raccon and Bells Bend Park American beaver, 7) Beaman Park white-tailed deer and Bells Bend Park American beaver, 8) Bells Bend Park white-tailed deer and Bells Bend Park American beaver, 9) Beaman Park eastern gray squirrel and Mill Creek Park American beaver, and 10) Bells Bend eastern gray squirrel and Mill Creek Park American beaver. 
+
 >1. Species Differences Between Parks: The activity of "Nine-banded Armadillos" exhibited notable variation between parks.  For instance, their activity was significantly lower in Bells Bend Park compared to Mill Creek Park # (diff = -1.53, 95% CI [-1.71, -1.35], p adj < 0.001). Similarly, their activity in Alvin G. Beaman Park was also significantly lower compared to Mill Creek Park  (diff = -1.81, 95% CI [-1.99, -1.63], p adj < 0.001). These results suggest that the habitat or environmental factors in Mill Creek Park are more conducive to higher activity levels for this species.
 
 >2.Within-Park Differences Between Species: In Mill Creek Park, "Muskrat" activity was significantly lower than that of "Eastern Gray Squirrels" (diff = -1.81, 95% CI [-1.99, -1.63], p adj < 0.001). This could indicate competitive dynamics, differences in habitat preference,  or time-specific activity patterns between these species.
@@ -95,7 +97,7 @@ head(daily_significant_tukey, 10)
 
 >4. Notable Inter-Park Variation in Woodchuck Activity: The activity of "Woodchucks" was significantly lower in Alvin G. Beaman Park compared to Bells Bend Park (diff = -1.33, 95% CI [-1.51, -1.15], p adj < 0.001). This highlights how habitat differences between parks may influence the presence or detectability of certain species.  Interpretation: These results reveal substantial variation in species activity both within and between parks. Certain species, such as "Nine-banded Armadillos" and "White-tailed Deer," exhibit pronounced activity trends influenced by the park's environmental conditions. The findings emphasize the importance of localized habitat characteristics and interspecies dynamics in shaping activity patterns.
 
-## Monthly Species Activity and Parks
+## Monthly Species Activity (Park and Species)
 
 ```{r, Second ANOVA, message = FALSE, warning=FALSE}
 # Perform the two-way ANOVA with interaction
@@ -105,13 +107,11 @@ monthly_anova_result <- aov(CountAdjusted ~ ParkName * Species, data = Monthly_S
 summary(monthly_anova_result)
 ```
 
->ANOVA Result Interpretation:
+> ANOVA Result Interpretation:
 
->The main effect of ParkName was significant (F = 11.81, p = 1.11e-05), indicating that monthly species activity levels vary significantly across different parks. This suggests that environmental factors, habitat characteristics, or management practices unique to each park contribute to these differences.
+> The two-way ANOVA analysis here evaluated the effects of park and species, as well as their interaction, on monthly activity levels (measured as adjusted counts). In terms of the main effects, the results revealed daily activity levels differ significantly across parks (Df = 2, F-value = 11.81, p-value = 1.11e-05) and species (Df = 15, F-value = 16.88, p-value = <2e-16). In terms of the interaction effect, the interaction between park and species was also significant (Df = 19, F-value = 15.03, p-value = <2e-16). 
 
->Similarly, the main effect of Species was highly significant (F = 16.88, p < 2e-16), demonstrating that monthly activity levels differ substantially among species. This finding reflects species-specific behavior, ecological preferences, or adaptability to certain environments.
-
->The interaction effect between ParkName and Species was also highly significant (F = 15.03, p < 2e-16). This indicates that the effect of park location on activity levels depends on the species observed, and vice versa. For instance, certain parks may be more conducive to higher activity levels for specific species due to habitat suitability or species-specific ecological requirements.
+> With these results being similar to the results for daily activity, it can be understood that the effects of park-specific, species-specific, and interactive factors are consistent over longer time scales. 
 
 ### Post-Hoc Test
 
@@ -137,6 +137,10 @@ head(monthly_significant_tukey, 10)
 ```
 
 >Post-Hoc Result Interpretation:
+
+> In total, the post-hoc test for monthly activity levels revealed 70 significant comparisons, a notably smaller number than the 214 significant comparisons for daily activity levels. These results suggest there are differences in the resolution and variability of the data at these two time scales, with daily data being more granular and sesitive to short-term differences while monthly data reflect broader patterns. 
+
+> The top 10 most significant results are between 1) Mill Creek Park eastern gray squirrel and Bells Bend Park American beaver, 2) Bells Bend Park white-tailed deer and Bells Bend Park American beaver, 3) Mill Creek Park white-tailed deer and Mill Creek Park American beaver, 4) Bells Bend Park white-tailed deer and Mill Creek Park American beaver, 5) Mill Creek Park eastern gray squirrel and Beaman Park bobcat, 6) Bells Bend Park white-tailed deer and Beaman Park bobcat, 7) Mill Creek Park eastern gray squirrel and Bells Bend Park bobcat, 8) Bells Bend Park white-tailed deer and Bells Bend Park bobcat, 9) Mill Creek Park eastern gray squirrel and Beaman Park coyote, and 10) Bells Bend Park white-tailed deer and Beaman Park coyote.
 
 >The Tukey test results on the monthly species activity dataset reveal significant differences in activity levels between species and parks. For instance, the activity of "Eastern Gray Squirrel" in Mill Creek Park was significantly higher compared to "American Beaver" in Bells Bend Park (difference: 50.58, 95% confidence interval: [36.02, 65.14], adjusted p-value: < 0.001). Similarly, "White-tailed Deer" in Bells Bend Park exhibited significantly higher activity compared to "American Beaver" in the same park (difference: 36.93, 95% confidence interval: [22.37, 51.49], adjusted p-value: < 0.001).
 
@@ -177,11 +181,11 @@ C_t_test_class
 
 >T-test Result Interpretation:
 
->For eastern gray squirrel, community and regional parks have statistically different means (p-value < 2.2e-16). The sample estimate for community parks is about 1.82 while the sample estimate for regional parks is 0.201.
+>For the daily activity of eastern gray squirrel, community and regional parks have statistically different means (p-value < 2.2e-16). The sample estimate for community parks is about 1.82 while the sample estimate for regional parks is 0.201.
 
->For white-tailed deer, community and regional parks have statistically different means (p-value < 2.2e-16). The sample estimate for community parks is about 0.176 while the sample estimate for regional parks is 0.853.
+>For the daily activity of white-tailed deer, community and regional parks have statistically different means (p-value < 2.2e-16). The sample estimate for community parks is about 0.176 while the sample estimate for regional parks is 0.853.
 
->For coyote, community and regional parks have statistically the same means (p-value = 0.1471). The sample estimate for community parks is about 0.0363 while the sample estimate for regional parks is about 0.0575.
+>For the daily activity of coyote, community and regional parks have statistically the same means (p-value = 0.1471). The sample estimate for community parks is about 0.0363 while the sample estimate for regional parks is about 0.0575.
 
 ### Park Size (>1000ac vs <1000ac)
 ```{r}
@@ -198,11 +202,11 @@ C_t_test_size
 
 >T-test Result Interpretation:
 
->For eastern gray squirrel, parks less than 1000 acres and parks more than 1000 acres have statistically different means (p-value < 2.2e-16). The sample estimate for parks less than 1000 acres is about 1.00 while the sample estimate for parks more than 1000 acres is 0.215.
+>For the daily activity of eastern gray squirrel, parks less than 1000 acres and parks more than 1000 acres have statistically different means (p-value < 2.2e-16). The sample estimate for parks less than 1000 acres is about 1.00 while the sample estimate for parks more than 1000 acres is 0.215.
 
->For white-tailed deer, parks less than 1000 acres and parks more than 1000 acres have statistically different means (p-value = 6.312e-07). The sample estimate for parks less than 1000 acres is about 0.754 while the sample estimate for parks more than 1000 acres is 0.374.
+>For the daily activity of white-tailed deer, parks less than 1000 acres and parks more than 1000 acres have statistically different means (p-value = 6.312e-07). The sample estimate for parks less than 1000 acres is about 0.754 while the sample estimate for parks more than 1000 acres is 0.374.
 
->For coyote, parks less than 1000 acres and parks more than 1000 acres have statistically the same means (p-value = 0.1039). The sample estimate for parks less than 1000 acres is about 0.0578 while the sample estimate for parks more than 1000 acres is about 0.0357.
+>For the daily activity of coyote, parks less than 1000 acres and parks more than 1000 acres have statistically the same means (p-value = 0.1039). The sample estimate for parks less than 1000 acres is about 0.0578 while the sample estimate for parks more than 1000 acres is about 0.0357.
 
 ### Disruptive Activity, i.e., mountain biking, camping and fishing (Yes vs No)
 ```{r}
@@ -219,11 +223,11 @@ C_t_test_disrupt
 
 >T-test Result Interpretation:
 
->For eastern gray squirrel, parks without disruptive activities and parks with disruptive activities have statistically different means (p-value < 2.2e-16). The sample estimate for parks without disruptive activities is about 1.02 while the sample estimate for parks without disruptive activities is 0.187.
+>For the daily activity of eastern gray squirrel, parks without disruptive activities and parks with disruptive activities have statistically different means (p-value < 2.2e-16). The sample estimate for parks without disruptive activities is about 1.02 while the sample estimate for parks without disruptive activities is 0.187.
 
->For white-tailed deer, parks without disruptive activities and parks with disruptive activities have statistically different means (p-value < 2.2e-16). The sample estimate for parks without disruptive activities is about 0.275 while the sample estimate for parks with disruptive activities is 1.33.
+>For the daily activity of white-tailed deer, parks without disruptive activities and parks with disruptive activities have statistically different means (p-value < 2.2e-16). The sample estimate for parks without disruptive activities is about 0.275 while the sample estimate for parks with disruptive activities is 1.33.
 
->For coyote, parks without disruptive activities and parks with disruptive activities have statistically different means (p-value = 0.04813). The sample estimate for parks without disruptive activities is about 0.0360 while the sample estimate for parks with disruptive activities is about 0.0793.
+>For the daily activity of coyote, parks without disruptive activities and parks with disruptive activities have statistically different means (p-value = 0.04813). The sample estimate for parks without disruptive activities is about 0.0360 while the sample estimate for parks with disruptive activities is about 0.0793.
 
 ### Monthly species activity
 ```{r}
@@ -252,11 +256,11 @@ C_t_test_class2
 
 >T-test Result Interpretation:
 
->For eastern gray squirrel, community and regional parks have statistically different means (p-value = 0.004491). The sample estimate for community parks is about 50.7 while the sample estimate for regional parks is 5.58. 
+>For the monthly activity of eastern gray squirrel, community and regional parks have statistically different means (p-value = 0.004491). The sample estimate for community parks is about 50.7 while the sample estimate for regional parks is 5.58. 
 
->For white-tailed deer, community and regional parks have statistically different means (p-value = 0.001046). The sample estimate for community parks is about 4.89 while the sample estimate for regional parks is 23.7.
+>For the monthly activity of white-tailed deer, community and regional parks have statistically different means (p-value = 0.001046). The sample estimate for community parks is about 4.89 while the sample estimate for regional parks is 23.7.
 
->For coyote, community and regional parks have statistically the same means (p-value = 0.3486). The sample estimate for community parks is about 1.01 while the sample estimate for regional parks is about 1.60.
+>For the monthly activity of coyote, community and regional parks have statistically the same means (p-value = 0.3486). The sample estimate for community parks is about 1.01 while the sample estimate for regional parks is about 1.60.
 
 ### Park Size (>1000ac vs <1000ac)
 ```{r}
@@ -272,11 +276,11 @@ C_t_test_size2
 
 >T-test Result Interpretation:
 
->For eastern gray squirrel, parks less than 1000 acres and parks more than 1000 acres have statistically different means (p-value = 0.01198). The sample estimate for parks less than 1000 acres is about 27.9 while the sample estimate for parks more than 1000 acres is 5.98.
+>For the monthly activity of eastern gray squirrel, parks less than 1000 acres and parks more than 1000 acres have statistically different means (p-value = 0.01198). The sample estimate for parks less than 1000 acres is about 27.9 while the sample estimate for parks more than 1000 acres is 5.98.
 
->For white-tailed deer, parks less than 1000 acres and parks more than 1000 acres have statistically the same means (p-value = 0.07912). The sample estimate for parks less than 1000 acres is about 21.0 while the sample estimate for parks more than 1000 acres is 10.4.
+>For the monthly activity of white-tailed deer, parks less than 1000 acres and parks more than 1000 acres have statistically the same means (p-value = 0.07912). The sample estimate for parks less than 1000 acres is about 21.0 while the sample estimate for parks more than 1000 acres is 10.4.
 
->For coyote, parks less than 1000 acres and parks more than 1000 acres have statistically the same means (p-value = 0.252). The sample estimate for parks less than 1000 acres is about 1.61 while the sample estimate for parks more than 1000 acres is about 0.992.
+>For the monthly activity of coyote, parks less than 1000 acres and parks more than 1000 acres have statistically the same means (p-value = 0.252). The sample estimate for parks less than 1000 acres is about 1.61 while the sample estimate for parks more than 1000 acres is about 0.992.
 
 ### Disruptive Activity, i.e., mountain biking, camping and fishing (Yes vs No)
 ```{r}
@@ -292,8 +296,8 @@ C_t_test_disrupt2
 
 >T-test Result Interpretation:
 
->For eastern gray squirrel, parks without disruptive activities and parks with disruptive activities have statistically different means (p-value = 0.008249). The sample estimate for parks without disruptive activities is about 28.3 while the sample estimate for parks without disruptive activities is 5.19.
+>For the monthly activity of eastern gray squirrel, parks without disruptive activities and parks with disruptive activities have statistically different means (p-value = 0.008249). The sample estimate for parks without disruptive activities is about 28.3 while the sample estimate for parks without disruptive activities is 5.19.
 
->For white-tailed deer, parks without disruptive activities and parks with disruptive activities have statistically different means (p-value = 0.001368). The sample estimate for parks without disruptive activities is about 7.65 while the sample estimate for parks with disruptive activities is 37.0.
+>For the monthly activity of white-tailed deer, parks without disruptive activities and parks with disruptive activities have statistically different means (p-value = 0.001368). The sample estimate for parks without disruptive activities is about 7.65 while the sample estimate for parks with disruptive activities is 37.0.
 
->For coyote, parks without disruptive activities and parks with disruptive activities have statistically the same means (p-value = 0.1408). The sample estimate for parks without disruptive activities is about 1.00 while the sample estimate for parks with disruptive activities is about 2.20.
+>For the monthly activity of coyote, parks without disruptive activities and parks with disruptive activities have statistically the same means (p-value = 0.1408). The sample estimate for parks without disruptive activities is about 1.00 while the sample estimate for parks with disruptive activities is about 2.20.
