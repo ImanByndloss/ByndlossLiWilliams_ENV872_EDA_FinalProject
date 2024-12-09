@@ -11,6 +11,7 @@ library(lubridate)
 library(here)
 library(ggplot2)
 library(mapview)
+library(cowplot)
 ```
 
 ## Exploring Species Data
@@ -29,12 +30,105 @@ Full_Period_Species_Counts <- read.csv(
   stringsAsFactors = TRUE) 
 ```
 
+### Count adjusted over time
+
+```{r}
+# Ensure the Date and Month columns are classed correctly
+Daily_Species_Counts$Date <- as.Date(Daily_Species_Counts$Date)
+Monthly_Species_Counts$Month <- as.Date(paste0(Monthly_Species_Counts$Month, "-01"))
+
+# Filter daily and monthly data for each park
+Beaman_Daily <- Daily_Species_Counts %>% filter(
+  ParkName == "Alvin G. Beaman Park")
+Beaman_Monthly <- Monthly_Species_Counts %>% filter(
+  ParkName == "Alvin G. Beaman Park")
+  
+BellsBend_Daily <- Daily_Species_Counts %>% filter(
+  ParkName == "Bells Bend Park")
+BellsBend_Monthly <- Monthly_Species_Counts %>% filter(
+  ParkName == "Bells Bend Park")
+  
+MillCreek_Daily <- Daily_Species_Counts %>% filter(
+  ParkName == "Mill Creek Park")
+MillCreek_Monthly <- Monthly_Species_Counts %>% filter(
+  ParkName == "Mill Creek Park")
+
+# Graph daily and monthly data for each park
+BD.plot <- ggplot(Beaman_Daily, aes(x = Date, 
+                                    y = CountAdjusted, 
+                                    color = Species)) +
+  geom_line() +
+  labs(title = "Daily Activity Levels for Mammal Species in Beaman Park",
+       x = "Date", 
+       y = "Count Adjusted",
+       color = "Species")
+BM.plot <- ggplot(Beaman_Monthly, aes(x = Month, 
+                                      y = CountAdjusted, 
+                                      color = Species)) +
+  geom_line() +
+  labs(title = "Monthly Activity Levels for Mammal Species in Beaman Park",
+       x = "Date", 
+       y = "Count Adjusted",
+       color = "Species")
+
+BBD.plot <- ggplot(BellsBend_Daily, aes(x = Date, 
+                                        y = CountAdjusted, 
+                                        color = Species)) +
+  geom_line() +
+  labs(title = "Daily Activity Levels for Mammal Species in Bells Bend Park",
+       x = "Date", 
+       y = "Count Adjusted",
+       color = "Species")
+BBM.plot <- ggplot(BellsBend_Monthly, aes(x = Month, 
+                                          y = CountAdjusted, 
+                                          color = Species)) +
+  geom_line() +
+  labs(title = "Monthly Activity Levels for Mammal Species in Bells Bend Park",
+       x = "Date", 
+       y = "Count Adjusted",
+       color = "Species")
+
+MCD.plot <- ggplot(MillCreek_Daily, aes(x = Date, 
+                                        y = CountAdjusted, 
+                                        color = Species)) +
+  geom_line() +
+  labs(title = "Daily Activity Levels for Mammal Species in Mill Creek Park",
+       x = "Date", 
+       y = "Count Adjusted",
+       color = "Species")
+MCM.plot <- ggplot(MillCreek_Monthly, aes(x = Month, 
+                                          y = CountAdjusted, 
+                                          color = Species)) +
+  geom_line() +
+  labs(title = "Monthly Activity Levels for Mammal Species in Mill Creek Park",
+       x = "Date", 
+       y = "Count Adjusted",
+       color = "Species")
+
+# Display daily and monthly plots together
+plot_grid(BD.plot, BBD.plot, MCD.plot)
+plot_grid(BM.plot, BBM.plot, MCM.plot)
+
+```
+
+### Count adjusted per species
+
+```{r}
+# Graph full period data
+FP.plot <- ggplot(Full_Period_Species_Counts, aes(x = Species, 
+                                                  y = CountAdjusted, 
+                                                  color = ParkName)) +
+  geom_col(position = "dodge") +
+  labs(title = "Total Activity Levels for Mammal Species during Study Period",
+       x = "Species", 
+       y = "Count Adjusted",
+       color = "Park Name") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+FP.plot
+```
+
 ```{r}
 #Draft plots, will fix as needed 
-
-Monthly_Species_Counts <- read.csv(
-  file = here("./Data/Processed/Monthly_Species_Counts.csv"),
-  stringsAsFactors = TRUE) 
 
 #Most common species from monthly data
 ggplot(Monthly_Species_Counts, aes(x=Species, y=CountAdjusted, fill=Species)) +geom_bar(stat = "identity") +facet_wrap(~ ParkName) + theme(legend.text = element_text(size = 6),        # Smaller legend text
@@ -58,5 +152,3 @@ Park_Attributes <- st_read(
 # Map parks with attributes with color code based on park name
 mapView(Park_Attributes, zcol = "Name", legend.title = "Park Name")
 ```
-
-##
