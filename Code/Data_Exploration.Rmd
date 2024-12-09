@@ -163,7 +163,15 @@ plot_grid(BD.plot, BBD.plot, MCD.plot,
 plot_grid(BM.plot, BBM.plot, MCM.plot, 
           ncol = 1) #vertical alignment of plots
 ```
+```{r}
+Deer_Squirrel <- Daily_Merge %>%
+  filter(Species %in% c("White-tailed Deer", "Eastern Gray Squirrel")) %>%
+   mutate(Date = as.Date(Date))
 
+ggplot(Deer_Squirrel, aes(x=Date, y=CountAdjusted, col=Species)) +
+  geom_line() + facet_wrap(~ ParkName, ncol = 1) + labs(y = "Species Count")
+
+```
 ### Count adjusted per species
 
 ```{r}
