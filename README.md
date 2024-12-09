@@ -2,11 +2,13 @@
 ENV872 Course Project
 ## Summary
 
-<describe the purpose of this repository, the information it contains, and any relevant analysis goals. What, why, where, when, how?>
+<describe the purpose of this repository, the information it contains, and any relevant analysis goals. What, why, where, when, how?
+
+The purpose of this repository is to explore how species activity changes between Nashville parks. We focused on the Mills Creek, Bells Bend, and Beaman because they had similar timeframes for data collection. The goal of the study is to find if daily, monthly, and full study period activity are different between the parks and which park attributes might cause these changes. The species data was collected using camera traps. >
 
 ## Investigators
 
-<name(s), affiliation(s), contact information, roles (if applicable)>
+<Iman Byndloss, Leah Li, and Rachel Williams. Environmental Management students at Duke University.>
 
 ## Keywords
 
@@ -19,7 +21,10 @@ ENV872 Course Project
 
 ## Folder structure, file formats, and naming conventions 
 
-<describe the folders contained in the repository, including what type of files they contain>
+<describe the folders contained in the repository, including what type of files they contain
+Code: Contains Rmd files for Data Analysis, Data Exploration, and Data Processing. 
+Data: Contains the processed and raw datasets used for analysis. Includes camera deployments, park properties (.cpg, .dbf, .prj, .shp, and .shx), and wildlife insights data from 2021-2022. All files except Parks_properties and the Parks_view .geojson file are .csv files. Also has a metadata Rmd file.
+Tukey_Test_Results.csv: Excel file containing Tukey test results for the target parks.>
 
 <describe the formats of files for the various purposes contained in the repository>
 
