@@ -12,7 +12,8 @@ The purpose of this repository is to explore how species activity changes betwee
 
 ## Keywords
 
-<add relevant keywords here>
+<add relevant keywords here
+Spatial analysis, Species Activity, Parks, Camera Traps>
 
 ## Database Information
 
