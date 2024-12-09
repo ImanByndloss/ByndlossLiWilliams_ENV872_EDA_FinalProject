@@ -35,7 +35,19 @@ Full_Period_Species_Counts <- read.csv(
 ```{r}
 # Ensure the Date and Month columns are classed correctly
 Daily_Species_Counts$Date <- as.Date(Daily_Species_Counts$Date)
-Monthly_Species_Counts$Month <- as.Date(paste0(Monthly_Species_Counts$Month, "-01"))
+Monthly_Species_Counts$Month <- as.Date(paste0(Monthly_Species_Counts$Month, 
+                                               "-01"))
+
+# Ensure species in alphabetical order
+# Generate and assign rainbow colors
+# Apply sorted species factor to data sets
+all_species <- sort(unique(Daily_Species_Counts$Species))
+species_colors_rainbow <- rainbow(length(all_species))
+species_colors <- setNames(species_colors_rainbow, all_species)
+Daily_Species_Counts$Species <- factor(Daily_Species_Counts$Species, 
+                                       levels = all_species)
+Monthly_Species_Counts$Species <- factor(Monthly_Species_Counts$Species,
+                                         levels = all_species)
 
 # Filter daily and monthly data for each park
 Beaman_Daily <- Daily_Species_Counts %>% filter(
@@ -58,6 +70,7 @@ BD.plot <- ggplot(Beaman_Daily, aes(x = Date,
                                     y = CountAdjusted, 
                                     color = Species)) +
   geom_line() +
+  scale_color_manual(values = species_colors) +
   labs(title = "Daily Activity Levels for Mammal Species in Beaman Park",
        x = "Date", 
        y = "Count Adjusted",
@@ -66,6 +79,7 @@ BM.plot <- ggplot(Beaman_Monthly, aes(x = Month,
                                       y = CountAdjusted, 
                                       color = Species)) +
   geom_line() +
+  scale_color_manual(values = species_colors) +
   labs(title = "Monthly Activity Levels for Mammal Species in Beaman Park",
        x = "Date", 
        y = "Count Adjusted",
@@ -75,6 +89,7 @@ BBD.plot <- ggplot(BellsBend_Daily, aes(x = Date,
                                         y = CountAdjusted, 
                                         color = Species)) +
   geom_line() +
+  scale_color_manual(values = species_colors) +
   labs(title = "Daily Activity Levels for Mammal Species in Bells Bend Park",
        x = "Date", 
        y = "Count Adjusted",
@@ -83,6 +98,7 @@ BBM.plot <- ggplot(BellsBend_Monthly, aes(x = Month,
                                           y = CountAdjusted, 
                                           color = Species)) +
   geom_line() +
+  scale_color_manual(values = species_colors) +
   labs(title = "Monthly Activity Levels for Mammal Species in Bells Bend Park",
        x = "Date", 
        y = "Count Adjusted",
@@ -92,6 +108,7 @@ MCD.plot <- ggplot(MillCreek_Daily, aes(x = Date,
                                         y = CountAdjusted, 
                                         color = Species)) +
   geom_line() +
+  scale_color_manual(values = species_colors) +
   labs(title = "Daily Activity Levels for Mammal Species in Mill Creek Park",
        x = "Date", 
        y = "Count Adjusted",
@@ -100,6 +117,7 @@ MCM.plot <- ggplot(MillCreek_Monthly, aes(x = Month,
                                           y = CountAdjusted, 
                                           color = Species)) +
   geom_line() +
+  scale_color_manual(values = species_colors) +
   labs(title = "Monthly Activity Levels for Mammal Species in Mill Creek Park",
        x = "Date", 
        y = "Count Adjusted",
@@ -118,12 +136,12 @@ plot_grid(BM.plot, BBM.plot, MCM.plot)
 FP.plot <- ggplot(Full_Period_Species_Counts, aes(x = Species, 
                                                   y = CountAdjusted, 
                                                   color = ParkName)) +
-  geom_col(position = "dodge") +
+  geom_col(position = "dodge") + #ensures bars do not overlap
   labs(title = "Total Activity Levels for Mammal Species during Study Period",
        x = "Species", 
        y = "Count Adjusted",
        color = "Park Name") +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) #tilts species names
 FP.plot
 ```
 
