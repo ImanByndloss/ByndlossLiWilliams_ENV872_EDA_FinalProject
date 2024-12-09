@@ -123,10 +123,45 @@ MCM.plot <- ggplot(MillCreek_Monthly, aes(x = Month,
        y = "Count Adjusted",
        color = "Species")
 
-# Display daily and monthly plots together
-plot_grid(BD.plot, BBD.plot, MCD.plot)
-plot_grid(BM.plot, BBM.plot, MCM.plot)
+# Create a function to reduce label sizes
+adjust_labels <- function(plot) {
+  plot +
+    theme(plot.title = element_text(size = 8),
+          axis.title.x = element_text(size = 6),
+          axis.title.y = element_text(size = 6),
+          axis.text.x = element_text(size = 6),
+          axis.text.y = element_text(size = 6))
+}
 
+# Apply label adjustments to all plots
+BD.plot <- adjust_labels(BD.plot)
+BM.plot <- adjust_labels(BM.plot)
+BBD.plot <- adjust_labels(BBD.plot)
+BBM.plot <- adjust_labels(BBM.plot)
+MCD.plot <- adjust_labels(MCD.plot)
+MCM.plot <- adjust_labels(MCM.plot)
+
+# Create a function to reduce ledgend size
+adjust_legend <- function(plot) {
+  plot +
+    theme(legend.key.size = unit(0.2, "cm"),
+          legend.text = element_text(size = 4),
+          legend.title = element_text(size = 5))
+}
+
+# Apply legend adjustments to all plots
+BD.plot <- adjust_legend(BD.plot)
+BM.plot <- adjust_legend(BM.plot)
+BBD.plot <- adjust_legend(BBD.plot)
+BBM.plot <- adjust_legend(BBM.plot)
+MCD.plot <- adjust_legend(MCD.plot)
+MCM.plot <- adjust_legend(MCM.plot)
+
+# Display daily and monthly plots together
+plot_grid(BD.plot, BBD.plot, MCD.plot,
+          ncol = 1) #vertical alignment of plots
+plot_grid(BM.plot, BBM.plot, MCM.plot, 
+          ncol = 1) #vertical alignment of plots
 ```
 
 ### Count adjusted per species
