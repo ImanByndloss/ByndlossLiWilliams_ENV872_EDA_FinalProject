@@ -30,6 +30,14 @@ Monthly_Species_Counts <- read.csv(
 Full_Period_Species_Counts <- read.csv(
   file = here("./Data/Processed/Full_Period_Species_Counts.csv"),
   stringsAsFactors = TRUE) 
+
+Daily_Merge <- read.csv(
+  file = here("./Data/Processed/Daily_Merge.csv"),
+  stringsAsFactors = TRUE) 
+
+Monthly_Merge <- read.csv(
+  file = here("./Data/Processed/Monthly_Merge.csv"),
+  stringsAsFactors = TRUE) 
 ```
 
 ### Count adjusted over time
@@ -165,8 +173,9 @@ plot_grid(BD.plot, BBD.plot, MCD.plot,
 plot_grid(BM.plot, BBM.plot, MCM.plot, 
           ncol = 1) #vertical alignment of plots
 ```
+
+### Adjusted Deer Count Graphs
 ```{r}
-#Adjusted Deer and Squirrel counts over time
 
 Deer_Counts <- Daily_Merge %>%
   filter(Species == "White-tailed Deer") %>%
@@ -175,7 +184,7 @@ Deer_Counts <- Daily_Merge %>%
 ggplot(Deer_Counts, aes(x=Date, y=CountAdjusted)) +
   geom_line(col='red') + facet_wrap(~ ParkName, ncol = 1) + labs(title = "Adjusted Deer Counts over Time", y = "Species Count") 
 ```
-
+### Adjusted Squirrel Count Graphs
 ```{r}
 Squirrel_Counts <- Daily_Merge %>%
   filter(Species == "Eastern Gray Squirrel") %>%
@@ -201,6 +210,7 @@ FP.plot <- ggplot(Full_Period_Species_Counts, aes(x = Species,
 FP.plot
 ```
 
+### More Graphs
 ```{r}
 #Draft plots, will fix as needed 
 
