@@ -8,12 +8,36 @@
 
 ```{r setup, include=FALSE}
 # Set your working directory
+setwd("/home/guest/ByndlossLiWilliams")
 
 # Load your packages
+library(tidyverse)
+library(lubridate)
+library(dplyr)
+library(here)
+library(ggplot2)
 
+here()
 # Set your ggplot theme
+my_theme <- 
 
 # Load your datasets
+Daily_Species_Counts <- read.csv(
+  file = here("./Data/Processed/Daily_Species_Counts.csv"),
+  stringsAsFactors = TRUE) 
+
+Monthly_Species_Counts <- read.csv(
+  file = here("./Data/Processed/Monthly_Species_Counts.csv"),
+  stringsAsFactors = TRUE) 
+
+Daily_Merge <- read.csv(
+  file = here("./Data/Processed/Daily_Merge.csv"),
+  stringsAsFactors = TRUE) 
+
+Monthly_Merge <- read.csv(
+  file = here("./Data/Processed/Monthly_Merge.csv"),
+  stringsAsFactors = TRUE) 
+```
 
 ```
 
