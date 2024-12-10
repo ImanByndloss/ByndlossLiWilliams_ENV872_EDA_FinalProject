@@ -1,6 +1,8 @@
 ---
 title: "Data Exploration"
-output: html_document
+output:
+  html_document: default
+  pdf_document: default
 date: "2024-11-26"
 ---
 
@@ -223,4 +225,18 @@ Park_Attributes <- st_read(
 
 # Map parks with attributes with color code based on park name
 mapView(Park_Attributes, zcol = "Name", legend.title = "Park Name")
+
+# Plot parks on coordinate graph with color code based on park name
+ggplot(data = Park_Attributes) +
+  geom_sf(aes(fill = Name), color = "black", lwd = 0.3) +
+  scale_fill_viridis_d(option = "plasma") +  # Color palette (changeable)
+  labs(
+    title = "A coordinate graph of parks",
+    fill = "Park Name"  # Legend title
+  ) +
+  theme_minimal() +
+  theme(
+    legend.position = "right",
+    plot.title = element_text(hjust = 0.5, size = 16)
+  )
 ```
