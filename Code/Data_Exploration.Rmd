@@ -164,7 +164,7 @@ plot_grid(BM.plot, BBM.plot, MCM.plot,
           ncol = 1) #vertical alignment of plots
 ```
 ```{r}
-#Deer and Squirrel counts over time
+#Adjusted Deer and Squirrel counts over time
 
 Deer_Counts <- Daily_Merge %>%
   filter(Species == "White-tailed Deer") %>%
