@@ -357,28 +357,63 @@ display: none;
 </div>
 
 
-<div id="r-set-up-uploading-datasets" class="section level2">
-<h2>R Set Up; Uploading Datasets</h2>
-<pre class="r"><code>#Load packages
+<p>The upcoming analyses seek to answer the following research
+questions: Does the overall activity (daily and monthly) for mammalian
+species differ across three Davidson County parks (Beaman, Bells Bend,
+and Mill Creek)? And do any park attributes (i.e., classification, size
+and disruptive activities) have a significant impact on the activity of
+the two most common species? Assuming null hypotheses, there is no
+significant difference between overall daily and monthly activity for
+mammals in the three parks, and none of the tested park attributes
+significantly impact the activity of eastern gray squirrels and
+white-tailed deer.</p>
+<p>To describe the motivation behind this research, we are interested in
+understanding how different factors influence mammalian species activity
+in urban parks. Parks like Beaman, Bells Bend, and Mill Creek not only
+provide essential green spaces for humans but also serve as critical
+habitats for wildlife. Our curiosity lies in exploring how park
+attributes, such as size and unique features, shape species behavior
+over time. By understanding these dynamics, we hope to foster greater
+appreciation for biodiversity in urban environments and support park
+management practices.</p>
+<div id="set-up-loading-packages-and-uploading-datasets" class="section level2">
+<h2>Set Up (loading packages and uploading datasets)</h2>
+<pre class="r"><code># Load relevant packages
 library(tidyverse)
 library(lubridate)
+library(dplyr)
 library(here)
 library(ggplot2)
 
-#Upload species dataset
-Daily_Species_Count.data &lt;- read.csv(
+# Load relevant processed data
+Daily_Species_Counts &lt;- read.csv(
   file = here(&quot;./Data/Processed/Daily_Species_Counts.csv&quot;),
   stringsAsFactors = TRUE) 
 
-Monthly_Species_Count.data &lt;- read.csv(
+Monthly_Species_Counts &lt;- read.csv(
   file = here(&quot;./Data/Processed/Monthly_Species_Counts.csv&quot;),
+  stringsAsFactors = TRUE) 
+
+Daily_Merge &lt;- read.csv(
+  file = here(&quot;./Data/Processed/Daily_Merge.csv&quot;),
+  stringsAsFactors = TRUE) 
+
+Monthly_Merge &lt;- read.csv(
+  file = here(&quot;./Data/Processed/Monthly_Merge.csv&quot;),
   stringsAsFactors = TRUE) </code></pre>
-<p>#Two-way ANOVA Test - Daily Species Activity and Parks</p>
+</div>
+<div id="two-way-anova-test" class="section level1">
+<h1>Two-way ANOVA Test</h1>
+<p>These two-way anova seek to determine if the overall activity (daily
+and monthly) for mammalian species significantly differ between Beaman
+Park, Bells Bend Park, and Mill Creek Park.</p>
+<div id="daily-species-activity-park-and-species" class="section level2">
+<h2>Daily Species Activity (Park and Species)</h2>
 <pre class="r"><code># Perform the two-way ANOVA with interaction
-first_anova_result &lt;- aov(CountAdjusted ~ ParkName * Species, data = Daily_Species_Count.data)
+daily_anova_result &lt;- aov(CountAdjusted ~ ParkName * Species, data = Daily_Species_Counts)
 
 # View the ANOVA summary
-summary(first_anova_result)</code></pre>
+summary(daily_anova_result)</code></pre>
 <pre><code>##                     Df Sum Sq Mean Sq F value Pr(&gt;F)    
 ## ParkName             2   55.9   27.96   99.91 &lt;2e-16 ***
 ## Species             15  599.6   39.97  142.86 &lt;2e-16 ***
@@ -390,52 +425,46 @@ summary(first_anova_result)</code></pre>
 <p>ANOVA Result Interpretation:</p>
 </blockquote>
 <blockquote>
-<p>The two-way ANOVA analysis here evaluated the effects of park
-location and species type, as well as their interaction, on species
-activity levels (measured as adjusted counts). The results revealed a
-significant main effect of park location (F=99.91, p&lt;0.001),
-indicating that species activity levels varied significantly between
-parks. Similarly, a highly significant main effect was observed for
-species type (F=142.86, p&lt;0.001), suggesting that the activity levels
-differed substantially across the species studied.</p>
-</blockquote>
-<blockquote>
-<p>In addition to the main effects, the interaction between park
-location and species type was also significant (F=127.19, p&lt;0.001).
-This finding highlights that the effect of park location on species
-activity is not consistent across all species. In other words, the
-differences in species activity levels between parks are influenced by
-the specific species being observed.</p>
+<p>The two-way ANOVA analysis here evaluated the effects of park and
+species, as well as their interaction, on daily activity levels
+(measured as adjusted counts). In terms of the main effects, the results
+revealed daily activity levels differ significantly across parks (Df =
+2, F-value = 99.91, p-value = &lt;2e-16) and species (Df = 15, F-value =
+142.86, p-value = &lt;2e-16). In terms of the interaction effect, the
+interaction between park and species was also significant (Df = 19,
+F-value = 127.19, p-value = &lt;2e-16). This finding highlights that the
+effect of park on daily activity is not consistent across all species
+and the effect of species on daily activity is not consistent across all
+parks.</p>
 </blockquote>
 <blockquote>
 <p>These results suggest that both park-specific factors (e.g., habitat
 type, management practices) and species-specific traits (e.g., behavior,
-ecological preferences) play critical roles in determining activity
-levels. Moreover, the significant interaction effect emphasizes the
-importance of considering the combined influence of these two factors
-when analyzing species activity patterns.</p>
+ecological preferences) play critical roles in determining daily
+activity levels. Moreover, the significant interaction effect emphasizes
+the importance of considering the combined influence of these two
+factors when analyzing daily activity.</p>
 </blockquote>
-</div>
-<div id="post-hoc-test" class="section level2">
-<h2>Post-Hoc Test</h2>
+<div id="post-hoc-test" class="section level3">
+<h3>Post-Hoc Test</h3>
 <pre class="r"><code># If the interaction term is significant, perform a post-hoc test
-Daily_Species_Count.data$ParkName &lt;- as.factor(Daily_Species_Count.data$ParkName)
-Daily_Species_Count.data$Species &lt;- as.factor(Daily_Species_Count.data$Species)
+Daily_Species_Counts$ParkName &lt;- as.factor(Daily_Species_Counts$ParkName)
+Daily_Species_Counts$Species &lt;- as.factor(Daily_Species_Counts$Species)
 
 # Tukey&#39;s HSD test for the interaction term (ParkName * Species)
 library(agricolae)
-tukey_result &lt;- TukeyHSD(first_anova_result, &quot;ParkName:Species&quot;)
+daily_tukey_result &lt;- TukeyHSD(daily_anova_result, &quot;ParkName:Species&quot;)
 
 # Extract significant results
-tukey_df &lt;- as.data.frame(tukey_result$`ParkName:Species`)
-tukey_df$Comparison &lt;- rownames(tukey_result$`ParkName:Species`)
-rownames(tukey_df) &lt;- NULL
+daily_tukey_df &lt;- as.data.frame(daily_tukey_result$`ParkName:Species`)
+daily_tukey_df$Comparison &lt;- rownames(daily_tukey_result$`ParkName:Species`)
+rownames(daily_tukey_df) &lt;- NULL
 
 # Filter significant comparisons
-significant_tukey &lt;- subset(tukey_df, `p adj` &lt; 0.05)
+daily_significant_tukey &lt;- subset(daily_tukey_df, `p adj` &lt; 0.05)
 
 # Print the top 10 significant results
-head(significant_tukey, 10)</code></pre>
+head(daily_significant_tukey, 10)</code></pre>
 <pre><code>##          diff         lwr       upr        p adj
 ## 61  0.2113309 0.033001641 0.3896602 2.405810e-03
 ## 62  0.1829137 0.004584374 0.3612430 3.447013e-02
@@ -459,7 +488,28 @@ head(significant_tukey, 10)</code></pre>
 ## 106 Alvin G. Beaman Park:Eastern Gray Squirrel-Mill Creek Park:American Beaver
 ## 107      Bells Bend Park:Eastern Gray Squirrel-Mill Creek Park:American Beaver</code></pre>
 <blockquote>
-<p>Post-Hoc Result Interpretation</p>
+<p>Post-Hoc Result Interpretation:</p>
+</blockquote>
+<blockquote>
+<p>In total, the post-hoc test for daily activity levels revealed 214
+significant comparisons.</p>
+</blockquote>
+<blockquote>
+<p>The top 10 most significant results are between 1) Beaman Park
+eastern gray squirrel and Bells Bend Park American beaver, 2) Bells Bend
+Park eastern gray squirrel and Bells Bend Park American beaver, 3) Mill
+Creek Park eastern gray squirrel and Bells Bend Park American beaver, 4)
+Bells Bend Park nine-banded armadillo and Bells Bend Park American
+beaver, 5) Bells Bend Park northern raccoon and Bells Bend Park American
+beaver, 6) Mill Creek Park northern raccon and Bells Bend Park American
+beaver, 7) Beaman Park white-tailed deer and Bells Bend Park American
+beaver, 8) Bells Bend Park white-tailed deer and Bells Bend Park
+American beaver, 9) Beaman Park eastern gray squirrel and Mill Creek
+Park American beaver, and 10) Bells Bend eastern gray squirrel and Mill
+Creek Park American beaver.</p>
+</blockquote>
+<blockquote>
+<p>To examine these results in more detail…</p>
 </blockquote>
 <blockquote>
 <ol style="list-style-type: decimal">
@@ -506,12 +556,15 @@ importance of localized habitat characteristics and interspecies
 dynamics in shaping activity patterns.</li>
 </ol>
 </blockquote>
-<p>#Two-way ANOVA Test - Monthly Species Activity and Parks</p>
+</div>
+</div>
+<div id="monthly-species-activity-park-and-species" class="section level2">
+<h2>Monthly Species Activity (Park and Species)</h2>
 <pre class="r"><code># Perform the two-way ANOVA with interaction
-second_anova_result &lt;- aov(CountAdjusted ~ ParkName * Species, data = Monthly_Species_Count.data)
+monthly_anova_result &lt;- aov(CountAdjusted ~ ParkName * Species, data = Monthly_Species_Counts)
 
 # View the ANOVA summary
-summary(second_anova_result)</code></pre>
+summary(monthly_anova_result)</code></pre>
 <pre><code>##                   Df Sum Sq Mean Sq F value   Pr(&gt;F)    
 ## ParkName           2   1554   777.2   11.81 1.11e-05 ***
 ## Species           15  16669  1111.3   16.88  &lt; 2e-16 ***
@@ -523,105 +576,90 @@ summary(second_anova_result)</code></pre>
 <p>ANOVA Result Interpretation:</p>
 </blockquote>
 <blockquote>
-<p>The main effect of ParkName was significant (F = 11.81, p =
-1.11e-05), indicating that monthly species activity levels vary
-significantly across different parks. This suggests that environmental
-factors, habitat characteristics, or management practices unique to each
-park contribute to these differences.</p>
+<p>The two-way ANOVA analysis here evaluated the effects of park and
+species, as well as their interaction, on monthly activity levels
+(measured as adjusted counts). In terms of the main effects, the results
+revealed daily activity levels differ significantly across parks (Df =
+2, F-value = 11.81, p-value = 1.11e-05) and species (Df = 15, F-value =
+16.88, p-value = &lt;2e-16). In terms of the interaction effect, the
+interaction between park and species was also significant (Df = 19,
+F-value = 15.03, p-value = &lt;2e-16).</p>
 </blockquote>
 <blockquote>
-<p>Similarly, the main effect of Species was highly significant (F =
-16.88, p &lt; 2e-16), demonstrating that monthly activity levels differ
-substantially among species. This finding reflects species-specific
-behavior, ecological preferences, or adaptability to certain
-environments.</p>
+<p>With these results being similar to the results for daily activity,
+it can be understood that the effects of park-specific,
+species-specific, and interactive factors are consistent over longer
+time scales.</p>
 </blockquote>
-<blockquote>
-<p>The interaction effect between ParkName and Species was also highly
-significant (F = 15.03, p &lt; 2e-16). This indicates that the effect of
-park location on activity levels depends on the species observed, and
-vice versa. For instance, certain parks may be more conducive to higher
-activity levels for specific species due to habitat suitability or
-species-specific ecological requirements.</p>
-</blockquote>
-</div>
-<div id="post-hoc-test-1" class="section level2">
-<h2>Post-Hoc Test</h2>
+<div id="post-hoc-test-1" class="section level3">
+<h3>Post-Hoc Test</h3>
 <pre class="r"><code># If the interaction term is significant, perform a post-hoc test
-Monthly_Species_Count.data$ParkName &lt;- as.factor(Monthly_Species_Count.data$ParkName)
-Monthly_Species_Count.data$Species &lt;- as.factor(Monthly_Species_Count.data$Species)
+Monthly_Species_Counts$ParkName &lt;- as.factor(Monthly_Species_Counts$ParkName)
+Monthly_Species_Counts$Species &lt;- as.factor(Monthly_Species_Counts$Species)
 
 # Tukey&#39;s HSD test for the interaction term (ParkName * Species)
 library(agricolae)
-second_tukey_result &lt;- TukeyHSD(second_anova_result, &quot;ParkName:Species&quot;)
+monthly_tukey_result &lt;- TukeyHSD(monthly_anova_result, &quot;ParkName:Species&quot;)
 
 # Extract significant results
-second_tukey_df &lt;- as.data.frame(second_tukey_result$`ParkName:Species`)
-second_tukey_df$Comparison &lt;- rownames(second_tukey_result$`ParkName:Species`)
-rownames(tukey_df) &lt;- NULL
+monthly_tukey_df &lt;- as.data.frame(monthly_tukey_result$`ParkName:Species`)
+monthly_tukey_df$Comparison &lt;- rownames(monthly_tukey_result$`ParkName:Species`)
+rownames(monthly_tukey_df) &lt;- NULL
 
 # Filter significant comparisons
-second_significant_tukey &lt;- subset(second_tukey_df, `p adj` &lt; 0.05)
+monthly_significant_tukey &lt;- subset(monthly_tukey_df, `p adj` &lt; 0.05)
 
 # Print the top 10 significant results
-head(second_significant_tukey, 10)</code></pre>
-<pre><code>##                                                                           diff
-## Mill Creek Park:Eastern Gray Squirrel-Bells Bend Park:American Beaver 50.58333
-## Bells Bend Park:White-tailed Deer-Bells Bend Park:American Beaver     36.93000
-## Mill Creek Park:Eastern Gray Squirrel-Mill Creek Park:American Beaver 50.65000
-## Bells Bend Park:White-tailed Deer-Mill Creek Park:American Beaver     36.99667
-## Mill Creek Park:Eastern Gray Squirrel-Alvin G. Beaman Park:Bobcat     50.47500
-## Bells Bend Park:White-tailed Deer-Alvin G. Beaman Park:Bobcat         36.82167
-## Mill Creek Park:Eastern Gray Squirrel-Bells Bend Park:Bobcat          47.29833
-## Bells Bend Park:White-tailed Deer-Bells Bend Park:Bobcat              33.64500
-## Mill Creek Park:Eastern Gray Squirrel-Alvin G. Beaman Park:Coyote     49.69167
-## Bells Bend Park:White-tailed Deer-Alvin G. Beaman Park:Coyote         36.03833
-##                                                                            lwr
-## Mill Creek Park:Eastern Gray Squirrel-Bells Bend Park:American Beaver 36.02293
-## Bells Bend Park:White-tailed Deer-Bells Bend Park:American Beaver     22.36960
-## Mill Creek Park:Eastern Gray Squirrel-Mill Creek Park:American Beaver 36.08960
-## Bells Bend Park:White-tailed Deer-Mill Creek Park:American Beaver     22.43627
-## Mill Creek Park:Eastern Gray Squirrel-Alvin G. Beaman Park:Bobcat     35.91460
-## Bells Bend Park:White-tailed Deer-Alvin G. Beaman Park:Bobcat         22.26127
-## Mill Creek Park:Eastern Gray Squirrel-Bells Bend Park:Bobcat          32.73793
-## Bells Bend Park:White-tailed Deer-Bells Bend Park:Bobcat              19.08460
-## Mill Creek Park:Eastern Gray Squirrel-Alvin G. Beaman Park:Coyote     35.13127
-## Bells Bend Park:White-tailed Deer-Alvin G. Beaman Park:Coyote         21.47793
-##                                                                            upr
-## Mill Creek Park:Eastern Gray Squirrel-Bells Bend Park:American Beaver 65.14373
-## Bells Bend Park:White-tailed Deer-Bells Bend Park:American Beaver     51.49040
-## Mill Creek Park:Eastern Gray Squirrel-Mill Creek Park:American Beaver 65.21040
-## Bells Bend Park:White-tailed Deer-Mill Creek Park:American Beaver     51.55707
-## Mill Creek Park:Eastern Gray Squirrel-Alvin G. Beaman Park:Bobcat     65.03540
-## Bells Bend Park:White-tailed Deer-Alvin G. Beaman Park:Bobcat         51.38207
-## Mill Creek Park:Eastern Gray Squirrel-Bells Bend Park:Bobcat          61.85873
-## Bells Bend Park:White-tailed Deer-Bells Bend Park:Bobcat              48.20540
-## Mill Creek Park:Eastern Gray Squirrel-Alvin G. Beaman Park:Coyote     64.25207
-## Bells Bend Park:White-tailed Deer-Alvin G. Beaman Park:Coyote         50.59873
-##                                                                              p adj
-## Mill Creek Park:Eastern Gray Squirrel-Bells Bend Park:American Beaver 3.911316e-13
-## Bells Bend Park:White-tailed Deer-Bells Bend Park:American Beaver     8.375522e-13
-## Mill Creek Park:Eastern Gray Squirrel-Mill Creek Park:American Beaver 3.911316e-13
-## Bells Bend Park:White-tailed Deer-Mill Creek Park:American Beaver     8.519851e-13
-## Mill Creek Park:Eastern Gray Squirrel-Alvin G. Beaman Park:Bobcat     3.911316e-13
-## Bells Bend Park:White-tailed Deer-Alvin G. Beaman Park:Bobcat         8.308909e-13
-## Mill Creek Park:Eastern Gray Squirrel-Bells Bend Park:Bobcat          3.911316e-13
-## Bells Bend Park:White-tailed Deer-Bells Bend Park:Bobcat              8.526513e-13
-## Mill Creek Park:Eastern Gray Squirrel-Alvin G. Beaman Park:Coyote     3.911316e-13
-## Bells Bend Park:White-tailed Deer-Alvin G. Beaman Park:Coyote         8.282264e-13
-##                                                                                                                                  Comparison
-## Mill Creek Park:Eastern Gray Squirrel-Bells Bend Park:American Beaver Mill Creek Park:Eastern Gray Squirrel-Bells Bend Park:American Beaver
-## Bells Bend Park:White-tailed Deer-Bells Bend Park:American Beaver         Bells Bend Park:White-tailed Deer-Bells Bend Park:American Beaver
-## Mill Creek Park:Eastern Gray Squirrel-Mill Creek Park:American Beaver Mill Creek Park:Eastern Gray Squirrel-Mill Creek Park:American Beaver
-## Bells Bend Park:White-tailed Deer-Mill Creek Park:American Beaver         Bells Bend Park:White-tailed Deer-Mill Creek Park:American Beaver
-## Mill Creek Park:Eastern Gray Squirrel-Alvin G. Beaman Park:Bobcat         Mill Creek Park:Eastern Gray Squirrel-Alvin G. Beaman Park:Bobcat
-## Bells Bend Park:White-tailed Deer-Alvin G. Beaman Park:Bobcat                 Bells Bend Park:White-tailed Deer-Alvin G. Beaman Park:Bobcat
-## Mill Creek Park:Eastern Gray Squirrel-Bells Bend Park:Bobcat                   Mill Creek Park:Eastern Gray Squirrel-Bells Bend Park:Bobcat
-## Bells Bend Park:White-tailed Deer-Bells Bend Park:Bobcat                           Bells Bend Park:White-tailed Deer-Bells Bend Park:Bobcat
-## Mill Creek Park:Eastern Gray Squirrel-Alvin G. Beaman Park:Coyote         Mill Creek Park:Eastern Gray Squirrel-Alvin G. Beaman Park:Coyote
-## Bells Bend Park:White-tailed Deer-Alvin G. Beaman Park:Coyote                 Bells Bend Park:White-tailed Deer-Alvin G. Beaman Park:Coyote</code></pre>
+head(monthly_significant_tukey, 10)</code></pre>
+<pre><code>##         diff      lwr      upr        p adj
+## 63  50.58333 36.02293 65.14373 3.911316e-13
+## 89  36.93000 22.36960 51.49040 8.375522e-13
+## 108 50.65000 36.08960 65.21040 3.911316e-13
+## 134 36.99667 22.43627 51.55707 8.519851e-13
+## 152 50.47500 35.91460 65.03540 3.911316e-13
+## 178 36.82167 22.26127 51.38207 8.308909e-13
+## 195 47.29833 32.73793 61.85873 3.911316e-13
+## 221 33.64500 19.08460 48.20540 8.526513e-13
+## 278 49.69167 35.13127 64.25207 3.911316e-13
+## 304 36.03833 21.47793 50.59873 8.282264e-13
+##                                                                Comparison
+## 63  Mill Creek Park:Eastern Gray Squirrel-Bells Bend Park:American Beaver
+## 89      Bells Bend Park:White-tailed Deer-Bells Bend Park:American Beaver
+## 108 Mill Creek Park:Eastern Gray Squirrel-Mill Creek Park:American Beaver
+## 134     Bells Bend Park:White-tailed Deer-Mill Creek Park:American Beaver
+## 152     Mill Creek Park:Eastern Gray Squirrel-Alvin G. Beaman Park:Bobcat
+## 178         Bells Bend Park:White-tailed Deer-Alvin G. Beaman Park:Bobcat
+## 195          Mill Creek Park:Eastern Gray Squirrel-Bells Bend Park:Bobcat
+## 221              Bells Bend Park:White-tailed Deer-Bells Bend Park:Bobcat
+## 278     Mill Creek Park:Eastern Gray Squirrel-Alvin G. Beaman Park:Coyote
+## 304         Bells Bend Park:White-tailed Deer-Alvin G. Beaman Park:Coyote</code></pre>
 <blockquote>
-<p>Post-Hoc Result Interpretation</p>
+<p>Post-Hoc Result Interpretation:</p>
+</blockquote>
+<blockquote>
+<p>In total, the post-hoc test for monthly activity levels revealed 70
+significant comparisons, a notably smaller number than the 214
+significant comparisons for daily activity levels. These results suggest
+there are differences in the resolution and variability of the data at
+these two time scales, with daily data being more granular and sesitive
+to short-term differences while monthly data reflect broader
+patterns.</p>
+</blockquote>
+<blockquote>
+<p>The top 10 most significant results are between 1) Mill Creek Park
+eastern gray squirrel and Bells Bend Park American beaver, 2) Bells Bend
+Park white-tailed deer and Bells Bend Park American beaver, 3) Mill
+Creek Park white-tailed deer and Mill Creek Park American beaver, 4)
+Bells Bend Park white-tailed deer and Mill Creek Park American beaver,
+5) Mill Creek Park eastern gray squirrel and Beaman Park bobcat, 6)
+Bells Bend Park white-tailed deer and Beaman Park bobcat, 7) Mill Creek
+Park eastern gray squirrel and Bells Bend Park bobcat, 8) Bells Bend
+Park white-tailed deer and Bells Bend Park bobcat, 9) Mill Creek Park
+eastern gray squirrel and Beaman Park coyote, and 10) Bells Bend Park
+white-tailed deer and Beaman Park coyote.</p>
+</blockquote>
+<blockquote>
+<p>To examine these results in more detail…</p>
 </blockquote>
 <blockquote>
 <p>The Tukey test results on the monthly species activity dataset reveal
@@ -663,17 +701,349 @@ exhibited lower activity levels. These findings suggest that ecological
 or habitat-specific factors significantly influence species activity
 patterns across parks.</p>
 </blockquote>
-<pre class="r"><code>#Draft plots, will fix as needed 
+</div>
+</div>
+</div>
+<div id="two-sample-t-test" class="section level1">
+<h1>Two-sample T-test</h1>
+<p>To help explain why species activity differs between parks, these
+two-sample T-tests seek to determine if the park’s classification, size,
+or disruptive activities have a significant impact on the daily and
+monthly activity of eastern gray squirrel and white-tailed deer. To be
+more specific, for classification, Mill Creek (a community park) will be
+compared to the regional parks; for size, Beaman (a park more than 1000
+acres) will be compared to the parks that are less than 1000 acres; and
+for disruptive activities, Bells Bend (a park that allows mountain
+biking, camping, and fishing) will be compared to parks without these
+disruptive activities.</p>
+<p>Before analysis, it is important to note that a larger sample size in
+the future would be needed to confirm any results, especially given the
+fact that only three parks are being compared (one park against two
+others). It is also possible that some other unforeseen characteristics
+are influencing the results.</p>
+<div id="daily-species-activity" class="section level2">
+<h2>Daily Species Activity</h2>
+<pre class="r"><code># Independently filter for three potentially important species: Eastern Gray Squirrel, White-tailed Deer, and Coyote
+dmSquirrel &lt;- Daily_Merge %&gt;% 
+  filter(Species == &quot;Eastern Gray Squirrel&quot;)
 
-#Most common species from monthly data
-ggplot(Monthly_Species_Count.data, aes(x=Species, y=CountAdjusted, fill=Species)) +geom_bar(stat = &quot;identity&quot;) +facet_wrap(~ ParkName) + theme(legend.text = element_text(size = 6),        # Smaller legend text
-        legend.title = element_text(size = 8),       # Smaller legend title
-        legend.key.size = unit(0.5, &quot;cm&quot;),            # Smaller legend keys (color boxes)
-        legend.key.width = unit(1, &quot;cm&quot;),             # Adjust width of legend keys
-        legend.position = &quot;bottom&quot;,                   # Move legend to the bottom
-        legend.spacing = unit(0.3, &quot;cm&quot;),axis.title.x = element_blank(),               # Remove x-axis label
-    axis.text.x = element_blank()   ) </code></pre>
-<p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABUAAAAPACAIAAAB7BESOAAAACXBIWXMAAB2HAAAdhwGP5fFlAAAgAElEQVR4nOzdeXxU9b3/8c/MmS0LCSTBBCIKoiIIBBdEUEBERKBWUcQNq629XK1VaL1SW/ettW6IK3LFKqBSG1rasggYkFVWRUTZNyEQCAnZt8lkfn+c2/OYXxKSM/M9SeYkr+dfk5NvvueTmcw738+ZM2ccwWBQAAAAAABAdHO2dAEAAAAAAKBxNPAAAAAAANgADTwAAAAAADZAAw8AAAAAgA3QwAMAAAAAYAM08AAAAAAA2AANPAAAAAAANkADDwAAAACADdDAAwAAAABgAzTwAAAAAADYAA08AAAAAAA2QAMPAAAAAIAN0MADAAAAAGADNPAAAAAAANiAq6ULaA327dsXCARaugoAOK3zzz/f/OC9e/fW1NQ0XTEAoCisTNuzZ08wGGy6YgBAUViZxivwAAAAAADYAA08AAAAAAA2QAMPAAAAAIAN0MADAAAAAGADNPAAAAAAANgADTwAAAAAADZAAw8AAAAAgA3QwAMAAAAAYAM08AAAAAAA2AANPAAAAAAANkADDwAAAACADdDAAwAAAABgAzTwsN6vfvWrYcOGrVmzpkV+HDid2267bdiwYd9++21LFwKoqjcn21R4Ll++fNiwYQ8++GBLF1IbOQM0ynyCtZpYs1cy2KvaNsjV0gXAZubMmTNz5kwRuf322ydOnNjS5UQiPz9/0aJFW7ZsOXz4cFFRkaZpiYmJ5513Xv/+/YcOHZqYmBjZtL///e/Xr18fukWf+dxzzx0xYsTw4cMdDocV5bcqte40h8MRGxvbpUuXyy677Oabb05ISGjB2gB1to4FWxcfipwBmoLxzGrfvn1mZqamaXXHPPbYY+vWrRMRn8+3ePHi5iksNzd34cKFW7ZsOXr0aGFhoc/nS0tL69u374gRI3r27Nk8NViOHEMoGniE5/PPP9dvLFmy5N577603rxVddtll6enpZ5xxhuUzB4PBTz75ZNasWVVVVSLicDji4uJE5MSJE8ePH1+zZs0777wzYcKECRMmRLwLn89nHAIoLy/Pz8/fuHHjxo0bv/zyy2effdbp5JyXehh3WiAQyM/P37lz586dOxcsWPDaa6+dffbZLV0doMrWsWDr4kORM0ATKSgo+Oqrr6688spa20+dOrVhw4Z6f6SJVnrBYHDOnDmzZ8/2+/0iomlafHx8ZWXlvn379u3b949//KN///7PPvusz+ezdr/NhhyDjgYeYfj222+zs7Pdbremafn5+Rs2bBg0aJDle7nnnnssn1P36quvLly4UEQGDhx400039enTx+v1iojf7//++++XL1++dOnSL7/8UqWBHzp06KOPPmp8WVRUNHv27MzMzLVr1y5ZsmTUqFHqv0XrE3qnVVdXL1my5M0338zPz//Tn/40ffr0lq0NUGfrWLB18aHIGaApnH322YcOHVq8eHHdBv6LL74IBAL6gFrfaqKVnrHMGzRo0C233NK7d2+XyyUi+fn569ev/+yzzzZt2lRcXGzfBp4cg842x84RDRYtWiQiAwcO1GO62c6GssSiRYv0WL///vv/+Mc/XnrppXr3LiJut7tfv36//e1v58yZM2DAAAt3mpCQ8MADD/To0UNENm7caOHMrZXL5RozZoz+r33Xrl2HDx9u6YoAi9k6FmxdvIGcAazSv3//pKSkDRs2nDp1qta39FXidddd1zyVLF68WF/m/fd///cLL7zQr18/vXsXkaSkpNGjR3/wwQf33HNPU5w62iLIsbaMV+BhVllZ2apVq0Tkuuuu83g8X3zxxVdffXXq1KkOHTo0/IPHjx+//fbbReTTTz9NTU2t9d3vvvvuoYce8vl8//jHP/Rjor/61a927Njx3HPPhR7Nve22244fP/7666936tTpww8/3LhxY2FhYXJy8pAhQ+6++279TPgGVFdXf/TRRyIyZMiQ8ePHn25YSkrKf/3XfzU8VQS6dOmya9cu/YSuWjZs2PDvf/97x44dhYWF8fHxPXv2vOmmm/r37x86Jjs7e/Xq1Zs2bTp69GheXp7b7e7SpcuQIUNuuummWkeRjXspJSXlo48+2rJlS0lJSXp6+tixY6+//noRqaysnDt37vLly3NycuLj46+44oqJEyfGx8cr7i6yB6UBAwYMeO+990Tk8OHDXbp0iaCkjh07zpkzZ/Pmzfn5+cOGDXvsscdOt6/s7OxHHnnk2LFjw4cPf/TRR43/90CTUowF80pLSzMzM9esWZOdne33+xMTEzt27JiRkXH99denp6e3SPHhRkdpaens2bNXrVp18uTJhISESy65xJKX78gZQJ3T6bz22mvnzp37xRdf3HLLLcb23bt3HzhwoGfPnvWe2l3vSk9FIBD48MMPRWTQoEG33Xbb6Uq9++67jS8bfSKbj+KIQ1s9Gcixtom7HmYtX768oqIiKSnpsssuczgcqampx48fX7ZsWQP9sC41NTUjI2Pr1q1Lly696667an136dKlIjJkyBAzZzQdPHjwiSeeKCsrS0tLCwQCx48f/9vf/vb999+/8cYbDR9S/fbbb0+cOCEijVZruUAgsGfPHhGp9T8sEAi89NJL+q8fHx9/zjnnHD9+fP369evXr7/rrrt+8YtfGCNnzpy5YsUKj8eTnJzcvXv3goKCPXv27Nq1a/ny5dOmTau72N27d+9jjz1WUVHRuXPnysrKAwcOvPbaa6dOnRo3btxvfvOb3bt3p6amJiQknDx58t///veuXbveeeed0Hsv3N1F/KA0IBgMhn4Zbkl79ux57LHHSktLk5KS4uPja80WaseOHb///e8LCwvHjx9/33332eWiXLA79Vgwqays7IEHHjh06JDT6TzzzDPbtWtXUFCwf//+nTt3dunSJbIG3qriTUZHfn7+pEmTjhw54nQ6u3bt6nK5srKy1q1bd/PNN0dQfChyBrDEqFGj5s6du3jx4tAGXn/5vdneZbN161Z9mXe67v106n0im08zldC2JBnIsbaJBh5m6efPDx8+XF9ajRgxYs6cOYsXLzbTEl933XX1NvB+v//LL78U02dYvfPOOwMHDpw0aZL+sv+6deueeeaZH374YenSpQ3/k9i2bZuIxMTEXHDBBWZ2ZImKiorDhw9/8sknhw4dio+Pv+GGG0K/+/777y9dujQ5Ofm3v/2tcSmBFStWvPzyy7Nnz77ggguMjUOHDr3hhht69+5tLGpzcnKmTp26cePG999/f9KkSbX2+9577+mfrqRn8Zw5cz744IM5c+bs2rWrsrLygw8+6Natm4hs3br1D3/4w+7du2vde+HuLuIHpQHGpVa7dOkSQUkzZszo16/f5MmTO3fuLCIFBQX17mXdunXPPfdcZWXlAw88MG7cuMhKBcJiVSyYtGDBgkOHDnXr1u3FF180rhdVXV29fv365OTkli3eZHS89NJLR44c6dq16/PPP68fccjPz3/qqafmzJkTbv21kDOAJc4666xevXr98MMPu3bt0t9f4/f7s7KyvF7v1VdfrS/Ampq+F5/P16tXr7B+sN4nsvk0izi0rUoG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cxVoUiqxEAFN03r06DFu3LhXXnnlt7/9rYj861//ini2Zitef7umHgK1HDx40MIdkTOAIr1pr6mpOXHiRN++fY3rojUP/TRPsWKZZz7NIsi9Jk0GcqztoIFHIz7//PNAIBAfH5+ZmTmvjr///e+pqanBYNC49GgDzjzzzJ49ewYCgeXLl+sXOBk4cKB+sfSm5nK5fvazn4nIl19+OX/+/GbYY6ivv/5av2H8PxsyZIimaTt37ty0aVPDP+t2u+U/l1cNNXfuXKvLbIHdmdEUJcXHx7/yyisXXnjh/v37f/Ob39T7+h7QpFRiQZH++nlpaWm4J+Qbmq34AQMGiMjWrVtrXWo0Pz9/xYoVFu6InAHUXXfddRdffPHFF19s5gOGraVpmr7MW716dWZmZr1j9A/WbfSZaD7NIsu9pksGcqztoIFHI/TO/JprrtFzoRbjLKklS5aYec+z/kEjn3/++RdffCGmP/7dEj/5yU/03U2bNu2pp57aunVrdXW1/q1gMHjgwIG//OUvdX/qH//4x2233RbxiaaBQODLL7988803RaRTp079+vXTt3fu3Fl/P8IzzzyjHyIxfqSwsHDx4sUzZ87Uv9Sv+bl27drVq1frW6qrq2fOnLls2bJ6HxFFzby7FiwpLi7u5ZdfzsjIOHjw4OTJk/Py8qwpF2iMeiyYN3369MWLF+tv1NSVl5frn6DetWvXRi8+2rLFi8h555132WWXicgLL7xgvMs0Pz//mWeeMX+VDTPIGUBdWlraq6+++uqrr57uw8+b1JgxY/Rl3ttvv/30009v377dCKLCwsKlS5fee++9M2fOrPs+8FrMp1nEuddEyUCOtR28Bx4N2bZtm/6JPg18FsioUaNmz56dm5u7efNmfaXVgKuvvvqtt97atWuXiHTo0KHR8daaMmVK586dZ8+evWrVqlWrVmmalpCQoGlacXFxZWWliGiaNnbs2NAPuispKTl+/Lj565quXLly69at+m2/319QUKCvMhMTE59++unQz0y67777ysvLFy5c+Oc///mNN97o0qWL0+k8derU8ePHReTyyy/Xhw0YMKB///6bNm168sknO3Xq1KFDh0OHDpWWlv785z9fsmSJmXcuhKWZd9eyJcXExLz44ouPPfbY119//dBDD02dOjX0c60Bq1geC+bt2bPnr3/968svv6w/dyorK48cOVJRUREbG/vwww9HefG6KVOmTJo06cCBAz/72c+6devmcrn27t0bExMzYcIE/QOQLUHOAK3AlClTUlNTP/7445UrV65cudLlciUkJFRVVZWUlOgD+vfvb+aN3ObTLOLca4pkIMfaDhp4NER/+b179+7nn3/+6cakpaX169fvm2++WbRoUaMNeXx8/MCBA1etWiUiw4cPj+AayCocDsddd901ZsyYhQsXbtmy5fDhw0VFRS6Xq3379t26dbv44ouvueaacK9sXIvxCR/ynw/56NKly2WXXXbTTTclJiaGjtQ07X/+539GjBixYMGC7du3Hzx40OVypaSkDBo06PLLL7/iiiuMSV544YU5c+ZkZWXl5OSUlJScf/75Y8eOHTx4sH4VQGs18+5avCSfz/enP/3piSee2Lhx46RJk1577bVOnTpZUjZgsDwWzLv33nt79uz57bff5uTk7Nq1S9O0tLS0Sy65ZPz48frF56K5eF1ycvL06dNnzZq1atWqQ4cOJSQkDB8+/J577tmxY0dkE9aLnAFaAYfDcc8994wePXrBggVff/310aNHCwsLvV5vt27d+vTpc+2119b9wPZ6mU8zldyzPBnIsbbDEQwGW7oG29u3b1+jJ+QAQAtq4BhcXXv37rX2/GQAsFZYmbZnzx6WuwCiWViZxnvgAQAAAACwARp4AAAAAABsgAYeAAAAAAAboIEHAAAAAMAGaOABAAAAALABGngAAAAAAGyABh4AAAAAABuggQcAAAAAwAZo4AEAAAAAsAEaeAAAAAAAbIAGHgAAAAAAG6CBBwAAAADABmjgAQAAAACwAVdLF9AatG/fPhgMNjqsXbt2Xq9XRAoKCqqrqyPendPpTEpKEhG/319YWBjxPCISHx/v8/lEpLCw0O/3RzyPw+FITk4Wkerq6oKCApWSYmNjY2NjRaS4uLiyslJlqpSUFBEJBAKnTp1SmScmJiYuLk5ESkpKKioqVKZKTk52OBw1NTX5+fkq8/h8vvj4eBEpLS0tLy9XmSopKcnpdAaDwby8PJV5vF5vu3btRKSsrKysrExlqvbt27tcLhE5efKkyjwejychIUFEysvLS0tLVaZKTEx0u90ikp+fX1NTE/E8brc7MTFRRCoqKkpKSlRKSkhI8Hg8InLq1KlAIKAyVV0dOnRozkzTNK1Dhw4iUlVVVVRUFPE80gSZph6zcXFxMTExIlJUVFRVVaUylVWZZmHMWpVpFsas5ZmmHrMdOnTQNE2iKdOMmM3LyzPzZD8dCzPNqpitl54wjbIqV5si06Jn6WhVprF0NEnPtKhaOlqVaU2xdFTMtChcOtaLV+ABAAAAALABGngAAAAAAGyABh4AAAAAABuggQcAAAAAwAZo4AEAAAAAsAEaeAAAAAAAbIAGHgAAAAAAG6CBBwAAAADABmjgAQAAAACwARp4AAAAAABsgAYeAAAAAAAboIEHAAAAAMAGaOABAAAAALABGngAAAAAAGyABh4AAAAAABuggQcAAAAAwAZo4AEAAAAAsAEaeAAAAAAAbIAGHgAAAAAAG6CBBwAAAADABmjgAQAAAACwARp4AAAAAABsgAYeAAAAAAAboIEHAAAAAMAGaOABAAAAALABGngAAAAAAGyABh4AAAAAABtwtXQBDcnMzJw1a1a937r66qsnT55cd/v+/fvnzZu3ffv24uLi9u3bZ2RkjBs3Lj09vd5JwhoMAAAAwKSum1MVZzh46XFLKgFak6hu4HUulysmJqbWxrpbRGTNmjWvvvpqIBDw+Xypqam5ublZWVmrV69+/PHH+/XrpzIYAAAAAICWZYMGfuDAgY888kijw3JycqZOnRoIBMaMGXPPPfd4vd6ysrLp06d/+eWXL7744nvvvZeYmBjZYAAAAAAAWlzreQ/8Z5995vf7zz///IkTJ3q9XhGJjY196KGH0tPTy8rK5s+fH/FgAAAAAABaXCtp4AOBwLp160Rk9OjRDofD2O5yuUaOHCkiq1evjmwwAAAAAADRwAan0O/evfuRRx7Jzc31er1nnnnmwIEDr7rqKpfr/6v8xx9/LCsrE5HevXvX+vG+ffuKyIkTJ/Lz85OSksIdDAAAAABANLBBA3/8+PHjx//vEpTHjh3btGnTv/71ryeeeKJjx47GmOzsbBFxuVyhG3WdOnUyxug9eViDQ+Xl5a1cubJuhVdddZV+Hn7DNE3Tb3g8nloHIMJinDXgdDp9Pl/E89QqybjdsiUZ94zb7Q49PyJiDodDsSS3213rhiILS3K5XIpT6XeyeknGA6dektP5f2cGRWFJXq83GAxGPI/xLNM0zcKSampqVKaqy0ygiXWZZvwu6ndLFGZaaEnGb6rCwmdr9MRsaEnqxeg3LCxJ5VnfFCWpP1NCS4rCTFO8w+syWZtVuWrMY2GAeL3eKFk6hj41LMm0hpmpti1kWhQuHSVa12kq8xjPuOhZOtYrqhv4pKSk22+//aKLLkpNTW3Xrt2JEydWrlyZmZl58ODBZ599durUqcYDX1xcLCLx8fF1n7cxMTGapgUCgZKSkggGh/rxxx//+Mc/1t0+fPjw+Ph4879XbGys+cEN0DQtrP02oN6r+kfA6XRaVZLi08ZgYUler1cxF3QOhyPaShIRq0ryeDwej8eSqawqye12W3XwJS4uzpJ5LCzJqjwJFRcXF9YaqBVnmoUlRWGmWVVSFGaahSVFYaZZWFIUZppVJYUK9563KtNcLlcrzjSrSmpYWNVGYcxGYaaxdDQjyjMtqhv4q6++OvTLzp0733777T179nzqqacOHTq0fPnya6+9Vv9WVVWVhBzIqcXj8ZSXl1dWVkYwGAAAAACAaBDVDXy9+vXrd8kll2zevHnjxo1GA68ftqmurq73R/SO3TjaFNbgUOnp6Q8++GDd7TU1NaWlpY1Wbpz+VF5ernJqlsPh0I8NBwKBioqKiOcREY/Hox9eqqioCAQC6iXV1NSUl5dbUlJlZeXpHiOT9CNe6iW53W79b0a9pNjYWIfDEQwG9aswRMzlcul/olVVVX6/X70kETHzN9w8JcXExOjnHSmWZJzS6ff79ed1xHw+n35WVVlZmeLppnpJ1dXVikcJjZJM5klYB4BN/n1GYaYZJVmVadETsxKVmaaXpJ5pRklWZVpUxWwUZppRklWZ1vwxG1ammbznw83V03E6nfqr0xZmWvTErIWZZoaZx46loxnRvHS0MNOiJ2abNNPs18CLSI8ePTZv3pyTk2Ns0c+XKCkpCQaDtc78NPLFOKcirMGhzjjjjLvvvrvu9ry8PDPPc5fLpaew4pPZ6XRa1S1rmmZEnsqT2cIG3uFw6CVVVVUpdjjGylKxJPnPQR+/36/4b0+/l9RL8vl8RuQpThUTE6P/Y1Ccxzgjq7q6Wn0qPYXVDwYZ3bL6VHoKV1RUqCyh3G63VSW53W6jJDNLqLD+MVRUVJj5Z2NVpmmaZqws1TPNKClKMs3pdBqZprgasCrTHA6H0S0rxqyxsrQqZquqqhRjVs80UQ4QI9PUY9Y4rTd6Mi00ZlUaeCPT1J+84cZsWJlmsrZwc/V0NE0zGngLMy1Klo4WZpoZZqpt3UtHq9ZpFi4dQw91qcxjYcwamWZyAXM6Lbh0DCvTbPkxcvojFPrwnHnmmSJSXV2dm5tba/DRo0f1G+np6REMBgAAAAAgGtiygd+7d6+IhF5D/qyzztKPLG7fvr3W4G3btumDjavKhzUYAAAAAIBoEL0N/OnOf9izZ8+GDRtE5JJLLjE2apo2cOBAEVm0aFHoDwYCgSVLlojI4MGDIxsMAAAAAG74hW4AACAASURBVEA0iN4G/uDBg48//vjq1atPnTqlbykpKVm8ePETTzxRU1OTmppqXMFOd+utt7pcrt27d8+YMUN/T055efm0adOys7NjY2PHjh0b8WAAAAAAAFpc9F7ELhgMbtu2TT+n3ePxuFwu41IraWlpTz75ZK0LxaelpU2ePHnq1KkLFy7MyspKSUnJzc2trKz0eDxTpkxJTEyMeDAAAAAAAC0uehv4tLS0X/ziFz/88MOhQ4cKCwsrKyvbtWt39tlnX3755SNGjDCu6RpqyJAh6enp8+bN+/7773NychISEgYNGjR+/Ph6r0gX1mAAAAAAAFpW9DbwsbGxN95444033hjWT3Xv3n3KlClNMRgAAAAAgBYUve+BBwAAAAAABhp4AAAAAABsgAYeAAAAAAAboIEHAAAAAMAGaOABAAAAALABGngAAAAAAGyABh4AAAAAABuggQcAAAAAwAZo4AEAAAAAsAEaeAAAAAAAbIAGHgAAAAAAG6CBBwAAAADABmjgAQAAAACwARp4AAAAAABsgAYeAAAAAAAboIEHAAAAAMAGaOABAAAAALABGngAAAAAAGyABh4AAAAAABuggQcAAAAAwAZo4AEAAAAAsAEaeAAAAAAAbIAGHgAAAAAAG6CBBwAAAADABmjgAQAAAACwARp4AAAAAABsgAYeAAAAAAAboIEHAAAAAMAGaOABAAAAALABGngAAAAAAGyABh4AAAAAABuggQcAAAAAwAZo4AEAAAAAsAEaeAAAAAAAbIAGHgAAAAAAG6CBBwAAAADABmjgAQAAAACwARp4AAAAAABsgAYeAAAAAAAboIEHAAAAAMAGaOABAAAAALABGngAAAAAAGyABh4AAAAAABuggQcAAAAAwAZo4AEAAAAAsAFHMBhs6Rpsr7Ky0swwl8ulaZqIVFVVqdztDofD4/GISE1Njd/vj3ie0JL8fn9NTY3KVF6vV0SCwWBVVVUrK0nTNJfLJSLV1dWBQKCVleTxeBwOh5j+Mz4dp9Ppdrujs6RAIFBdXa0yldvtdjqdovzkbcGS9L89k0ze81bdLVGYaVFYkjRBgERhSdETIFFYUlMESBSWRKaFsnumJa+IVdmXiOQNK7O2pIZFbaZFYUkSTQEShSU1aaa5Iq8L/+F0OvU/mkaH6Tc0TbPkuInD4dADS2UG/YbJX8GM1leS8cAZNxSpP3AWlmTcyRY+cIolGawqydpnSrSVZFWehDL57LOqhiZ6pCwJkCgsSSzNtCi5l8g0M5ooQKKtJAvvcIPJ2si0FimpYWaqjfKYVaxE/42iKmYN0RMghugpqUkzjQbeAkVFRWaCvl27dvrBleLiYpWDOk6nMykpSUSqq6sLCwsjnkdE4uPjfT6fiJSUlKgckXU4HMnJySISCAQKCgpUSoqNjY2NjRWRsrIyxaNoKSkpIlJTU6NYUkxMTFxcnF5SRUWFylTJyckOh0O9JJ/PFx8fLyLl5eXl5eUqUyUlJTmdzmAwqFiS1+tt166diFRUVJSVNX68vAHt27fXDxIrluTxeBISEkSksrKytLRUZarExET9iGxRUZHK0X23252YmCgiVVVVJSUlKiUlJCToL6cUFRWZOZSuPx1MauZM0zStQ4cOIuL3+4uKiiKeR5og09RjNi4uLiYmRkRKS0sVXz+xKtMsjFmrMs3CmLU809RjtkOHDvpCMHoyzYjZwsJClU7VwkwLN2bDyjST93y4uXo6TZFp0bN0tDDTzDDz2LXupaOeaVG1dLQq05pi6aiYaS24dAwr03gPPAAAAAAANkADDwAAAACADdDAAwAAAABgAzTwAAAAAADYAA08AAAAAAA2QAMPAAAAAIAN0MADAAAAAGADNPAAAAAAANgADTwAAAAAADZAAw8AAAAAgA3QwAMAAAAAYAM08AAAAAAA2AANPAAAAAAANkADDwAAAACADdDAAwAAAABgAzTwAAAAAADYAA08AAAAAAA2QAMPAAAAAIAN0MADAAAAAGADNPAAAAAAANgADTwAAAAAADZAAw8AAAAAgA3QwAMAAAAAYAM08AAAAAAA2AANPAAAAAAANkADDwAAAACADdDAAwAAAABgAzTwAAAAAADYAA08AAAAAAA2QAMPAAAAAIAN0MADAAAAAGADNPAAAAAAANgADTwAAAAAADZAAw8AAAAAgA3QwAMAAAAAYAM08AAAAAAA2AANPAAAAAAANkADDwAAAACADdDAAwAAAABgAzTwAAAAAADYAA08AAAAAAA2QAMPAAAAAIAN0MADAAAAAGADNPAAAAAAANgADTwAAAAAADZAAw8AAAAAgA24WrqAMOTm5v76178uLy8XkTfffPPss8+uO2b//v3z5s3bvn17cXFx+/btMzIyxo0bl56eXu+EYQ0GAAAAAKAF2ekV+Lfeekvv3k9nzZo1Dz/88OrVq8vLy1NTU4uKirKysiZNmrR161bFwQAAAAAAtCzbNPDLli375ptvBg4ceLoBOTk5U6dODQQCY8aMmT179rvvvjtr1qyrrrqqqqrqxRdfLCwsjHgwAAAAAAAtzh4NfF5e3syZM1NTUydMmHC6MZ999pnf7z///PMnTpzo9XpFJDY29qGHHkpPTy8rK5s/f37EgwEAAAAAaHH2aODffvvtsrKyX//613qzXVcgEFi3bp2IjB492uFwGNtdLtfIkSNFZPXq1ZENBgAAAAAgGtiggV++fPnmzZuHDx+ekZFxujE//vhjWVmZiPTu3bvWt/r27SsiJ06cyM/Pj2AwAAAAAADRINqvQn/q1Kn3338/MTHxF7/4RQPDsrOzRcTlcnXs2LHWtzp16mSMSUpKCndwqIKCgs2bN9fd+8UXX+zxeBr9XZzO/ztc4vF4NE1rdPzpGGcNOJ3O052SYJJRktvtNm6rlORwOBRLcrlctW4osrYkxalacUlut1u/oWmaVX+WVt1LFpbk8XiCwWDE8xhPfGtLqqmpUZmqLjOBJiG/jtvtVsk043dRz7TQkizJNGtLCj3nK2Lqz9bQktTrkSjLNONOtirToqckCzMttKQoybTQkizPNJO1WZWrTZFp0bN0tDzTGmam2ta9dNTv5CgsSazLNAtLMrmAabSk6Fk61ivaG/i33367pKRkypQp7dq1a2BYcXGxiMTHx9eNkpiYGE3TAoFASUlJBINDHThw4NFHH627PSsrq+HyaomNjTU/uAGapoW13wZEYUkxMTGWzON0Oq0qyefz+Xw+9XkcDodVJXm9XksaeBFpxSV5PB7FQDfEx8dbMo/b7baqd4qLi7NknlD1xmMz1OByuci0RrXuTIvCksg0M6I808K958k0M6zKtIaFVS0xa0brzrQoLMmqmA0V1afQr1y5cuPGjZdddtmVV17Z8Miqqio5/YE3/QGorKyMYDAAAAAAANEgel+BLywsnDFjRmxs7H333dfoYL3rrq6urve7esduHG0Ka3Co1NTUu+++u+72QCDQ8AfUG/vVzzuqrKxUOTXL4XDoB/NqamoUDzS43W79QIZiSfKfo54WllRVVRUIBNRLCgaDFRUVKvO4XC79hQX1knw+n8PhsLAkv99/ur/ksEoSETN/ww3QNE1/ZqmX5PV69fOOrCqpurra7/dbUlJFRYXKeVDGuYvqJRl5YrKksF6XMPn3aXmmBQIBPYEjZlWmNUXMWpVp6iVZmGmWx6xVmaZekoWZZnnMtspMC7eksDKtrKzMzFlF4ebq6ViYadG8dFQPEDPMPGuieekYPZkWzUtHCwMkCktqikyL3gZ+xowZxcXF999/f0pKSqOD9ZMTSkpKgsFgrYyuqKjQn8zGCQxhDQ7VuXPnBx98sO72vLy80tLSRot0Op16CpeXl6s8c5xOp/GPwcx+GxAfH69HXkVFhcqfqcPhMFaWiiXFxsYa62/F/zFWlRQTE2MsdhXTU3/ggsGgYkk+n88oSTGqvF6v/o9BsSSv12ssdvWLREbMePeyYknG6U9+v19xKpfLpZdUVlamsoRyu93GYlexJE3TjDwxs14Jd7Fr5p+NVZmmaVoUZppVJcXFxRklKS7ljZWleszqAaIes8bK0qqYraysVIxZPdNEOUCMTFOPWaMHi55MC41ZlU7VwkwLN2bDzTQzw8LN1QbmsSpAHA5HtC0dLcw0M8xUG81LR6syLaqWjlZlWmjMWrV0NLmAOZ0WXDq2kgZ+z549IvLJJ598+umnxkbj9//DH/6gadpVV12lX9zuzDPPFJHq6urc3NwzzjgjdJ6jR4/qN9LT0/UbYQ0GAAAAACAaRPV74EWksLCwIERRUZG+vbi4uKCgwDg0ctZZZ+mX99i+fXutGbZt2yYiHTt2NK4qH9ZgAAAAAACiQfS+Aj9jxoy6G0+cOPHLX/5SRN58882zzz7b2K5p2sCBA7OyshYtWjRs2DDjxPhAILBkyRIRGTx4cGSDAQAAAACIBtH+Crx5t956q8vl2r1794wZM/T35JSXl0+bNi07Ozs2Nnbs2LERDwYAAAAAoMVF7yvw4UpLS5s8efLUqVMXLlyYlZWVkpKSm5tbWVnp8XimTJmSmJgY8WAAAAAAAFpc62ngRWTIkCHp6enz5s37/vvvc3JyEhISBg0aNH78+HqvSBfWYAAAAAAAWpbNGvgzzjjjX//6VwMDunfvPmXKFJOzhTUYAAAAAIAW1HreAw8AAAAAQCtGAw8AAAAAgA3QwAMAAAAAYAM08AAAAAAA2AANPAAAAAAANkADDwAAAACADdDAAwAAAABgAzTwAAAAAADYAA08AAAAAAA2QAMPAAAAAIAN0MADAAAAAGADNPAAAAAAANgADTwAAAAAADZAAw8AAAAAgA3QwAMAAAAAYAM08AAAAAAA2AANPAAAAAAANkADDwAAAACADdDAAwAAAABgAzTwAAAAAADYAA08AAAAAAA2QAMPAAAAAIAN0MADAAAAAGADrpYuAAAAAFEqZcqhRsf4RHyn/+7Jl862sB4AaON4BR4AAAAAABuggQcAAAAAwAZo4AEAAAAAsAEaeAAAAAAAbIAGHgAAAAAAG6CBBwAAAADABmjgAQAAAACwARp4AAAAAABsgAYeAAAAAAAboIEHAAAAAMAGaOABAAAAALABGngAAAAAAGyABh4AAAAAABuggQcAAAAAwAZo4AEAAAAAsAEaeAAAAAAAbIAGHgAAAAAAG6CBBwAAAADABmjgAQAAAACwARp4AAAAAABsgAYeAAAAAAAbcLV0Aa1BXFycmWEu1//d27GxsTU1NRHvzuFw6Dc0TYuPj494HhFxu936jZiYGK/XqzKVzul0KpZk3Es+n88oL0pK8nq9xm0VDodDsSRN04ySjNsRF2NtSR6Px+lUOjJoTKVYklGG2+226reLi4sLBoPRUFJonqiUVK9wMy0mJkalBiPTXC5XlGSahTEbmmkej0dlKl1UxazlAaIes01RkmLMGk98q0pSDxCjJJNPdkVmqrUqZiMuILQGxVxtikyLwqWjVZnWMDPVtu6lY1vINPWlo1WZFoVLx3rRwFtA0zQjGRtg/E1omqb4Z6pzOByWhEJUlWSU4XQ6zdyrZlhVkskHugFGClt4L1n1N2DVPOolGaKnpNBniiXzWPjkdblclv9jCDfTFGtoirslCjPNqpLEukyzKmatvZcsiVmJpgAxRE9JVt1LJpnZi1UxG3EBQqa1UEkNM1MtS8ewSiLTmrmkJsk0y2dsg4qKiswEfbt27fRXhIqLi6urqyPendPpTEpKEpHq6urCwsKI5xGR+Ph4n88nIiUlJX6/P+J5HA5HcnKyiAQCgYKCApWSYmNjY2NjRaSsrKyyslJlqpSUFBGpqalRLCkmJkY/nldWVlZRUaEyVXJyssPhUC/J5/PpxwXLy8vLy8tVpkpKSnI6ncFgULEkr9fbrl07EamoqCgrK1OZqn379npoKpbk8XgSEhJEpLKysrS0VGWqxMRE/aB+UVGRymsgbrc7MTFRRKqqqkpKSlRKSkhI0F/6KCoqCgQCjY7Xnw4mNXOmaZrWoUMHEfH7/UVFRRHPI02QaeoxGxcXFxMTIyKlpaVVVVUqU1mVaRbGrFWZZmHMWp5p6jHboUMHfQEXPZlmxGxhYWGjT/YwsuM0zPzi4cZsWJlm8p4PN1dPpykyLXqWjhZmmhlmHrvWvXTUMy2qlo5WZVpTLB3NZFoDWnDpGFamhdHAK55IoFNcswIAAAAA0DaF0cArHocAAAAAAAARC6OBv+GGG+rdfuzYsY0bN+q3zzrrrHPOOScuLq60tHTfvn2HDx/Wtw8YMCAtLU2xVgAAAAAA2qwwGvj58+fX3bh8+fJbb71V07QHHnhg0qRJ55xzTuh39+7d+/rrr0+fPv3AgQMvv/zy4MGDVesFAAAAAKBNUrp65IEDB26++ea8vLzMzMxp06bV6t5F5Nxzz33rrbfmzp2bm5s7duzYI0eOqOwOAAAAAIA2S6mBnzp1akFBwR133HHjjTc2MGzcuHG33HJLXl7e66+/rrI7AAAAAADaLKUG/vPPPxeR0aNHNzpSH7NgwQKV3QEAAAAA0GYpNfD6KfH6p0E2TP94RuOadgAAAAAAICxKDbzP5xORrVu3Njrym2++McYDAAAAAIBwKTXwffv2FZF33333+PHjDQw7evTojBkzRCQjI0NldwAAAAAAtFlKDfwvf/lLEcnNzR0yZIjxUfC1rF+/fujQoXl5eSJy7733quwOAAAAAIA2K4zPga9rwoQJn3766aJFi3bv3j1gwIABAwYMGzbsnHPOiY2NLSsr27dv34oVK4zG/vrrr7/zzjutqBkAAAAAgDZHqYEXkXnz5v385z+fO3euiGzYsGHDhg31DrvzzjtnzpypuC8AAAAAANospVPoRcTn83366aeff/75qFGjXK7ahwPcbvfo0aOXLl06Z84cr9eruC8AAAAAANos1VfgdSNHjhw5cmR5efm2bduOHj1aWloaFxfXuXPnjIwMrjwPAAAAAIA6axp4XUxMzIABAyycEAAAAAAA6FRPoQcAAAAAAM3AslfgKyoqNm3atHPnzlOnTlVVVT3++ONWzQwAAAAAACxo4EtKSp555pkZM2YUFRUZG0Mb+ClTpvz9739PT09fuXKl+u4AAAAAAGiDVE+hP3z48MUXX/zKK6+Edu+13HLLLfv27Vu1atW6desUdwcAAAAAQNuk1MBXV1f/5Cc/2bNnj4gMHz78448/Xrx4cd1h/fv3P/fcc0Vk4cKFKrsDAAAAAKDNUjqF/i9/+cu2bdtE5LnnntPPmT9y5Ei9I6+++uq9e/d+9dVXKrsDAAAAAKDNUnoF/rPPPhORK6+8stFL1mVkZIjIzp07VXYHAAAAAECbpdTAf/vttyIyfvz4RkcmJyeLSH5+vsruAAAAAABos5Qa+IKCAhHp1KlToyP9fr+IOJ187DwAAAAAAJFQ6qgTExPF3Ovq+/fvF5GUlBSV3QEAAAAA0GYpNfDnnXeeiKxatarRkf/85z9F5KKLLlLZHQAAAAAAbZZSAz9mzBgRyczMbPjqdB9++OHXX38tIqNHj1bZHQAAAAAAbZZSA3/fffclJiZWVlaOGjVKb9Fr8fv9r7/++sSJE0WkU6dOd999t8ruAAAAAABos5Q+Bz45Ofm99967/fbbDx482L9//6FDh1544YX6t15//fUffvhh0aJF2dnZIqJp2qxZs3w+nwUlAwAAAADQ9ig18CJy6623+v3+++67r7S0dMWKFStWrNC3/+Y3vzHGxMfHf/jhh9dcc43ivgAAAAAAaLMs+Fy3CRMmfPfdd/fff3/79u1rfSs+Pv7ee+/dtm3bzTffrL4jAAAAAADaLNVX4HXdunV755133nrrre+///7QoUOFhYVxcXHp6ekXXXSRy2XNLgAAAAAAaMus7K6dTmefPn369Olj4ZwAAAAAAEAsOYUeAAAAAAA0NaUG/tJLL7300kuPHTvW6MivvvpKH6yyOwAAAAAA2iylU+i3bNkiIpWVlY2OLCws1AcDAAAAAIAIcAo9AAAAAAA20EwNfFlZmYj4fL7m2R0AAAAAAK1MMzXwGzZsEJHU1NTm2R0AAAAAAK1MeO+B37p169atW2ttzMzMTElJqXd8MBgsKSn55ptv5syZIyIDBgyIrEoAAAAAANq48Br4+fPnP/PMM7U2PvLII2Z+1ul0PvTQQ2HtDgAAAAAA6JrpFPqePXtmZmZeccUVzbM7AAAAAABamfBegZ8wYcLll19ufDlq1CgR+fDDD0/35nZN0+Li4rp169apUyeVKgEAAAAAaOPCa+DPPffcc889t9bGoUOHdu3a1bKKAAAAAABAHeE18LV89dVXIsKr6wAAAAAANDWlBj70dPqm8P3332/ZsmXXrl3Hjx8vKCgQkaSkpF69eo0ZM+a8886r90f2798/b9687du3FxcXt2/fPiMjY9y4cenp6eqDAQAAAABoQUoNfAOOHDnyyiuvrFu3LhAIZGRkTJ48uW/fvuFOMm/evM2bN+u3PR6P3+/PycnJyclZsWLFXXfdNW7cuFrj16xZ8+qrrwYCAZ/Pl5qampubm5WVtXr16scff7xfv34qgwEAAAAAaFlKDfzKlSuHDx/ucDi++uqrSy+91Ni+f//+gQMHnjhxQv/y66+/njNnzt/+9rcbbrghrPn79OnTr1+/Cy+8MC0tLS4urrq6et++fbNnz962bdusWbMuvPDCnj17GoNzcnKmTp0aCATGjBlzzz33eL3esrKy6dOnf/nlly+++OJ7772XmJgY2WAAAAAAAFqc0sfILV68OBAI9OrVK7R7F5EHH3xQ797dbndSUpKI+P3+u+++22jpTRo7duxPf/rT7t27x8XFiYjL5erRo8eTTz6ZnJwsImvWrAkd/Nlnn/n9/vPPP3/ixIler1dEYmNjH3roofT09LKysvnz50c8GAAAAACAFqfUwK9atUpERo4cGbpx3759ixYtEpERI0acPHkyLy9v7ty5mqYVFhb+7//+r8rudB6PR7/ofWVlpbExEAisW7dOREaPHu1wOIztLpdLL2/16tWRDQYAAAAAIBooNfDHjh0TkQsvvDB04z//+U/9xttvv52QkCAit9566/XXXy8in3/+ucrudFVVVQcPHhSR0OvY/fjjj2VlZSLSu3fvWuP1996fOHEiPz8/gsEAAAAAAEQDpffAnzx5UkT0E9oN+svy/fr1C22wR4wYMX/+/J07d6rsrqSk5MCBA3Pnzs3Ly+vRo8c111xjfCs7O1tEXC5Xx44da/2U8Sl32dnZ+vn8YQ0OVVBQYFxUL9TFF1/s8Xgard/p/L/DJR6PR9O0RsefjnHWgNPp1M//j5hRktvtNm6rlORwOBRLcrlctW4osrYkxalacUlut1u/oWmaVX+WVt1LFpbk8XiCwWDE8xhPfGtLqqmpUZmqLjOBJiG/jtvtVsk043dRz7TQkizJNGtLCj3nK2Lqz9bQktTrkSjLNONOtirToqckCzMttCSVTDPJTLWhJVmeaSbvLqtytSkyLXqWjpZnWsPMVNu6l476nRyFJYl1mWZhSSYXMI2WFD1Lx3op/aFXVFSIiP5qtkH/cPhhw4aFbkxNTRWRwsLCCPby3XffPfbYY8aXiYmJP/vZz37605+GBllxcbGIxMfH142SmJgYTdMCgUBJSUkEg0MdOHDg0Ucfrbs9KyurXbt25n+j2NhY84MboGlaWPttQBSWFBMTY8k8TqfTqpJ8Pp/P51Ofx+FwWFWS1+u1pIEXkVZcksfjUQx0Q3x8vCXzuN1uq3on/RIh1qo3HpuhBpfLRaY1qnVnWhSWRKapC+sXb4pMC/eeJ9PMsCrTGhZWtcSsGa0706KwpKaIWaVT6Dt06CAihw4dMrZ8++23+pXqBg8eHDpSf796ZAfGPB7PGWec0bFjR/1+LCwsXLt27Z49e0LHVFVVNTC//oPGe+bDGgwAAAAAQDRQegW+b9++WVlZf/3rXx9++GH9PIEPPvhARJxO55AhQ0JH6k2+/jp8uHr06PH+++/rt7OzszMzM7Oysh5//PHnn3/eePu93nVXV1fXO4PesRtHm8IaHCo1NfXuu++uuz0QCJSXlzf6ixinP1VWVqqcmuVwOPSDeTU1NYoHGtxut34gQ7Ek+c9RTwtLqqqqCgQC6iUFg0H9VJGIuVwu/cVS9ZJ8Pp/D4bCwJL/ff7q/5LBKEhEzf8MN0DRNf2apl+T1evU8saqk6upqv99vSUkVFRUq50EZ5y6ql2TkicmSwnpdwuTfp+WZFggE9ASOmFWZ1hQxa1WmqZdkYaZZHrNWZZp6SRZmmuUx28yZpv6applfPNyYDSvTysrKzJxVFG6uno6FmRbNS0f1ADHDzB9PNC8doyfTonnpaGGmRWFJTZFpSg382LFjs7KytmzZMn78+AkTJmzbtu2dd94RkeHDh9d6Y/z69etFJPRj2yOTnp4+adKkYDC4fPnyWbNm/fnPf9a36ycnlJSUBIPBWhldUVGhP5mNExjCGhyqc+fODz74YN3teXl5paWljRbvdDr1FC4vL1d55jidTuMfg5n9NiA+Pl6PvIqKCpU/U4fDYawsFUuKjY011t+K/2OsKikmJsZY7Cqmp/7ABYNBxZJ8Pp9RkmJUeb1e/R+DYkler9dY7NZ6W024jHcvK5ZknP7k9/sVp3K5XHpJZWVlKksot9ttNPCKJWmaZuSJmfVKuItdM/9srMo0TdOiMNOsKikuLs4oSXEpb6ws1WNWDxD1mDVWllbFbGVlpWLM6pkmygFiZJp6zBo9WPRkWmjMNkMDb6bacGM23EwzMyzcXG1gHqsCxOFwRNvS0cJMM8NMtdG8dLQq06Jq6WhVpoXGrFVLR5MLmNNpwaVjWJmmdAr9vffee8EFF4jIvHnzxo4d+9RTT1VXV2ua9vTTT4cOKy0tXbZsmdR5Y3zErrjiChHZt2+f8QidUTUkbAAAIABJREFUeeaZIlJdXZ2bm1tr8NGjR/Ub6enpEQwGAAAAACAaKDXwPp9v6dKlV111lbGlQ4cOH3300aBBg0KHzZkzRz/SE3rdeBX66yqhB0fPOuss/fIe27dvrzV427ZtItKxY0fjqvJhDQYAAAAAIBooNfAi0qVLlxUrVuzfv3/p0qVr1649evTonXfeWXfMu++++9577/Xr109xdyISDAazsrJEpFu3bsYJ8JqmDRw4UEQWLVoUeuJEIBBYsmSJ/P8X1QtrMAAAAAAA0cCaz0vs1q1bt27dTvfd0aNHRzDn3r17P/744+HDh/fp0ycxMVFEAoHAnj17MjMzN23aJCI33XRT6Phbb7115cqVu3fvnjFjxs9//nOPx1NeXv7uu+9mZ2fHxsaOHTs24sEAAAAAALQ4axr4phAIBLZs2bJlyxYR8Xg8bre7vLxcvwaApml33XXXlVdeGTo+LS1t8uTJU6dOXbhwYVZWVkpKSm5ubmVlpcfjmTJlin4IILLBAAAAAAC0uOht4Lt27frwww9/8803e/fuPXXqVGlpqc/n69SpU+/evUeOHKlfiK6WIUOGpKenz5s37/vvv8/JyUlISBg0aND48ePrvSJdWIMBAAAAAGhZ0dvAe73eoUOHDh06NKyf6t69+5QpU5piMAAAAAAALUipgU9JSQn3R06ePKmyRwAAAAAA2ialBj4vL8+qOgAAAAAAQAOUGvgxY8ac7luBQCA3N/e7776rqqoSkSuvvJIrwwEAAAAAEDGlBn7BggUNDygpKXnrrbeefvrp48ePv//++z169FDZHQAAAAAAbZazSWePj49/9NFH//rXv+7Zs2fMmDGFhYVNujsAAAAAAFqrpm3gdTfccMO11167b9++N954oxl2BwAAAABA69McDbyIXHPNNSLy2WefNc/uAAAAAABoZZqpgdevYHfw4MHm2R0AAAAAAK1MMzXwO3bsEBGns5l2BwAAAABAK9McHfWOHTtmzpwpIhdccEEz7A4AAAAAgNZH6WPkGj4lvqqq6vDhw8uWLXv77bdLSkpEZMKECSq7AwAAAACgzVJq4Lt162Z+8LBhw+677z6V3QEAAAAA0GY1xyn0CQkJjz766MKFC91udzPsDgAAAACA1kfpFfjHHnusge96vd727dv36tVr0KBBMTExKjsCAAAAAKCNU2rgn3/+eavqAAAAAAAADeBz3QAAAAAAsAEaeAAAAAAAbIAGHgAAAAAAGwjjPfDTp0/XbwwcODAjIyN0i0kOh8Pr9Xbo0KF3797du3cP62cBAAAAAGjLwmjg77//fv3Gyy+/rDfwxpYI9OnTZ9q0acOGDYt4BgAAAAAA2o4WO4X+u+++u+666zZt2tRSBQAAAAAAYCNhvAK/evVq/Ua3bt1qbTHP7/fn5eWtWrXq7bffrqqq+tOf/vT3v/893EkAAAAAAGhrwmjgr7zyyka3mDRu3Di/3z99+vS1a9dGNgMAAAAAAG1Ki51Cf8UVV4jIyZMnW6oAAAAAAABsJIxX4K118cUX/+53v2upvQMAAAAAYC8t1sD36tXrxRdfbKm9AwAAAABgLy12Cj0AAAAAADAvjFfg4+Pj1fdXUlKiPgkAAAAAAG1NGA18aWlp09UBAAAAAAAaEEYDf8MNN9S7/dixYxs3btRvn3XWWeecc05cXFxpaem+ffsOHz6sbx8wYEBaWppirQAAAAAAtFlhNPDz58+vu3H58uW33nqrpmkPPPDApEmTzjnnnNDv7t279/XXX58+ffqBAwdefvnlwYMHq9YLAAAAAECbpHQRuwMHDtx88815eXmZmZnTpk2r1b2LyLnnnvvWW2/NnTs3Nzd37NixR44cUdkdAAAAAABtllIDP3Xq1IKCgjvuuOPGG29sYNi4ceNuueWWvLy8119/XWV3AAAAAAC0WUoN/Oeffy4io0ePbnSkPmbBggUquwMAAAAAoM1SauD1U+JjYmIaHRkbGysixjXtAAAA/h97dx4fVX09/v/MvmQlCwGCKIKoKIuCIItsnwiyaKEuuKDQ1tL+9FOgWtG2SuvnYxUXzAOriFgXEEWpqB+LIGhAjYJYKYssCqiIBYGwZJ1kkszM74/b3m+a9c68b5K5yev512TmPeeeuXPnzPvce3MHAABERamB93q9IrJ9+/YmR27btk0fDwAAAAAAoqXUwPft21dEnn766WPHjjUy7MiRI0uWLBGRfv36qSwOAAAAAIB2S6mBv/XWW0WkoKBgxIgR+k/B1/Lpp5+OHDny5MmTIvKzn/1MZXEAAAAAALRbUfwOfF3Tpk1bsWLFmjVr9u3bN3jw4MGDB48ePfrss8/2+/2BQODrr7/euHGj3thfeeWVN910kxk5AwAAAADQ7ig18CKyatWqn/zkJ6+++qqIbNmyZcuWLfUOu+mmm5577jnFZQEAAAAA0G4pnUIvIl6vd8WKFe++++748eOdztq7A1wu14QJE9avX798+XKPx6O4LAAAAAAA2i3VI/CacePGjRs3rry8fOfOnUeOHCkrK0tISOjSpUu/fv248jwAAAAAAOrMaeA1Pp9v8ODBJgYEAAAAAAAa1VPoDYpEIhs3bpwxY0bLLA4AAAAAgDbGzCPw9dq3b9+yZcteeumlQ4cOiciLL77Y3EsEAAAAAKDtaa4GvrCw8LXXXlu6dOnmzZubaRHxIyEhwcgw/SJ/fr8/HA7HvDibzabdcDgciYmJMccREZfLpd3w+XymXGXQbrcrpqSvJa/Xq6cXJyl5PJ66V2qMgc1mU0zJ4XDoKem3Y07G3JTcbrfdrnRqjx5KMSU9DZfLZdarS0hIiEQi8ZBSzXqiklK9oq1pPp9PJQe9pjmdzjipaSaW2Zo1ze12q4TSxFWZNb2AqJfZ5khJsczqH3yzUlIvIHpKBj/sioxka1aZjTmBmjko1tXmqGlxOHU0q6Y1zki2bXvq2B5qmvrU0ayaFodTx3qZ3MBXV1evW7du6dKlb7/9djAY1O93OBw5OTk33nijuYuLE06nU6+MjdC3CafTacobabPZFOtUPKfkcDgUP8xmpVTza08xJb0Km5WS3W43K1T8pKQz8Y0z8gk1EsqUr2Ex9Y0zZadSLQZzq/k9F28FJA5rmlkpiakfjbZaZiWeaprpKZlY08wq140zspS4qmlm5RCHBSQOU2qckWyZOkaVEjWthVNqjppmWsQdO3YsXbr0lVdeOXbsWM37Bw0adNNNN02dOjUrK8usZcWboqIiIyUsKSlJOyJUXFxcXV0d8+LsdntaWpqIVFdXFxUVxRxHRBITE7WfCSgpKamqqoo5js1mS09PF5FQKFRYWKiSkt/v9/v9IlJWVlZzH1AMMjIytJROnz6tEsfn82n78wKBQEVFhUqo9PR0m80WDocVU/J6vdp+wfLy8vLycpVQaWlpdrs9EokopuTxeJKSkkSkoqIiEAiohEpNTdWKnWJKbrc7OTlZS6msrEwlVEpKivaVUFRUpHIMxOVypaSkiEgwGCwtLVVJKTk5WTv0UVxcHAqFmhyvfRwMKiwsbMma5nA4OnToICJVVVXFxcUxx5FmqGnqZTYhIcHn84lIaWlpZWWlSijtTVQvICaWWbNqmoll1vSapl5mO3TooB2KiZ+appdZIx/2KGpHA4y88GjLbFQ1zeCaj7auNqQ5alr8TB1NrGlGGHnv2vbUUatpcTV1NKum1SyzZk0dDU5gGtKKU8eoappqA3/s2LGXX3552bJlO3bsqPvoPffc89BDDykuAgAAAAAAxNjAB4PBt99+e+nSpevWrau5R7Bjx45Tp06dNm2a9ntypvxbNQAAAAAAiLqB37x589KlS1977bWaZ0onJCRMnjz5pptuGjt2rOJ1EQAAAAAAQF3RNfC9evXav3///3uy05mTkzNt2rTJkye3zIVMAQAAAABon6Jr4PXuXbs03fXXX9+xY8dmyAoAAAAAAPyHGH/YoKioqKioSPEqygAAAAAAwKDoGviBAwdqN7766qt58+b16NFj6NChixYtOnHiRDPkBgAAAAAA/iW6Bv7vf//77t27586d26VLF+2ezZs333777V26dLnyyitfffVVxd8VBAAAAAAA9Yr6FPrevXs//PDDhw4devfdd2+44QafzyciVVVVq1evvuGGG7KysqZPn/7ee+81Q6oAAAAAALRfMf4PvMPhGDdu3CuvvHL06NFnn312+PDh2v0lJSXLli0bO3as9uepU6cikYg5mQIAAAAA0I7F2MDrkpOTb7311vz8/AMHDsybN6979+41H/3zn/989tln//73v9+zZ4/iggAAAAAAaM9UG3hdjx497r///q+//vrDDz/86U9/mpSUpN1/8ODBBx988IILLrjooosee+wxsxYHAAAAAEC7YloDr7HZbCNGjHjuueeOHj26fPnyyy+/3G7/1yK2b99+1113mbs4AAAAAADaCZMb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LIAGHgAAAAAAC6CBBwAAAADAAmjgAQAAAACwABp4AAAAAAAsgAYeAAAAAAALoIEHAAAAAMACaOABAAAAALAAWyQSae0cLK+srMzIavziiy/++c9/isiwYcOSk5NjXlxFRcXGjRtFJCMj45JLLok5jojs3bv34MGDIjJo0KD09PSY41RXV7/33nsikpqaOmTIEJWUDhw4sH//fhG5+OKLs7KyVEK9++67kUgkISFhxIgRKnG+/fbbL7/8UkT69u2bnZ2tEiovL6+ystLr9Y4ePVolzvfff79r1y4R6d2795lnnqkS6oMPPigvL3c6nZdffrlKnB9++GH79u0i0qtXrx49eqiE+uSTT4qLi0Vk3LhxdnvsOxkLCgo+//xzETn77LPPPfdclZQ+++yzkydPikhOTo7L5Yo5TmFh4ebNm0XkjDPOuPDCC1VS2rp16/Hjx0Vk1KhRPp+vyfGJiYnGgxusaTt27Dhy5IiIDB8+PCkpyXj8WvSa1rFjxwEDBsQcR0R279596NAhEbn00ks7dOgQc5yqqqr3339fRNLT0wcNGqSS0r59+77++msRGTBgQMeOHWOOEw6H161bJyLJycnDhg1TSembb7756quvRKR///6dO3dWCfXee+9VV1f7fL5Ro0apxDl06NDu3btF5IILLujWrZtKqA0bNgSDQZfLlZOToxLnyJEjO3bsEJHzzjuve/fuKqHy8/NLS0tFZPz48Spxjh079o9//ENEevbsec4556iE+vTTT0+fPi3KNe3UqVNbtmwRkTPPPLN3794qKX3++ecFBQUiMnr0aK/X2+T4qGqatv6btG3btqNHj4rIiBEjEhISjMevpays7KOPPhKRrKysiy++OOY4IrJr167vv/9eRIYOHZqSkhJznGAwuGHDBhFJS0sbPHiwSkpffvnlt99+K8pTx1AotH79ehFJSUkZOnSoSkr61PGiiy7q1KmTSqh169aFw2H1qePBgwf37t0rIn369OnatatKKK2meTyeMWPGqMT55z//+cUXX4jI+eeff9ZZZ6mE+uijj8rKyux2+7hx41TiHD16dNu2bSJyzjnn9OzZUyXUpk2bioqKRGTs2LEOhyPmOCdOnPj73/8uIt27dz/vvPNUUtqyZcupU6dEZMyYMR6Pp8nxUdU0Z+x54d8MVvm1a9euWbNGRJYtW9alS5eYFxcIBB5+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8802m03+c5Oud82vXLny/PPP93q9F1544RtvvJGTk6PvNav73Ia26pojG/901GJkq9OXvmbNmv79+3u93m7dui1YsKBmnEaKVb3zgUbunzZt2sCBA2sGHzVq1OTJk2tmElUVaj4cgQcs48iRI++///7MmTMzMzMnT578xhtvnD59ukOHDvqAsrKyG2644fbbb587d+6iRYuuv/76O+6445NPPnnwwQcrKyvnzp17yy23bNy4URu8Y8eOYcOGXXDBBUuWLElKSlqyZElOTs6mTZv07qKwsPD2229//PHH+/btW/f/rLZu3TpixIgePXrk5uZ27dp1//79+tziu+++6969+7XXXpuenv7tt98+9NBD27Zt+/jjj/XnFhYWzpo1Kzc397zzznvttddmz559zjnnjB8/vqEXHggESktLQ6HQvn37/vCHP2RnZ48cOdLIq2gkk6uuuiolJWX58uWPPPKIFurYsWPvv/++djag4sqBKUpKSgoLC/U/XS5XQkKCNLWBXXPNNcFg8KmnnurcufMPP/ywbt26ysrKefPmhUKhpUuXalup1lRH+y4//fTTxjfdDRs2jBgxQtvfVK/33ntvwoQJo0ePfu2118rKyv7whz8MGzZs+/btZ555Zt1s/X5/3fwbiaDnX2+29a6NJj+2aEvOOuusn/3sZ7m5ubNmzUpPT6/1qJFNq+ZHo0OHDnW3KBEpKyv78Y9/PHPmzDvuuGPVqlWNl/p2+wVX03fffZeWllbzVWua9QsrEols2LBh5MiRdbeE66677o9//OOGDRsmTpxosC7x7dlipk+f/tRTT7322mu33367ds/y5csjkcgtt9xS7/haa37jxo3XX3/91VdfvXDhwhMnTsydOzcQCFx88cUNPdfIVm38e8TgVqfdc/r06TvuuOPFF188//zzX3/99dtuuy0hIeGXv/ylNFWs6p0PNHJ/k6KqQs2KBh6wjJdeeikcDmulefr06StWrHjttde0EqYpLS194oknxo4dKyJDhgzp1KnTyy+/vH//fp/PJyIlJSW33377sWPHsrKyRGTu3LkZGRkbNmzQmqJx48ZddNFFDzzwwJtvvqlFCwaDixYtGjNmTL3J3HXXXampqZs3b9aeXnPYxIkT9bI7cuTI/v37X3TRRV988UWfPn30yEuWLLnkkktEZPbs2S+88MKKFSsamd/oX/wi0r1797Vr12oLbfJVNJKJ1+u99tprX3nllfnz52t7f1esWBGJRG688Ub1lQNTDBo0qOafEydO1P7fr5G3taqqauvWrX/5y1/0swr1GykpKXa7/ayzztIDxvAuG9x0i4qKiouLu3fv3siru++++84888y1a9dqs95hw4b17Nnz4YcfXrRoUVpaWt1s697TSITGs603fpMfW7Qx99577wsvvPDII488/PDDtR4ysmnV+mjU3aJEpLS0NDc3d8KECSIyceLE/Pz8Rkp9u/2C0/ZQl5SU/PWvf12/fv2iRYu0w6c1NesXVnFxcUP1SntDtYOKBusS354t5pJLLundu/eyZcv0Bv6ll14aMmRIr1696h1fa83/5Cc/6devn3bVCRHp06dP3759G1qWwa3a+PeIwa1OU1lZuXDhwksvvVREfvazn23duvX++++/9dZbnU5nI8WqoflAI/OEJkVVhZoVp9ADlrFs2bJzzjlnyJAhIpKTk9OlS5daJxl6PJ6cnBztdmZmZseOHceMGaOVFRG54IIL5N81sbKycuPGjVdffbXeCdvt9kmTJtXcUep0OrV/o6orGAx+9NFHN954o/70mqqqqh5//PEBAwZkZmZ6vV6t5ta8JInf79e+BjQ9evQ4dOhQIy/85Zdfzs/P/+ijj1asWJGVlTVu3DjtQvRNvorGM7n55psPHz68YcMG7c+XXnopJyenc+fOiisHZlm6dOnGGvRTWBt5W10uV79+/f7nf/7niSee2LVrVyPBY3uXo910G1JRUfH3v//9uuuu049V/v/s3XtAjHn/P/73VMx0MtFBOieSs0RJB6TIoRBFrcN937sbaVWSrF1nIVHJnZD9snLusNwrGyFMLNZpNznbVa1DqZh0+Jha5vfHdd/Xb3amrqbDmK56Pv6auQ7v63Vd8z5c77ne13WZmZm5urpeunSpFVNoUrSNFltoZ4yMjIKCghITE0tKSiSny5O15KwAuVyup6cn9ZnD4QwcOJAhB3bYBs7Ozk5bW9vIyCg0NDQkJETyPwtJimuwxGIxQ3hNgtbzE5s7d+4vv/zy+PFjQsgvv/zy8OHDhi6/k78febFY/Msvv/j4+NBzBw4c2Lt374bWlTNXy9+ONCnXqaiojB07lv46fvz44uLigoIC5sqqofMB+c8TZMlfCykaOvAA7HDjxo379+/7+PgIhUKhUFhZWenj43P16lWq4qbo6OhI3krE5XIlR/BSDyx5//49IeTt27d1dXXbt2/nSYiJiSkvL6eX19XVbegJIkKh8MOHD8bGxvXOjYyMXLFixdy5c0+dOnXnzp1z587R26Voa2tLLt+pUyfJubKGDh3q7Ozs4uJC3fElFArXr18vz14wR+Li4mJhYXHgwAFCyIMHD27fvj1nzpyWHxxoLfb29qMl0H/hM/+smZmZHh4eGzduHDhwoKmpaUN3+TbvV5Yz6/L5/C5dujx79qyhXRMKhR8/fpR6yZahoSF972uj5EmhSQWt0WIL7c/y5cs5HM7GjRslJ8qTteSsAGWbpIZyVEdu4Kh/qH/44QdnZ+eEhITDhw/Xu5jiGiw+n6+trV1vfVVQUEAIMTU1ZYhfElrPT2z27NkqKirUX10pKSlcLnfmzJkNLSx55N+8eSMSiQwMDCQXYLhuLGeulr8daVKu69Kli+TTZKhR9y9evGi0smrofEDO8wRZ8tdCioYh9ADssH//fkLI5s2bpYY7pqSkREVFNTU1Pp+vqqoaFBS0cOHCZgSjo6Ojpqb2/PnzeucePHgwJCQkNDSU+nrz5s1mbIJh0yYmJtQdd43uBXMkHA5n9uzZ27Zt27lz54EDB7S0tKZNmyZPsqBczD+rsbHxnj17CCH5+fl79+5dsmSJqampr6+vVCKK/pXd3NzOnDnz5s2bem+Dp04CiouLJScWFxfL3g3YkJanIEWhxRbaJn19/ZCQkLi4OMkC0upZSx4duYEbOnQo9RT68ePHDxgwICIiYurUqRoaGlKLKa7B4nA4bm5u2dnZsvUVNb5a/uHuaD0/MWNjY3d394MHD65aterYsWPe3t6yD1CoV7du3bhcrtQb10tKSlr4Wgr5S0eTcp1QKKypqaELxYsXLwghxsbGjVZWDZ0PNDSdx+NJvcDy3bt3Ojo6zTwcioT/wABYoLa29ujRow4ODhf+bsiQIQcOHGjG+Dcejzd69OiLFy9aWlra/J08q3O5XFdX18OHD1dVVUnNEovFNTU1kvVdampqU8NjUFpaWlRUpK+v3+heyBPJnDlzqqqqfvjhh0OHDk2fPp1qHlp4cECh5M9gAwYMiI2N5XK51Bg5qat/iv6VIyMjRSJRYGCg1NlAXl7erVu3eDyevb19WloaPbeoqCg3N5d+OqPstUrZ+JlTYCaVmqKLLbRZS5cu5fF41JgmSvOyFsPV9UahgaNoaGjExMS8evUqOTm53gUU12BFRES8f/8+ODj448eP9MRnz57Fx8cPHDiQvtVZnnoJrecnNm/evMLCwuXLl5eVlTGMn5fC4XDs7e1/+OEHesrdu3efPHnSkkiaWjrkzHWUo0eP0p8PHz7co0cPCwsL+SsrqfOBhqabm5sXFRXRqZWWlj58+FD+I/Ap4Qo8AAtkZmaWl5fHxsZK3Tk2f/78oKCgixcvjhkzpqlpxsbGOjs7Ozs7BwcHm5qalpeXU/+V0g+5ZbZlyxYXFxcHBwfqn8s//vjjt99+o56+4+HhsWfPHm9vbzMzs2PHjkndx9gMFy9efPr0qVgsfvnyZVJSUm1t7VdffdXoXsgTibW1tYODw9dff/3ixQtqOGKrHBxoFdnZ2VJtrZeXF5fLZfhZCwsLAwIC/P39ra2tVVRUUlNT6+rqqDvW+vfvLxKJEhISHB0deTzeoEGDFPorOzo6btu2LSwszNbWdu7cuRYWFkKhMCcnJy0t7T//+Q8hZN26dZ6enp6ensHBwdXV1WvXrtXQ0IiMjKRWl41WdgpzCsxkU2v1Ygus0LVr1/Dw8NWrV0tObEbWks1R8sfQwRs4SdOnT7e1td2yZUtQUJDsa7oV12A5OztHR0cvW7assLDwH//4h56eXl5e3r///W8ej3fs2DF6zLA89RJaz09s2rRpXbp0iY+PNzAwoB85IY+1a9eOHTvWz8/viy++KC8vX7lypaGhYUvubmhq6ZAz1xFCNDU1V69e/e7dO+op9D/++OOuXbuoQfUMlVVD5wMM5wnUA/C//fbbJUuWFBcXh4aGdurUqdkHRKFwBR6ABfbv36+trS07DNjf319dXZ0afNhUgwcPvnHjhpWVVWRk5MSJE8PDwx8/fkw/nKNRQ4cOvXLlipWVVXh4uLe3d3x8PP2God27d9vZ2Tk5ORkZGWVkZFDvyWyJoKAgLy8vb2/vVatWGRgYnD171tvbW569kCcS6slAxsbGkueILTw40CpCQ0N9/+7t27eE8WfV0dGxsbFJTEycNm3ajBkz7t27d/z4cRcXF0LIlClTAgMD169fP2LECOqx2Ir+lRctWnTlypW+ffvGxcUFBAQsX768oqIiPT2dekivh4dHVlZWTU1NQEDAwoULbWxsrly5Qhci2WhlpzCnwEw2tVYvtsAWixcvlhoe34ysJZuj5NfBGzhJHA4nKirq5cuXe/furXcBxTVYkZGR586d09HRWb58ub+/f0pKyuzZs+/cudO3b196GXnqJbSen5i6urqvry/1SgLJG8UbNWbMmCNHjuTl5Xl5ea1fvz46OtrExKSFQ+ibWjrkyXWEEC0trfT09CNHjkyZMuX06dNbt26dP38+NYuhsmrofIDhPKFPnz6pqamZmZlmZmazZs0KDAy0tbVtyQFRHE4rPnwSoBWVlZURQrS3rFN2IK2vcukqQoienp6yA4G2oqysLCFXX9lRKESoSylBbgclodoR/fz2+Sz90gF9CAoXdBhUcX6a0D4zfK/QMqLU4vzq1atevXpFRUUtXrxYWTHUKyIi4uDBg1I3ugOG0AMAAAAAAHQUVVVVy5cvd3d319PTe/bs2ebNm7W0tOS/ix6UCx14AAAAAACAjkJNTe3PP/9csGBBeXm5lpbW6NGj09PTFfqyCWhF6MADAAAAAAB0FDwe78SJE8qOonFbt27dunWrsqNoc/AQOwAAAAAAAAAWQAceAAAAAAAAgAXQgQcAAAAAAABgAXTgAQAAAAAAAFgAHXgAAAAAAAAAFkAHHgAAAAAAAIAF0IEHAAAAAAAAYAGOWCxWdgwA9SgrK1N2CIqlp6en7BCgrUBuB1CEdl+yCAoXdBgozgA0XIEHAAAAAAAAYAFcgQcAAAAAAABgAVyBBwAAAAAAAGABdOABAAAAAAAAWAAdeAAAAAAAAAAWQAceAAAAAAAAgAXQgQcAAAAAAABgAXTgAQAAAAAAAFgAHXgAAAAAAAAAFkAHHgAAAAAAAIAF0IEHAAAAAAAAYAF04AEAAAAAAABYAB14AAAAAAAAABZABx4AAAAAAACABdCBBwAAAAAAAGABNWUHAFC/srIyZYegWHp6esoOAdoK5HYARWj3JYugcEGHgeIMQMMVeAAAAAAAAAAWwBV4aNPq9tgoO4TW1+nLh8oOAdoci5vdlR2CQhQMK1F2CNDR6d/6S9khKESpHU7hoMNRWdk+Lz1+XP9R2SEAm7TPYgAAAAAAAADQzqADDwAAAAAAAMAC6MADAAAAAAAAsAA68AAAAAAAAAAsgA48AAAAAAAAAAugAw8AAAAAAADAAujAAwAAAAAAALAAOvAAAAAAAAAALIAOPAAAAAAAAAALoAMPAAAAAAAAwALowAOwQ2JiIud/VFVVTUxM/P39nz59KufqERERhoaGrR5VTk5OdHR0qycLHZxkbqdpaWm1JE2l5NWbN29+9tlnZmZmXC63S5cuw4cPX7NmTWlp6afZelZW1pgxY7p3766hodGzZ09fX99z5861PNmoqKgW/haKSw0aRRWu7t27V1dX0xMLCgo4HM6uXbuanaxs+VJQoyMPyQqkc+fOvXr1WrlypUgkUkowAIpw5MgRDocjEAjoKSUlJVTRllxsx44dHA4nPz//kwfIVLfX28SfPn1acQG0v4ZGTdkBAEAT7Ny508TE5MOHD48fP96yZcvVq1fv3r2rra2trHhycnISExO//vprZQUA7VhCQoKRkRH9VU2tRQ3Wp8+riYmJoaGhffr0WbBggZWV1fv373/55ZeEhIRz585dvnxZ0Vvfu3fv559/PmrUqKioKD6f/+zZs9OnT//000/u7u4tTNnAwKBfv36tEiQoy+vXr7dv3758+fLWSrANtgVUc/nu3buMjIyoqKiqqqr4+HhlBwXQOkaNGkUIEQgErq6u1BSBQKChofH69euHDx/a2NjQE3V1dfv376+0QBsm1cTb2tq2bvrtu6lCBx6ATUaPHk3Xyz169JgzZ861a9c8PDyUGxWAIowbN47O7UonEom4XK78y//888+hoaHTp08/fPgw/dfDvHnzNmzYsHfv3lbZBLO4uLgBAwacP39eVVWVmrJs2bLa2tqWpxwYGBgYGFjvLNldaN2dgtbi4eGxZcuWhQsX8vn8Fib1CX7i5m2Cbi79/f3t7Oy+++47dOCh3TAyMurZs6fkFXiBQODm5vbgwQOBQEA3nbm5uS4uLhwOR0lhMlF0E8/QVLUDGEIPwFbdunUjhNTV1dFTsrOzR44cqa6uzufzvby87t+/L7XKtWvXHBwceDyemZlZbGys5Ky8vLxp06bp6uqqq6v36dNn06ZN1PT8/Hx/f39zc3Mej2dlZbVo0aKKigpqVlhY2IYNGyoqKqjhTyYmJgrcW4D/YciThJDCwsJZs2YZGhpyuVwTE5OpU6dWVlY2lFfz8vK8vb11dHTU1dWdnJxyc3PpdKgBwOfPn3dwcFBXV1+yZAk1JTc3d8SIEerq6r169dq+fXtDQcbExPB4vOTkZKmBAzo6OuHh4Q1tgnnvTpw4weFwbt26JZmgu7v78OHDZQMQCoXm5uZ0753SuXNn+nNaWlrfvn15PF6/fv3S0tLc3d0nT55MzZo9e/awYcMkVxw9evTUqVOpz5JjERs6SlI7xXCcQSlWrVpVXV0dFxfX0AIMrYnsT8zQFty7d8/NzU1TU1O2vCiu9EnhcDjDhw+vqqp68+YNNYW5DiENN4jMs5ib4EYPafP2DjqsUaNGXb169a+//qK+CgQCFxcXZ2dnulf/5MmTV69e0ZfoGUpcM1rVRtNsBuYwqGJy584dZ2dnqphkZGQQQnbt2mVlZaWtrT1u3Lg///yTXr7eYfNNakbbMlyBB2CTmpqaqqoqagj96tWrjY2NqWFUhJCzZ89OnDhxzJgxx44dq66uXr16tZOT06+//mpubk4tUFVV5efnt2zZMhsbm+PHj0dERGhqai5YsIAQcuvWLVdXVysrq/j4eBMTkydPnuTl5VFrFRYWWlpa+vr66urqPnv2bNOmTXfu3KEGAK9aterDhw/79++nFm7hCGcAKZWVlUKhkP7aqVMnTU1NwpgnCSEzZswQiUQ7duzo0aPHq1evzpw5U1tbW29e/e2335ycnPr375+cnKytrZ2cnOzu7v7zzz/b2dlRSQmFwuDg4Li4uEGDBolEop07dwqFwpCQkPj4eBsbm2PHjoWGhvbu3XvChAlSkYvF4pycHFdXVx0dHeZ9lNoE8955eXmZmpru3r07OTmZWv3p06c5OTn0V0mOjo4nTpyIjY2dOXOm7J9rFy5cmDlz5rRp07Zt21ZaWrp06VKRSETveJPUe5QkpzR6nOHTs7Cw+Pzzz+Pj40NCQnR1daXmNtqaSP3EXbt2rbctqK6u9vHxCQwMDA8Pz8jIkCwviit99SosLOzWrVvXrl3prwx1CEODyDCL+aDJc0ibvXfQMbm6uu7bt+/27dv29vZCoTA/P9/FxUVXV3ft2rXUAlRPnurAM5e4ZrSqjabZKMkmXk1NTUtLizkMQkh1dbW/v39wcHBkZGRSUtKsWbPCw8OvXLmycePG2trayMjIuXPnXrhwgWGjTWpG2zKccAOwiWS1aGlpmZWVRXVpCCErV640NzfPysqiTp6cnJx69eq1efPmpKQkaoHq6urk5OSAgABCyNixY0tLS9euXfvFF1+oqaktXbpUR0fn6tWrVGpubm70ViZNmjRp0iTq86hRo4YMGWJra3v37t2BAwd269aNz+erqKhYWFh8ip2HDsbe3l7y66RJkzIzMwljnqyrq7t169Z33303ffp0agH6g2xejYyM1NPTy8nJobL9+PHjbW1to6Kijh8/Ti0gEomSkpIki4NIJEpOTqb+qg8NDd23b9+RI0dkT7LfvXtXWVkpVS6qqqroz5qamtSYRtlNMOydqqpqYGDg5s2bY2NjqSdfUKdN/v7+skdv27ZtJSUlERERERERJiYmY8eOnTdv3pgxY6i5a9asGThwYHp6OhVGv379mt2drvcoSU4ZP34883EGpVixYsW+fftiYmI2b94sNavR1kT2R6+3LaBuO584cSIhZNKkSbm5uXR5UVzpo1H/d1dWVqalpWVnZyclJdEDiRlKGSGEoUFkmMV80OQ5pE3aOwCqZy4QCOzt7XNzc7lcrp2dna6u7p9//llQUGBhYSEQCLp06TJkyBDSWIlrXqvaaClmJtnEOzg4XLt2jblgEkKqqqq2b98+btw4Qoijo6OhoeGhQ4eePHmirq5OCKmsrAwODi4pKZF6kp+kJjWjbRmG0AOwyaFDh3JzcwUCwZEjR7p37z5+/HjqQfTv37+/ceOGn58ffenDzMzM1dX10qVL9LocDoeudgkhfn5+xcXFBQUFIpFIIBAEBATQ/wVIqquri4uLs7Oz09fX5/F4I0aMIIQ8evRIsfsJQMj+/fsvSKCHqjLkyU6dOg0ePHjdunXbt29nfu5ubW3thQsXpk+fTmd7FRWVyZMnS/7Zr6amNnr0aMm1NDQ0JAfaWVlZFRUVjQWOYgAAIABJREFUySYuFoulplRVVWlLKCkpaWgTzCXuyy+/FIlEhw4donbh+++/nz17dr0l19jYWCAQ/Prrr5s3b7azs8vIyHBzc6OOoVgsvn79+owZM+j+zNChQ3v16sVwuBjI7oLkFHmOMyiFkZFRUFBQYmIinRsp8rQmsj96vbhcrqenJ/WZw+EMHDiQKi8KLX00Ozs7bW1tIyOj0NDQkJAQargZhaGUMTSIDLOYD5o8h7SpewfQs2dPExMT6jK7QCBwcHDo3LmztbW1gYEBPdHJyUlVVbXREteMVrXldbtkE0/9k9XoCSeXy6Wfw6qvr29gYODm5kb13gkh1LP6JEfR10v+ZrQtQwcegE2GDh3q7Ozs4uIya9asrKwsoVC4fv16QohQKPz48aPUO3sMDQ3pW/4IIXw+X/I5QNQ/lC9evBAKhR8+fDA2Nq53i5GRkStWrJg7d+6pU6fu3LlDvYbq/fv3itg7AEn29vajJdD/wTPnyczMTA8Pj40bNw4cONDU1LShu3zfvn1bV1e3fft2noSYmJjy8nJ6GV1dXRWVv7WSUm986NSpU71lgc/na2trFxYW0lM0NDRyc3Nzc3MlexH1boJ577p37+7j47N7925CSEZGRmlpqVSCUgYPHhwZGXnixImCgoJhw4atWrWqvLz8zZs3IpHIwMBAckmGSxbMZHdBcoo8xxmUZfny5RwOZ+PGjZIT5WlNZH/0euno6EguxuVyqZys0NJHo/7v/uGHH5ydnRMSEg4fPkzPYihlDA0i8yyGgybPIW3q3gEQQlxdXS9fviwWi6kb4KmJ1G3wz58/LygooK7SN1rimtGqtrxul2zihw4d2mgYpL4qhXoaFP2VyHGC2tRmtG3CEHoAttLR0TExMaFuwKMqteLiYskFiouLJW9urKioeP/+PY/Ho75SV12MjY11dHTU1NSeP39e71YOHjwYEhISGhpKfb1586Yi9gVAfsx50tjYeM+ePYSQ/Pz8vXv3LlmyxNTU1NfXVyoRPp+vqqoaFBS0cOHCVo+Qw+GMGTPm3LlzQqGQug1eRUXF2dmZENLo1YlGS9zChQtHjRp1/fr13bt3Ozo60v9rMNPV1Z07d+7NmzcfPXrk6OjI5XKlrruWlJTQd+zzeDz6wUiUd+/eNXo/f70UepyhhfT19UNCQuLi4iQLiDytSQt9mlwxdOhQ6hnX48ePHzBgQERExNSpUzU0NAhjKWNoEJlnMRy0T3BIoWNydXU9fPjwtWvXbt++HRUVRU10cXFJSkqixndQj0lqtMQ1o1X18vJq9VL8yU44m9eMtim4Ag/AVqWlpUVFRfr6+oQQHo9nb2+flpZGn3YXFRXl5ubSj7gjhIjF4vT0dPrr0aNHe/ToYWFhweVyqTZA8h5depWamhrJE/fU1FTJBegrKgCfRqN5kjZgwIDY2Fgul0uN+pPKqzweb/To0RcvXrS0tLT5u1aJc+nSpe/fv58/f75UT5iZPHvn6uo6YMCAyMjIS5cuMVw3ePDggdSUX3/9lRDSvXt3Dofj4OCQnp5OD/W/desWdTMOxdzcvKioiI68tLT04cOH8u+FJEUfZ2ihpUuX8ng8aiQXRZ7WRFaT2oJPnCs0NDRiYmJevXpFPaeKuZQxNIgMs5gPWvMOKUCjqCwUHR0tFosdHR2pic7Ozk+ePElNTdXQ0KDeJ8Jc4prXqrZ6KZY/jJaTsxlty3AFHoBNLl68+PTpU7FY/PLly6SkpNra2q+++oqatW7dOk9PT09Pz+Dg4Orq6rVr12poaERGRtLrampqfvPNN2/evKGeQp+enr5r1y7qlrwtW7a4uLg4ODhQf6z+8ccfv/32G/XIHw8Pjz179nh7e5uZmR07diwlJUUynv79+4tEooSEBEdHRx6PN2jQoE95NKB9y87OlrqP3cvLi8vlMuTJwsLCgIAAf39/a2trFRWV1NTUuro66pY52bwaGxvr7Ozs7OwcHBxsampaXl5O/d8fExPT8uCdnZ3j4uLCw8Pv3r07Z84cKysrkUj09OnTlJQUPp9PD4SR0miJowQFBQUHB3ft2tXPz6+hAMaNG2dmZubj42NpaVlVVXXmzJnDhw9PmTLFysqKELJmzZqxY8dOmzYtMDCwtLR01apVPXr0oNf18/Nbs2bNt99+u2TJkuLi4tDQ0E6dOjX7UCj0OEMLde3aNTw8fPXq1ZITG21NZDW1LfjEuWL69Om2trZbtmwJCgpirkNIww0i8yzmg9aMQwrQKBsbGwMDg5MnT9rZ2dGvTLO1tdXS0jp58uSYMWPoqpuhxDG3OwytauuWYjmbv9YiTzPaluEKPACbBAUFeXl5eXt7r1q1ysDA4OzZs97e3tQsDw+PrKysmpqagICAhQsX2tjYXLlyhX5FDSFES0srLS3t0KFD3t7emZmZW7dunT9/PjVr6NChV65csbKyCg8P9/b2jo+Pp1fcvXu3nZ2dk5OTkZFRRkYG9dZN2pQpUwIDA9evXz9ixAjqUcMArSU0NNT3796+fUsY86SOjo6NjU1iYuK0adNmzJhx796948ePU3cGyubVwYMH37hxw8rKKjIycuLEieHh4Y8fP6YfkNMq8f/888+DBw/esWPH7Nmzg4ODT5069Y9//OPx48cMw9GZSxxlxowZhJB58+Y19EcAISQ2NtbU1DQpKemzzz5bsGDB3bt3169ff/ToUWrumDFjjh49+vDhw2nTpm3evDkuLq5fv370un369ElNTc3MzDQzM5s1a1ZgYKCtrW2zj4OijzO00OLFi6XGcjfamshqalvwiXMFh8OJiop6+fLl3r17SWOljKFBZJjFfNCacUgB5OHq6ioWi+kb4Akhqqqqjo6OYrGYfgM8aazENa9VbfVSLE/z11rkaUbbMo7sw3IB2oKysjJCSN2edjjMstOXDwkhenp6yg4E2oqysjKLm818hFgbVzCshCC3t7Z9+/b961//evDgQSsOOXZ3d+fxeNSL+toNqh3Rv9WEuxhYpNROjaBwQYdBFWeVle3z0uPH9R8JivMnpIhm9FPCEHoAAAB2ePDgwe+//75y5UovLy+WnnYAAAAoS/toRtvn/1gAAADtz6JFi3x8fHr27EnddgsAAADyax/NKK7AAwAAsAP1Xlx2pQwAANBGtI/GDlfgAQAAAAAAAFgAHXgAAAAAAAAAFkAHHgAAAAAAAIAF0IEHAAAAAAAAYAF04AEAAAAAAABYAB14AAAAAAAAABZABx4AAAAAAACABfAeeGjTOn35UNkhAHwKBcNKlB0CQPtUaodTHYB24uP6j8oOAUD5cAVema5cuTJr1iwzMzMul6ujo9OnT5+pU6cmJCS8fPlS2aERNTU1PT09ZUcBAAAAAAAA/8URi8XKjqGD2rJly7Jly8RisZ6eXu/evTU1NQsLC58+fSoWi3fu3LlgwQLlhqempqajo1NWVqbcMAAAAAAAAICCcWXKkZ+f//XXXxNC/v3vfy9YsEBN7b8/xMuXL48ePWpsbKzU6AghJCYmhsfjKTsKAAAAAAAA+C9cgVeO9evXr1q1aurUqcePH1d2LAAAAAAAAMACuAdeOUpLSwkhpqamjS4pFAo5HE6vXr1qa2vXrl3bu3dvHo9nZmYWHh5eUVFRb8qRkZF9+/bV0NDo0qWLi4vLkSNH6l3sm2++GThwoKampra2dv/+/cPCwv744w96gXrvgZcn8QcPHvzjH//o3bu3urq6jo6OtbX1vHnzbt++3eieAgAAAAAAAANcgVeO2NjYiIgICwuLW7dudevWjWFJoVDYtWvXnj172tjYXLhwwcPDQ0ND48KFCyUlJYMHDxYIBF26dKEXzs/PHzdu3KtXr8zMzIYMGVJTU3P16tXq6uqwsLD4+Hh6sTt37kycOLG4uLh79+6Ojo4qKiq///57Xl5eUlISfe+97D3w8iR+8+ZNFxeX9+/fDxs2rHfv3rW1tUVFRbdv346Ojo6IiGjNIwgAAAAAANDRiEEZXr58yefzCSHdunWbP3/+wYMHHzx48PHjR9kl3759S/1SxsbGv//+OzWxsrJy7NixhJCQkBB6yffv31tZWRFCNm3a9Ndff1ETnz17ZmNjQwg5ffo0NaW6utrMzIwQEhYWJhKJ6NWfPHmSn59Pf1VVVdXV1W1q4p999hkhZNeuXZK78OrVq4cPHzb3UAEAAAAAAIBYLBZjCL1y9OjR4+zZs/3793/z5s3u3btnz57dt29fAwODBQsWFBQU1LvKmjVrevbsSX3W0tLasWOHiorK//t//6+mpoaaeOjQod9//33KlClff/21qqoqNdHCwuLf//43IWTnzp3UlJSUlKKiImdn57i4uM6dO9Pp9+rVq3///g0FLGfi1K0Bo0aNklzX0NCwT58+TTk8AAAAAAAAIA0deKUZPnz43bt3BQLBypUrx48fT41X371796BBgy5duiS7vL+/v+TXPn36DB06tLq6mr69/PTp04SQGTNmSK3o6uqqpqZ248YN6uvZs2cJIf/85z85HI780cqZ+LBhwwghX3755blz52pra+VPHwAAAAAAAJihA69MHA7HxcVl3bp1p0+fLi0tPX36tI2NTWVl5WeffSbV+9XT09PU1JRa3cLCghDy4sUL6it16X7OnDmcv+NyuX/99Vd5eTm1WFFRESHE2tq6SaHKmfjXX3/t7u5++fJlDw8PPp/v4uKyYcOGly9fNmlbAAAAAAAAIAvvgW8r1NTUxo8fn5WVZWVl9eLFi19++cXZ2ZmeW+/VcrFYLDmL+vr555+bmJjILqyi8rc/a5p0+V3+xLW1tc+ePfvzzz9nZmZevHjx+vXrly9f3rhx44kTJzw8PJq0RQAAAAAAAJCEDnzbYmFh0aNHjxcvXlA3k9NKS0urq6ulLsIXFhYSQoyMjKivpqamN2/eHDly5L/+9S+GTZiZmd28efPRo0dOTk7yByZn4pSRI0eOHDmSEFJRUbFly5YNGzYsWLDg999/l39zAAAAAAAAIAVD6JWjrq6u3unl5eWvXr0iEt1ymtQb1x89enT79m1NTc2hQ4dSU8aPH08ISUlJETO+GnDcuHGEkP379zcpYDkTl8Ln86OiorS1tf/44w/6YXsAAAAAAADQDOjAK8fatWvnzZt35coVyf5wYWGhn5/fx48fLSwsqKfBSVqzZs0ff/xBfa6urv7qq68+fvz4+eefa2hoUBPnzZvXs2fPS5cuLVq0qKqqil5RLBafP3/+1KlT1Nc5c+aYmZkJBIKIiAjJO+2fPn167969hgKWM/EdO3ZQ4wJoly9frqysNDAwoOMEAAAAAACAZuA06YIqtJavv/568+bNhBAdHZ1+/fppampSL0v/66+/+Hz+Tz/9RA1BJ4QIhcKuXbv27NmzT58+ly5d8vDw0NDQuHDhQnFx8aBBg3Jzc7t06UIne//+/QkTJhQVFXXt2nXIkCEGBgYvX7588uRJcXHxsmXLoqOjqcXu3Lnj6en5+vVrQ0NDR0dHFRWVp0+f5uXlJSUlLViwgFpGTU2NejB+kxK3sbF59OhR//79+/Xrx+PxCgsLL1++LBaL9+/fP2fOnE9zbAEAAAAAANoldOCVo6qq6vz581lZWTdv3nz+/Hl5ebmGhkbv3r3HjRu3aNGiHj160EtSHXgrK6v79+9HRUUdOnTo+fPn+vr6vr6+a9as4fP5UikLhcLExMQTJ048fvy4trbW0NCwV69ekydP9vPzkxyWX1JSsnXr1szMzIKCgs6dO5uamnp4eISEhFhaWlILyHbg5Un8+PHjp06dun79+osXL/7v//7PxMRk+PDh4eHhsgMKAAAAAAAAoEnQgW/r6A7806dPlR3LJyX130H7o6enp+wQoK1AbgdQhHZfsggKF3QYKM4ANDyFHtq0ojR9ZYfQ+sx8SxtfCDoY/bsrlB2CQpQOjFJ2CNDR6ee0z3PiUrf2358BkKIXWdj4QixUFmOu7BCATfAQOwAAAAAAAAAWQAceAAAAAAAAgAUwhL6t09HRwXMKAAAAAAAAAFfgAQAAAAAAAFgAHXgAAAAAAAAAFkAHHgAAAAAAAIAF0IEHAAAAAAAAYAF04AEAAAAAAABYAB14AAAAAAAAABZABx4AAAAAAACABdCBB2CT69evz5w508jIqHPnznp6ehMmTMjIyFDoFnNycqKjoxW6CQApiYmJHA5HVVX1+fPnktNPnTrF4XA4HM7Fixdbkn5ERIShoWGLQpSAMgIsQhUuSufOnXv16rVy5UqRSNS81Nzd3SdPntzohminT59uQewA8F9HjhzhcDgCgYCeUlJSwuFwunfvLrnYjh07OBxOfn4+aazhi4qK0tLSoj63vFFragqSW5f83FRy1kiampqWlpY+Pj7p6elisbh521IudOABWCMxMXHkyJH37t0LCws7ePDgpk2b+Hz+zJkzMzMzFbdRdE5AWTQ1NQ8ePCg5JSUlRVtbW1nxNARlBFhn586dJ0+e/P777wcPHhwVFfX1118raEMJCQlpEmxtbRW0IYAOZdSoUYQQyQ68QCDQ0NB4/fr1w4cPJSfq6ur279+/0QQNDAz69etHff70HXjJrSsUVfWlpKSEhIQIhUJfX19PT8/3799/gk23LjVlBwAAcrl69WpoaOi0adOOHj2qpvbfkvvll1/m5eXV1dUpNzYARfDx8Tlw4ADdtaioqPjxxx9nzZr1/ffff7IYRCIRl8v9ZJsD+DRGjx5tY2NDCPH397ezs/vuu+/i4+MVsaFx48ZRGwKAVmRkZNSzZ0+pDrybm9uDBw8EAgFd6HJzc11cXDgcTqMJBgYGBgYGKircNrN1uuojhCxevHjnzp0LFy5ctmxZQkJC625I0ScPuAIPwA4xMTFcLjc5OZnuvVMGDRpkZ2dHfc7Ozh45cqS6ujqfz/fy8rp//z41/cSJExwO59atW5Iruru7Dx8+nHnFsLCwDRs2VFRUUIOOTExMqOl5eXne3t46Ojrq6upOTk65ubmK23HosObOnXv//n0636alpamrq0uNjps9e/awYcMkp4wePXrq1KnU58LCwlmzZhkaGnK5XBMTk6lTp1ZWVspuaN++fZ06dYqKiiL/G2R4/vx5BwcHdXX1JUuWEELy8/P9/f3Nzc15PJ6VldWiRYsqKiqodRsqIwCswOFwhg8fXlVV9ebNG2oKc/WelpbWt29fHo/Xr1+/9PT0Zm+33kanurraxsbG3t6e/lc6OztbRUVlx44dzd4QQHs1atSoq1ev/vXXX9RXgUDg4uLi7OxM9+qfPHny6tUrV1dXybXu3bvn5uamqanZq1ev7du309PpgestP/GrNwWGZpQwDptXaI0UFBTk7u6enJxcU1Mjz+YY5tZ78qA46MADsENOTo6rq2u3bt0aWuDs2bMTJ07U1NQ8duzYrl27Hj165OTkVFhYSAjx8vIyNTXdvXs3vfDTp09zcnLmz5/PvOKqVau++uorbW3tZ8+ePXv27Nq1a4SQ3377beTIkSUlJcnJyT/88IOBgYG7u7vUvwMALWdtbW1vb5+SkkJ9TUlJ8fPza9Jf2jNmzLh///6OHTsuXLiQkJBgYGBQW1srtUx0dHRgYOCuXbtWrFhBTREKhcHBwatXr37y5MnixYsJIYWFhZaWlvHx8WfOnFm5cmV2dvakSZOohestIwAsUlhY2K1bt65du5LGqvcLFy7MnDnT2tr6xIkTy5cvDw8Pp//tbUhlZaXwf6qqqqiJDTU6mpqaR44c+e2331auXEkIef369dy5cydPnhwcHKzIAwDASq6urlVVVbdv3yaECIXC/Px8FxcXFxcXugNPfZDswFdXV/v4+EyaNOnYsWMuLi6hoaFZWVlSybb8xK/eFBiaUQatXiPJ8vLyev/+/c2bNxvdXKMHQfbkQXEwhB6ABSoqKt69e2dpacmwzMqVK83NzbOysqhL9E5OTr169dq8eXNSUpKqqmpgYODmzZtjY2OpW4iTk5O1tbX9/f2ZV+zWrRufz1dRUbGwsKA3FBkZqaenl5OTo6mpSQgZP368ra1tVFTU8ePHFXkMoCOaM2fOunXrYmNjnz9/fvny5U2bNr19+1bOdevq6m7duvXdd99Nnz6dmkJ/oIjF4rCwsD179mRkZHh7e9PTRSJRUlKSm5sbPWXSpEn0qcaoUaOGDBlia2t79+7dgQMH1ltGANq4mpqaqqqqysrKtLS07OzspKQkapAtc/W+Zs0aGxub48ePq6ioEEKsra1HjBjBvCF7e3v6s4ODA3Uqz9Do2NraRkdHL1myxN3dfevWraqqqnv37lXYYQBgMapnLhAI7O3tc3NzuVyunZ2drq7un3/+WVBQYGFhIRAIunTpMmTIEHqVqqqq+Pj4iRMnEkImTZqUm5t75MiRCRMmSCbb8hO/elNgaEYZ9rHVayRZ5ubmhJBXr141urlGD4LsyYPi4Ao8QHvw/v37Gzdu+Pn50QPszczMXF1dL126RH398ssvRSLRoUOHCCG1tbXff//97NmzNTU1G11RSm1t7YULF6ZPn07VX4QQFRWVyZMnX758WbF7CB2Sv7+/UCg8ffr0gQMHLC0tnZyc5F+3U6dOgwcPXrdu3fbt26ln8Er68OFDQEDAgQMHsrOzJXvvhBA1NbXRo0dLTqmrq4uLi7Ozs9PX1+fxeNQpwqNHj5q5VwDKZmdnp62tbWRkFBoaGhISsmDBAtJY9S4Wi69fv+7r60udKxNCHBwcmP9WJoTs37//wv8kJSUROVqrsLAwT0/PyZMnZ2dnp6Sk6OnpKeAAALBez549TUxMqMvsAoHAwcGhc+fO1tbWBgYG9EQnJydVVVV6FS6X6+npSX3mcDgDBw4sKipqdEPMNcOHDx+EEhpKpBnNqCJqJFkfP34khHA4HObNyXP2K3vyoDi4Ag/AAnw+v0uXLs+ePWtoAaFQ+PHjR6kXhBgaGt67d4/63L17dx8fn927dy9YsCAjI6O0tJQ6Y2t0RSlv376tq6vbvn275E2JHz58+PDhQ7P3DqAhurq6EyZMSElJ+fXXX+fMmdPU1TMzM9esWbNx48bQ0FATE5PFixeHh4dTs6qqqk6ePOnq6ir7h72uri59QkCJjIzcvXv3pk2bHB0dtbW1y8vLXVxc2PjcWgDKoUOHzMzMSktL4+LiEhIS7O3tAwICmKv3N2/eiEQiIyMjyXSkvsqyt7eXeohdo40Oh8OZM2dOVlbWkCFDxo4d25LdBGjfXF1ds7KyxGKxQCAYP348NZG6Dd7Nza2goIC6U5Kmo6Mj2bpxuVx5GjLmmuHGjRuOjo709IbeytaMZlQRNZIs6i+MHj16MG9OnrNf2ZMHxUEHHoAd3Nzczpw58+bNm3pvg6cq5eLiYsmJxcXFurq69NeFCxeOGjXq+vXru3fvdnR0pIYtybOiJD6fr6qqGhQUtHDhwlbYK4DGzJ0718/P7+PHj/V24Hk8Hv0IH8q7d+90dHSoz8bGxnv27CGE5Ofn7927d8mSJaampr6+voQQPp+fmpo6adKkWbNmSb7ZoV4HDx4MCQkJDQ2lvlI3ywGw19ChQ6l+9fjx4wcMGBARETF16lTm6r1bt25cLlfqHpY3b97QxU1OjTY6xcXFYWFhQ4cOvXPnTkJCAl3uAECKq6vr4cOHr127dvv2beo5rIQQFxeXpKQkakgL9ba5FmKuGfr37y/Pk4yb0Yx+mhrp5MmTPB7Pzs5ORUWFYXNt7ewXQ+gB2CEyMlIkEgUGBkp1V/Ly8m7dusXj8ezt7dPS0ui5RUVFubm5knW3q6vrgAEDIiMjL126RF1+J4Q0uqLUH7Q8Hm/06NEXL160tLS0+TvF7Tt0ZJMnT/bx8QkJCbGyspKda25uXlRUROfe0tJSyVfg0gYMGBAbG8vlciXH0lPXLs6cOTNz5kyGdzGKxeKamhrJc4LU1FTJBeS8iAHQBmloaMTExLx69So5OZm5eudwOA4ODtnZ2fS6BQUFjx8/buoWmRsdsVg8b968zp07nz17NiwsbNmyZXl5ea20rwDtDVVqoqOjxWIxfRnc2dn5yZMnqampGhoaUm9pkVOTTvy0tbWdJdSbQqPNaL0+QY20c+fO8+fPL1iwQENDg3lzbe3sF1fgAdjB0dFx27ZtYWFhtra2c+fOtbCwEAqFOTk5aWlp//nPfwgh69at8/T09PT0DA4Orq6uXrt2rYaGRmRkpGQiQUFBwcHBXbt29fPzoycyr9i/f3+RSJSQkODo6Mjj8QYNGhQbG0tV08HBwaampuXl5dQ/qTExMZ/weEBHweVy09LSGprr5+e3Zs2ab7/9dsmSJcXFxaGhoZ06daJmFRYWBgQE+Pv7W1tbq6iopKam1tXVubu7S67u7Ox85swZT09PPz+/1NRUel1JHA7Hw8Njz5493t7eZmZmx44dox+MT5EtI62x3wCfyPTp021tbbds2RIUFMRcva9Zs2bs2LEbNmz46quvXr9+/c9//pPH4zVjiwyNTlxc3Llz53Jycrp16xYdHX3x4kV/f/+bN2+qq6u37l4DtAM2NjYGBgYnT560s7OjX8Nma2urpaV18uTJMWPG1NuoNarlJ36yKTA3ow1p9Rrp4sWLT58+FYlEf/7558mTJ3NycsaNG7dp0yZ5Ntemzn5xBR6ANRYtWnTlypW+ffvGxcUFBAQsX768oqIiPT2derCnh4dHVlZWTU1NQEDAwoULbWxsrly5Qj1dkzZjxgxCyLx58yTrOOYVp0yZEhgYuH79+hEjRlBPLh08ePCNGzesrKwiIyMnTpwYHh7++PFjqX4RwKfRp0+f1NTUzMxMMzOzWbNmBQYG2traUrN0dHRsbGwSExOnTZs2Y8aMe/fuHT9+3MXFRSqFkSNHZmdn5+Tk+Pr6yr5kjrJ79247OzsnJycjI6OMjIyMjAzJubJlBIBFOBxOVFTUy5cv9+7dy1y9jxkz5ujRowcOHDAwMJgwYcL/tvBnAAAWX0lEQVTs2bOb8cxn0nCjc+fOnW+++Wb58uXUdcXOnTsfOXKkoKCAfnQFAEhxdXUVi8WSTZuqqqqjo6NYLJZ6A7z8Wn7iJ5sCczPakFavkYKCgry8vObMmbNt2zY+n5+Wlnb69Gn6lJh5c23q7JfT0MMGAJSrrKyMEFKUpq/sQFqfmW8pIUQpT9bdt2/fv/71rwcPHmDEe5tSVlamf3eFsqNQiNKBUURJuR2Aakf0c9pn9it1KyMoXNBhUMVZL7JQ2YEoRFmMOUFxBrlhCD1Ah/DgwYPff/995cqVXl5e6L0DAAAAALARhtADdAiLFi3y8fHp2bMn9SZeAAAAAABgHVyBB+gQzp07p+wQAAAAAACgRXAFHgAAAAAAAIAF0IEHAAAAAAAAYAF04AEAAAAAAABYAB14AAAAAAAAABZABx4AAAAAAACABdCBBwAAAAAAAGABdOABAAAAAAAAWIAjFouVHQNAPcrKypQdgmLp6ekpOwRoK5DbARSh3ZcsgsIFHQaKMwANV+ABAAAAAAAAWABX4AEAAAAAAABYAFfgAQAAAAAAAFgAHXgAAAAAAAAAFkAHHgAAAAAAAIAF0IEHAAAAAAAAYAF04AEAAAAAAABYAB14AAAAAAAAABZABx4AAAAAAACABdCBBwAAAAAAAGABdOABAAAAAAAAWAAdeAAAAAAAAAAWQAceAAAAAAAAgAXQgQcAAAAAAABgAXTgAQAAAAAAAFgAHXgAAAAAAAAAFlBTdgAA9SsrK1N2CIqlp6en7BCgrUBuB1CEdl+yCAoXdBgozgA0XIEHAAAAAAAAYAFcgYc27eJpfWWH0PpGe5YqOwRoc/TvH1d2CApR2m+askOAjm73sfZ5UWv+zPZ/QRJAit7Kn5QdgkKUrZ+o7BCATXAFHgAAAAAAAIAF0IEHAAAAAAAAYAF04AEAAAAAAABYAB14AAAAAAAAABZABx4AAAAAAACABdCBBwAAAAAAAGABdOABAAAAAAAAWAAdeAAAAAAAAAAWQAceAAAAAAAAgAXQgQcAAAAAAABgAXTgAdghMTGRI0NLS6slaebk5ERHR7dWhHK6fv36zJkzjYyMOnfurKenN2HChIyMDGpWRESEoaFhQytGRUW1cH8VgTlmaB4qt3fv3r26upqeWFBQwOFwdu3aRX1VXH74lL+pu7v75MmTFbfuF198weFwwsPDm7eJViQZreRv19BnUJysrKwxY8Z0795dQ0OjZ8+evr6+586do2bJ2Sgo7pdiztUMkSuo2KKGh7bpyJEjHA5HIBDQU0pKSqh2U3KxHTt2cDic/Pz81t26nC0XSqXioAMPwCYJCQlpEg4ePNiS1D59Bz4xMXHkyJH37t0LCws7ePDgpk2b+Hz+zJkzMzMzG13XwMCgX79+nyBIaCNev369ffv2huYiPzTq//7v/9LS0gghhw4d+uuvv5Qdzv8Pv50S7d27d+LEiWKxOCoq6vvvv58/f35ZWdlPP/1EzZWzUVDKL8gcOUCHMmrUKEKIZAdeIBBoaGi8fv364cOHkhN1dXX79++vhBBBkdSUHQAANMG4ceNsbGyUHcV/iUQiLpcr//JXr14NDQ2dNm3a0aNH1dT+W/l8+eWXeXl5dXV1ja4eGBgYGBjYzFiBhTw8PLZs2bJw4UI+ny87F/mhUcePH3/37t3EiRN/+umn06dPM1wwaWpZbiH8dkoUFxc3YMCA8+fPq6qqUlOWLVtWW1sr5+pUVlHKL9jCyAHaEyMjo549e0p14N3c3B48eCAQCOgTxdzcXBcXFw6Ho6QwQVFwBR6gPcjPz/f39zc3N+fxeFZWVosWLaqoqKDnFhYWzpo1y9DQkMvlmpiYTJ06tbKyMiwsbMOGDRUVFdRofBMTE2rhvLw8b29vHR0ddXV1Jyen3NxcOh1q2NL58+cdHBzU1dWXLFlCTcnNzR0xYoS6unqvXr0YLpnGxMRwudzk5GS6904ZNGiQnZ0d/fXevXtubm6amppSqUkO2qS2+9NPPw0ZMoTH45mZmcXGxkrFeefOHWdnZyoqapT+rl27rKystLW1x40b9+eff9LLz549e9iwYZIhjR49eurUqZKpybmP+/bt69SpU1RUVEMLgPxWrVpVXV0dFxdX71zZ/MDwGzHk6oZcu3bNwcFBNncxl7VGI0lLS+vbty+Px+vXr196errURpnjZF5X1v79+7t27fr999+rq6unpKRIzmqoLMtfapiPA3O0cg7Azs7OHjlypLq6Op/P9/Lyun//fqOrQKOEQqG5uTndB6Z07tyZEFJvoyCbVUhTamPSermaIXJZklUxanhol0aNGnX16lV6dJVAIHBxcXF2dqZ79U+ePHn16pWrqyv1lblGZZ7baMs1bdo0XV1ddXX1Pn36bNq0SXJuQyd1zAWz0WRpHbNUogMPwCaVlZVCCfQdwoWFhZaWlvHx8WfOnFm5cmV2dvakSZPotWbMmHH//v0dO3ZcuHAhISHBwMCgtrZ21apVX331lba29rNnz549e3bt2jVCyG+//TZy5MiSkpLk5OQffvjBwMDA3d391q1bdFJCoTA4OHj16tVPnjxZvHgxNSUkJCQ6OvrZs2eLFi0KDQ3NysqqN/icnBxXV9du3box7GB1dbWPj8+kSZOOHTvm4uLCkNrbt2/Dw8N37dpVUlKyevXqb775hr47mkrH399/5syZx44d69Wr16xZs5YtW3bw4MGNGzcmJSXdvXt37ty58h50ufcxOjo6MDBw165dK1askD9xaIiFhcXnn38eHx9fXl7e6MIMv1GjuVpWVVWVn5/f3LlzT5065e3tHRERQecu5rLGHMmFCxdmzpxpbW194sSJ5cuXh4eHS54kMcfJvK6sly9fnjt3bubMmfr6+lOnTv3xxx/fvn0rFadUWW5SqWE+Dk2NVtbZs2cnTpyoqal57NixXbt2PXr0yMnJqbCwsEmJgCxHR8czZ87ExsY+f/5cala9jQKpL6tIYaiNWzFXM0QupalVMWp4YCNXV9eqqqrbt28TQoRCYX5+vouLi4uLC92Bpz5QHXjmGpV5LnM5vXXrlqOj4++//x4fH3/q1Knw8HDJEir/SZ0U5mRpHbZUYgg9AJvY29tLfp00aRJ19/ikSZPos+dRo0YNGTLE1tb27t27AwcOrKuru3Xr1nfffTd9+nRqAfoDn89XUVGxsLCgE4yMjNTT08vJydHU1CSEjB8/3tbWNioq6vjx49QCIpEoKSnJzc2NXkUkEiUnJw8fPpwQEhoaum/fviNHjkyYMEEq8oqKinfv3llaWjLvYFVVVXx8/MSJE6mdys3NrTc1QkhtbW1CQsKIESMIIZ9//vmtW7fWrl37xRdfUJf3q6qqtm/fPm7cOEKIo6OjoaHhoUOHnjx5oq6uTgiprKwMDg4uKSmRetxLQxrdR7FYHBYWtmfPnoyMDG9vb3nSBHmsWLFi3759MTExmzdvZl6S4TdqNFfLqq6uTk5ODggIIISMHTu2tLSUzl0MZa3RSNasWWNjY3P8+HEVFRVCiLW1NZWBKcxxMq8r68CBAx8/fqS63PPmzTty5MixY8cWLFggecSkynKTSg3zcWhqtLJWrlxpbm6elZVFlWgnJ6devXpt3rw5KSmpSemAlG3btpWUlERERERERJiYmIwdO3bevHljxowhhHTr1k22USD1ZRUpDLVxK+ZqhshpzauKUcMDG1E9c4FAYG9vn5uby+Vy7ezsdHV1//zzz4KCAgsLC4FA0KVLlyFDhpDGalTmuczldOnSpTo6OlevXqXKuFRFIf9JnRTmZEmHL5W4Ag/AJvv3778ggR5QVFdXFxcXZ2dnp6+vz+PxqLr10aNHhJBOnToNHjx43bp127dvZ34SaW1t7YULF6ZPn05Vl4QQFRWVyZMnX758mV5GTU1t9OjRkmtpaGhQ5z0UKyuroqKiZu8gl8v19PSkPnM4nIEDBzaUmoqKytixY+mv48ePLy4uLigooNNxd3enPuvr6xsYGLi5uVH9EEII9UAXyfHAzJj38cOHDwEBAQcOHMjOzu6ArYhCGRkZBQUFJSYmlpSUMC/Z0G/EnKs/fPggOaSFXp3D4dD/cxFC/Pz86NzFUNaYIxGLxdevX/f19aXOgQghDg4O9F9azHEyr1uvlJSU3r17Ozo6EkLc3d2NjIykRtHLluUmlRqG49CMaKW8f//+xo0bfn5+9O02ZmZmrq6uly5dkj8RqJexsbFAIPj11183b95sZ2eXkZHh5ubW0NhUimxWkdJQbdy6ubrRyJtdFaOGBzbq2bOniYkJdZldIBA4ODh07tzZ2trawMCAnujk5KSqqspcozLPZS6nIpFIIBAEBATQZVyK/Cd1khpNFqUSHXgANrG3tx8tgb7oFxkZuWLFCmrE7507d6g367x//56am5mZ6eHhsXHjxoEDB5qamjZ0U/Hbt2/r6uq2b9/OkxATEyM5gFlXV5euxCna2tqSXzt16kRvVxKfz+/SpcuzZ8+Yd1BHR0cyfS6XW29qhJAuXbpI3kuvq6tLCHnx4kVD6UgO3aee19VQyrKY97GqqurkyZMjRoxo6jVGkMfy5cs5HM7GjRuZF2voN2LO1Tdu3OgqgV6dz+dLPtSNuuZM5S7mssYQyZs3b0QikZGRkeRc+itznMzryrpx48b9+/d9fHyoPyYqKyt9fHyuXr36+PFjehnZstykUsNwHJoarSyhUPjx40epFwUZGhq+efNG/kSAweDBgyMjI0+cOFFQUDBs2LBVq1Yx3Kgim1WkNFQbt26ubjTyZlfFqOGBpVxdXS9fviwWi6kb4KmJ1G3wz58/LygooK7SM9eozHOZy6lQKPzw4YOxsXFDEcp/Uiep0WRRKtGBB2gPDh48GBISEhoaam9vTz1oRHKusbHxnj17iouL79696+vru2TJEurlUlL4fL6qqmpQUNCvEu7evdtaz45yc3MTCAStdQouFApramror1TniqG6Z8Dj8aResvXu3Tv5V+fz+T/99FNubu6sWbPa1Mu62gd9ff2QkJDdu3c3euNrvZhzdf/+/XMl0GtVVFRInmRQ1/+p3MVc1hh069aNy+VK3YhOFwfmOJnXlbV//35CyObNm+n/JhITEwkhUhfhW4LhODQ1WlnUOV9xcbHkxOLiYqpnCK1IV1d37ty5f/31l+QokqZqqDZu3VzdaOQNVcWo4aG9cnV1ffv27bVr127fvk134Knb4Knr59Tb5phrVOa5zOVUR0dHTU2tea0zQ8FsNFmUSnTgAVhPLBbX1NTo6OjQU1JTU+tdcsCAAbGxsVwulxpLL/VXKI/HGz169MWLFy0tLW3+rlXijIyMFIlEgYGBUrVtXl4e8xPFGnL06FH68+HDh3v06CF166aczM3Ni4qK6KhKS0slX6MqD1dX16ysrDNnzsycOVOeV+JBkyxdupTH461fv74Z6zLnam1tbWcJ9FpisVjyQbtHjx6lcpf8ZU0Wh8NxcHDIzs6mpxQUFNCXxJnjZF5XSm1t7dGjRx0cHC783ZAhQw4cOCAWi+UMmAHzcWhStPXi8Xj29vZpaWl0qSwqKsrNzaVORqElHjx4IDXl119/Jf8bZiLn9TFZ9dbGrZirG42cUm9VjBoe2iuqSoyOjhaLxdQNU4QQZ2fnJ0+epKamamhoUI95Z65Rmecyl1Mul+vq6nr48OGqqqqmBs9QMOVJtoOXSjzEDoBNsrOzpe5j9/Ly4nK5Hh4ee/bs8fb2NjMzO3bsmOR1tsLCwoCAAH9/f2traxUVldTU1Lq6OupO1/79+4tEooSEBEdHRx6PN2jQoNjYWKonExwcbGpqWl5efvPmTUJITExMy4N3dHTctm1bWFiYra3t3LlzLSwshEJhTk5OWlraf/7zn6ampqmpuXr16nfv3vXt2zc9Pf3HH3/ctWuX1Avq5OTn57dmzZpvv/12yZIlxcXFoaGhnTp1amoizs7OZ86c8fT09PPzS01NbUYK0JCuXbuGh4evXr26eas3I1dramp+8803b968oZ7ck56eTucuhrLWqDVr1owdO3bDhg1fffXV69ev//nPf0peuGaOk3ldSZmZmeXl5bGxsVL3Lc+fPz8oKOjixYtSz/1qBg6Hw3wc5I+2IevWrfP09PT09AwODq6url67dq2GhkZkZGQLI4dx48aZmZn5+PhYWlpWVVWdOXPm8OHDU6ZMsbKyIvU1CvKkyVAbt1aubjRymmxVjBoe2isbGxsDA4OTJ0/a2dnRb3a0tbXV0tI6efLkmDFj6IzKXKMyz2Uup1u2bHFxcXFwcFiyZImpqekff/zx22+/yfO0UeaCKU+yHblU4go8AJuEhob6/h01rmn37t12dnZOTk5GRkYZGRnUC5wpOjo6NjY2iYmJ06ZNmzFjxr17944fP04NtZoyZUpgYOD69etHjBhBPSN08ODBN27csLKyioyMnDhxYnh4+OPHj+nnWrXcokWLrly50rdv37i4uICAgOXLl1dUVKSnp0u9iEseWlpa6enpR44cmTJlyunTp7du3Tp//vzmRdWnT5/U1NTMzEwzM7NZs2YFBgba2to2I52RI0dmZ2fn5OT4+vrW1tY2Lxio1+LFi5s9fLoZuVpLSystLe3QoUPe3t6ZmZmSuYuhrDVqzJgxR48ePXDggIGBwYQJE2bPni15/x5znMzrStq/f7+2travr6/UdH9/f3V1dWp0fcsxHwf5o22Ih4dHVlZWTU1NQEDAwoULbWxsrly5Ym5u3irBd2SxsbGmpqZJSUmfffbZggUL7t69u379evr6uWyjIA+G2ri1cnWjkUuSqopRw0M75urqKhaL6fHzhBBVVVVHR0exWEy/AZ40VqMyz2Uup0OHDr1y5YqVlVV4eLi3t3d8fLycFTVzwZQz2Q5bKjmtMpoOoNWVlZURQi6e1ld2IK1vtGcpIURPT0/ZgbBYRETEwYMHpW7ZYq+ysjL9+w2+0ozVSvtNI8jtoCRUO7L7WPvMfvNnlpE2ULjaWW0MbRZVnPVW/qTsQBSibP1E0gaKM7AFrsADAAAAAAAAsAA68AAAAAAAAAAsgA48ALDP1q1bMWITAEDpUBsDAHxi6MADAAAAAAAAsAA68AAAAAAAAAAsgA48AAAAAAAAAAugAw8AAAAAAADAAujAAwAAAAAAALAAOvAAAAAAAAAALIAOPAAAAAAAAAALcMRisbJjAKhHWVmZskNQLD09PWWHAG0FcjuAIrT7kkVQuKDDQHEGoOEKPAAAAAAAAAAL4Ao8AAAAAAAAAAvgCjwAAAAAAAAAC6ADDwAAAAAAAMAC6MADAAAAAAAAsAA68AAAAAAAAAAsgA48AAAAAAAAAAugAw8AAAAAAADAAujAAwAAAAAAALAAOvAAAAAAAAAALIAOPAAAAAAAAAALoAMPAAAAAAAAwALowAMAAAAAAACwADrwAAAAAAAAACyADjwAAAAAAAAAC6ADDwAAAAAAAMAC6MADAAAAAAAAsAA68AAAAAAAAAAsgA48AAAAAAAAAAugAw8AAAAAAADAAujAAwAAAAAAALAAOvAAAAAAAAAALIAOPAAAAAD8f+3XAQkAAACAoP+v2xHoCwEYEHgAAAAYEHgAAAAYEHgAAAAYEHgAAAAYEHgAAAAYEHgAAAAYEHgAAAAYCGKpnsHsNnS4AAAAAElFTkSuQmCC" width="672" /></p>
+dmDeer &lt;- Daily_Merge %&gt;% 
+  filter(Species == &quot;White-tailed Deer&quot;) </code></pre>
+<div id="park-classification-regional-vs-community" class="section level3">
+<h3>Park Classification (Regional vs Community)</h3>
+<pre class="r"><code># Run a t-test for each species
+SQ_t_test_class &lt;- t.test(CountAdjusted ~ Classification, data = dmSquirrel)
+SQ_t_test_class</code></pre>
+<pre><code>## 
+##  Welch Two Sample t-test
+## 
+## data:  CountAdjusted by Classification
+## t = 14.034, df = 286.34, p-value &lt; 2.2e-16
+## alternative hypothesis: true difference in means between group Community and group Regional is not equal to 0
+## 95 percent confidence interval:
+##  1.394874 1.849970
+## sample estimates:
+## mean in group Community  mean in group Regional 
+##               1.8231415               0.2007194</code></pre>
+<pre class="r"><code>D_t_test_class &lt;- t.test(CountAdjusted ~ Classification, data = dmDeer)
+D_t_test_class</code></pre>
+<pre><code>## 
+##  Welch Two Sample t-test
+## 
+## data:  CountAdjusted by Classification
+## t = -8.5867, df = 822.47, p-value &lt; 2.2e-16
+## alternative hypothesis: true difference in means between group Community and group Regional is not equal to 0
+## 95 percent confidence interval:
+##  -0.8318784 -0.5223183
+## sample estimates:
+## mean in group Community  mean in group Regional 
+##               0.1759592               0.8530576</code></pre>
+<blockquote>
+<p>T-test Result Interpretation:</p>
+</blockquote>
+<blockquote>
+<p>For the daily activity of eastern gray squirrel, community and
+regional parks have statistically different means (p-value &lt;
+2.2e-16). The sample estimate for community parks is about 1.82 while
+the sample estimate for regional parks is 0.201. Ultimately, the results
+show the daily activity of eastern gray squirrel to be higher in
+community parks than regional parks.</p>
+</blockquote>
+<blockquote>
+<p>For the daily activity of white-tailed deer, community and regional
+parks have statistically different means (p-value &lt; 2.2e-16). The
+sample estimate for community parks is about 0.176 while the sample
+estimate for regional parks is 0.853. Ultimately, the results show the
+daily activity of white-tailed deer to be lower in community parks than
+regional parks.</p>
+</blockquote>
+</div>
+<div id="park-size-1000ac-vs-1000ac" class="section level3">
+<h3>Park Size (&gt;1000ac vs &lt;1000ac)</h3>
+<pre class="r"><code># Run a t-test for each species
+SQ_t_test_size &lt;- t.test(CountAdjusted ~ Size, data = dmSquirrel)
+SQ_t_test_size</code></pre>
+<pre><code>## 
+##  Welch Two Sample t-test
+## 
+## data:  CountAdjusted by Size
+## t = 11.149, df = 649.39, p-value &lt; 2.2e-16
+## alternative hypothesis: true difference in means between group &lt;1000ac and group &gt;1000ac is not equal to 0
+## 95 percent confidence interval:
+##  0.6507735 0.9290227
+## sample estimates:
+## mean in group &lt;1000ac mean in group &gt;1000ac 
+##             1.0048261             0.2149281</code></pre>
+<pre class="r"><code>D_t_test_size &lt;- t.test(CountAdjusted ~ Size, data = dmDeer)
+D_t_test_size</code></pre>
+<pre><code>## 
+##  Welch Two Sample t-test
+## 
+## data:  CountAdjusted by Size
+## t = 5.0213, df = 811.35, p-value = 6.312e-07
+## alternative hypothesis: true difference in means between group &lt;1000ac and group &gt;1000ac is not equal to 0
+## 95 percent confidence interval:
+##  0.2313844 0.5283877
+## sample estimates:
+## mean in group &lt;1000ac mean in group &gt;1000ac 
+##             0.7539868             0.3741007</code></pre>
+<blockquote>
+<p>T-test Result Interpretation:</p>
+</blockquote>
+<blockquote>
+<p>For the daily activity of eastern gray squirrel, parks less than 1000
+acres and parks more than 1000 acres have statistically different means
+(p-value &lt; 2.2e-16). The sample estimate for parks less than 1000
+acres is about 1.00 while the sample estimate for parks more than 1000
+acres is 0.215. Ultimately, the results show the daily activity of
+eastern gray squirrel to be higher in parks less than 1000 acres than
+parks more than 1000 acres.</p>
+</blockquote>
+<blockquote>
+<p>For the daily activity of white-tailed deer, parks less than 1000
+acres and parks more than 1000 acres have statistically different means
+(p-value = 6.312e-07). The sample estimate for parks less than 1000
+acres is about 0.754 while the sample estimate for parks more than 1000
+acres is 0.374. Ultimately, the results show the daily activity of
+white-tailed deer to be higher in parks less than 1000 acres than parks
+more than 1000 acres.</p>
+</blockquote>
+</div>
+<div id="disruptive-activity-i.e.-mountain-biking-camping-and-fishing-yes-vs-no" class="section level3">
+<h3>Disruptive Activity, i.e., mountain biking, camping and fishing (Yes
+vs No)</h3>
+<pre class="r"><code># Run a t-test for each species
+SQ_t_test_disrupt &lt;- t.test(CountAdjusted ~ DisruptiveActivities, data = dmSquirrel)
+SQ_t_test_disrupt</code></pre>
+<pre><code>## 
+##  Welch Two Sample t-test
+## 
+## data:  CountAdjusted by DisruptiveActivities
+## t = 11.756, df = 660.68, p-value &lt; 2.2e-16
+## alternative hypothesis: true difference in means between group No and group Yes is not equal to 0
+## 95 percent confidence interval:
+##  0.6934655 0.9715825
+## sample estimates:
+##  mean in group No mean in group Yes 
+##         1.0190348         0.1865108</code></pre>
+<pre class="r"><code>D_t_test_disrupt &lt;- t.test(CountAdjusted ~ DisruptiveActivities, data = dmDeer)
+D_t_test_disrupt</code></pre>
+<pre><code>## 
+##  Welch Two Sample t-test
+## 
+## data:  CountAdjusted by DisruptiveActivities
+## t = -9.1974, df = 322.21, p-value &lt; 2.2e-16
+## alternative hypothesis: true difference in means between group No and group Yes is not equal to 0
+## 95 percent confidence interval:
+##  -1.2830766 -0.8308922
+## sample estimates:
+##  mean in group No mean in group Yes 
+##          0.275030          1.332014</code></pre>
+<blockquote>
+<p>T-test Result Interpretation:</p>
+</blockquote>
+<blockquote>
+<p>For the daily activity of eastern gray squirrel, parks without
+disruptive activities and parks with disruptive activities have
+statistically different means (p-value &lt; 2.2e-16). The sample
+estimate for parks without disruptive activities is about 1.02 while the
+sample estimate for parks without disruptive activities is 0.187.
+Ultimately, the results show the daily activity of eastern gray squirrel
+to be higher in parks without disruptive activities than parks with
+disruptive activities.</p>
+</blockquote>
+<blockquote>
+<p>For the daily activity of white-tailed deer, parks without disruptive
+activities and parks with disruptive activities have statistically
+different means (p-value &lt; 2.2e-16). The sample estimate for parks
+without disruptive activities is about 0.275 while the sample estimate
+for parks with disruptive activities is 1.33. Ultimately, the results
+show the daily activity of white-tailed deer to be lower in parks
+without disruptive activities than parks with disruptive activities.</p>
+</blockquote>
+</div>
+<div id="monthly-species-activity" class="section level3">
+<h3>Monthly species activity</h3>
+<pre class="r"><code>mmSquirrel &lt;- Monthly_Merge %&gt;%
+  filter(Species == &quot;Eastern Gray Squirrel&quot;)
+  
+mmDeer &lt;- Monthly_Merge %&gt;%
+  filter(Species == &quot;White-tailed Deer&quot;)</code></pre>
+</div>
+<div id="park-classification-regional-vs.-community" class="section level3">
+<h3>Park Classification (Regional vs. Community)</h3>
+<pre class="r"><code>SQ_t_test_class2 &lt;- t.test(CountAdjusted ~ Classification, data = mmSquirrel)
+SQ_t_test_class2</code></pre>
+<pre><code>## 
+##  Welch Two Sample t-test
+## 
+## data:  CountAdjusted by Classification
+## t = 3.7485, df = 9.0843, p-value = 0.004491
+## alternative hypothesis: true difference in means between group Community and group Regional is not equal to 0
+## 95 percent confidence interval:
+##  17.92248 72.28418
+## sample estimates:
+## mean in group Community  mean in group Regional 
+##                50.68333                 5.58000</code></pre>
+<pre class="r"><code>D_t_test_class2 &lt;- t.test(CountAdjusted ~ Classification, data = mmDeer)
+D_t_test_class2</code></pre>
+<pre><code>## 
+##  Welch Two Sample t-test
+## 
+## data:  CountAdjusted by Classification
+## t = -3.7042, df = 25.158, p-value = 0.001046
+## alternative hypothesis: true difference in means between group Community and group Regional is not equal to 0
+## 95 percent confidence interval:
+##  -29.285658  -8.361009
+## sample estimates:
+## mean in group Community  mean in group Regional 
+##                4.891667               23.715000</code></pre>
+<blockquote>
+<p>T-test Result Interpretation:</p>
+</blockquote>
+<blockquote>
+<p>Similar to the daily activity results, for the monthly activity of
+eastern gray squirrel, community and regional parks have statistically
+different means (p-value = 0.004491). The sample estimate for community
+parks is about 50.7 while the sample estimate for regional parks is
+5.58. Ultimately, the results show the monthly activity of eastern gray
+squirrel to be higher in community parks than regional parks.</p>
+</blockquote>
+<blockquote>
+<p>Similar to the daily activity results, for the monthly activity of
+white-tailed deer, community and regional parks have statistically
+different means (p-value = 0.001046). The sample estimate for community
+parks is about 4.89 while the sample estimate for regional parks is
+23.7. Ultimately, the results show the monthly activity of white-tailed
+deer to be lower in community parks than regional parks.</p>
+</blockquote>
+</div>
+<div id="park-size-1000ac-vs-1000ac-1" class="section level3">
+<h3>Park Size (&gt;1000ac vs &lt;1000ac)</h3>
+<pre class="r"><code>SQ_t_test_size2 &lt;- t.test(CountAdjusted ~ Size, data = mmSquirrel)
+SQ_t_test_size2</code></pre>
+<pre><code>## 
+##  Welch Two Sample t-test
+## 
+## data:  CountAdjusted by Size
+## t = 2.7673, df = 19.745, p-value = 0.01198
+## alternative hypothesis: true difference in means between group &lt;1000ac and group &gt;1000ac is not equal to 0
+## 95 percent confidence interval:
+##   5.392609 38.525724
+## sample estimates:
+## mean in group &lt;1000ac mean in group &gt;1000ac 
+##              27.93417               5.97500</code></pre>
+<pre class="r"><code>D_t_test_size2 &lt;- t.test(CountAdjusted ~ Size, data = mmDeer)
+D_t_test_size2</code></pre>
+<pre><code>## 
+##  Welch Two Sample t-test
+## 
+## data:  CountAdjusted by Size
+## t = 1.8233, df = 27.553, p-value = 0.07912
+## alternative hypothesis: true difference in means between group &lt;1000ac and group &gt;1000ac is not equal to 0
+## 95 percent confidence interval:
+##  -1.312252 22.433918
+## sample estimates:
+## mean in group &lt;1000ac mean in group &gt;1000ac 
+##              20.96083              10.40000</code></pre>
+<blockquote>
+<p>T-test Result Interpretation:</p>
+</blockquote>
+<blockquote>
+<p>Similar to the daily activity results, for the monthly activity of
+eastern gray squirrel, parks less than 1000 acres and parks more than
+1000 acres have statistically different means (p-value = 0.01198). The
+sample estimate for parks less than 1000 acres is about 27.9 while the
+sample estimate for parks more than 1000 acres is 5.98. Ultimately, the
+results show the monthly activity of eastern gray squirrel to be higher
+in parks less than 1000 acres than parks more than 1000.</p>
+</blockquote>
+<blockquote>
+<p>Unlike the daily activity results, for the monthly activity of
+white-tailed deer, parks less than 1000 acres and parks more than 1000
+acres have statistically the same means (p-value = 0.07912). The sample
+estimate for parks less than 1000 acres is about 21.0 while the sample
+estimate for parks more than 1000 acres is 10.4. The fact that monthly
+activity does not display the same significance as daily activity
+highlights the importance of temporal scale, suggesting activity in this
+case may be related to the short-term factors that relate to daily
+fluctuations.</p>
+</blockquote>
+</div>
+<div id="disruptive-activity-i.e.-mountain-biking-camping-and-fishing-yes-vs-no-1" class="section level3">
+<h3>Disruptive Activity, i.e., mountain biking, camping and fishing (Yes
+vs No)</h3>
+<pre class="r"><code>SQ_t_test_disrupt2 &lt;- t.test(CountAdjusted ~ DisruptiveActivities, data = mmSquirrel)
+SQ_t_test_disrupt2</code></pre>
+<pre><code>## 
+##  Welch Two Sample t-test
+## 
+## data:  CountAdjusted by DisruptiveActivities
+## t = 2.932, df = 19.977, p-value = 0.008249
+## alternative hypothesis: true difference in means between group No and group Yes is not equal to 0
+## 95 percent confidence interval:
+##   6.677357 39.610976
+## sample estimates:
+##  mean in group No mean in group Yes 
+##          28.32917           5.18500</code></pre>
+<pre class="r"><code>D_t_test_disrupt2 &lt;- t.test(CountAdjusted ~ DisruptiveActivities, data = mmDeer)
+D_t_test_disrupt2</code></pre>
+<pre><code>## 
+##  Welch Two Sample t-test
+## 
+## data:  CountAdjusted by DisruptiveActivities
+## t = -4.3139, df = 10.489, p-value = 0.001368
+## alternative hypothesis: true difference in means between group No and group Yes is not equal to 0
+## 95 percent confidence interval:
+##  -44.46569 -14.30264
+## sample estimates:
+##  mean in group No mean in group Yes 
+##          7.645833         37.030000</code></pre>
+<blockquote>
+<p>T-test Result Interpretation:</p>
+</blockquote>
+<blockquote>
+<p>Similar to the daily activity results, for the monthly activity of
+eastern gray squirrel, parks without disruptive activities and parks
+with disruptive activities have statistically different means (p-value =
+0.008249). The sample estimate for parks without disruptive activities
+is about 28.3 while the sample estimate for parks without disruptive
+activities is 5.19. Ultimately, the results show the monthly activity of
+eastern gray squirrel to be higher in parks without disruptive
+activities than parks with disruptive activities.</p>
+</blockquote>
+<blockquote>
+<p>Similar to the daily activity results, for the monthly activity of
+white-tailed deer, parks without disruptive activities and parks with
+disruptive activities have statistically different means (p-value =
+0.001368). The sample estimate for parks without disruptive activities
+is about 7.65 while the sample estimate for parks with disruptive
+activities is 37.0. Ultimately, the results show the monthly activity of
+eastern gray squirrel to be lower in parks without disruptive activities
+than parks with disruptive activities.</p>
+</blockquote>
+</div>
+</div>
 </div>
 
 

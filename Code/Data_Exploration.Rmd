@@ -230,14 +230,13 @@ ggplot(Monthly_Species_Counts, aes(x=Species, y=CountAdjusted, fill=Species)) +g
 ## Exploring Spatial Data
 ```{r}
 # Read relevant csv file into data frame
-Park_Attributes <- st_read(
-  '~/ByndlossLiWilliams/Data/Processed/Park_Attributes.shp')
+#Park_Attributes <- st_read(
+#  '~/ByndlossLiWilliams/Data/Processed/Park_Attributes.shp')
 
 # Map parks with attributes with color code based on park name
-mapView(Park_Attributes, zcol = "Name", legend.title = "Park Name")
+#mapView(Park_Attributes, zcol = "Name", legend.title = "Park Name")
 
 # Plot parks on coordinate graph with color code based on park name
-ggplot(data = Park_Attributes) +
-  geom_sf(aes(fill = Name), color = "black", lwd = 0.3) +
-  labs(title = "A coordinate graph of parks", fill = "Park Name")
+#ggplot(data = Park_Attributes) +
+  ##labs(title = "A coordinate graph of parks", fill = "Park Name")
 ```
