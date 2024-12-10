@@ -1,4 +1,11 @@
 \newpage
+---
+title: 'Final Report'
+author: "Iman Byndloss, Leah Li, and Rachel Williams" 
+date: "12/09/2024"
+output: pdf_document
+toc: true
+---
 \tableofcontents 
 \newpage
 \listoftables 
@@ -63,10 +70,15 @@ Monthly_Merge <- read.csv(
 # Analysis
 
 
+<insert specific question here and add additional subsections for additional questions below, if needed>
+## Question 1: The first question we wanted to answer is whether daily and monthly species activity differs between the target parks. We looked at Beaman, Bell's Bend, and Mill's Creek Park.
 
-## Question 1: <insert specific question here and add additional subsections for additional questions below, if needed>
+Does species' daily and monthly activity differ between parks?  
 
-## Question 2: 
+
+## Question 2: The second question we wanted to answer is what factors might be causing different activity levels between parks. This study focused on the size, classification, and disruptive activities of each park. We used Deer and squirrels for this analysis because they were the most abundant species at all three parks. 
+
+What factors might be causing different activity levels between parks for WHite-tailed Deer and Grey Squirrels? Does classification, size, or disruptive activities at each park cause changes in activity levels?
 
 
 
