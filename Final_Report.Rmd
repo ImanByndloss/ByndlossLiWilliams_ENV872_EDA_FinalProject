@@ -22,6 +22,7 @@ library(lubridate)
 library(dplyr)
 library(here)
 library(ggplot2)
+library(knitr)
 
 here()
 
@@ -71,15 +72,27 @@ summary(Daily_Species_Counts)
 
 # Exploratory Analysis 
 
+To answer our second question, we needed to know which species were most abundant at the target parks. To do this, we aggregated the data to add up the adjusted counts for each species. Once we did this, we sorted it in descending order and looked at which species were the two most abundant.
 
+```{r}
+aggregated_data <- Daily_Species_Counts %>%
+  group_by(Species) %>%
+  summarise(total_count = sum(CountAdjusted, na.rm = TRUE))
+  
+sorted_data <- aggregated_data %>%
+  arrange(desc(total_count))
+  
+most_abundant_species <- head(sorted_data, 5)
+
+kable(most_abundant_species, caption = "Most Abundant Species")
+```
+According to these results, White-tailed deer and Eastern Gray Squirrels were the top two most abundant species. 
 
 \newpage
 
 # Analysis
 
-
-<insert specific question here and add additional subsections for additional questions below, if needed>
-Question 1: The first question we wanted to answer is whether daily and monthly species activity differs between the target parks. We looked at Beaman, Bell's Bend, and Mill's Creek Park.
+<Question 1: The first question we wanted to answer is whether daily and monthly species activity differs between the target parks. We looked at Beaman, Bell's Bend, and Mill's Creek Park.>
 
 Does species' daily and monthly activity differ between parks?  
 
