@@ -60,7 +60,12 @@ To describe the motivation behind this research, we are interested in understand
 
 # Dataset Information
 
+The datasets we used were collected from wildlife insights and the Nashville open data portal (https://data.nashville.gov/). The wildlife insights data was the camera trap data collected for each park. It is from Professor Malu Jorge's lab at Vanderbilt University. This data contains deployments from 2019-2022, but we focused on the deployments from 2021-2022 because the target parks 
 
+```{r}
+names(Daily_Species_Counts)
+summary(Daily_Species_Counts)
+```
 
 \newpage
 
@@ -78,12 +83,45 @@ Question 1: The first question we wanted to answer is whether daily and monthly 
 
 Does species' daily and monthly activity differ between parks?  
 
+```{r}
+# Perform the two-way ANOVA with interaction
+daily_anova_result <- aov(CountAdjusted ~ ParkName * Species, data = Daily_Species_Counts)
 
+# View the ANOVA summary
+summary(daily_anova_result)
+```
+
+```{r}
+# If the interaction term is significant, perform a post-hoc test
+Daily_Species_Counts$ParkName <- as.factor(Daily_Species_Counts$ParkName)
+Daily_Species_Counts$Species <- as.factor(Daily_Species_Counts$Species)
+
+# Tukey's HSD test for the interaction term (ParkName * Species)
+library(agricolae)
+daily_tukey_result <- TukeyHSD(daily_anova_result, "ParkName:Species")
+
+# Extract significant results
+daily_tukey_df <- as.data.frame(daily_tukey_result$`ParkName:Species`)
+daily_tukey_df$Comparison <- rownames(daily_tukey_result$`ParkName:Species`)
+rownames(daily_tukey_df) <- NULL
+
+# Filter significant comparisons
+daily_significant_tukey <- subset(daily_tukey_df, `p adj` < 0.05)
+
+# Print the top 10 significant results
+head(daily_significant_tukey, 10)
+```
 Question 2: The second question we wanted to answer is what factors might be causing different activity levels between parks. This study focused on the size, classification, and disruptive activities of each park. We used Deer and squirrels for this analysis because they were the most abundant species at all three parks. 
 
 What factors might be causing different activity levels between parks for WHite-tailed Deer and Grey Squirrels? Does classification, size, or disruptive activities at each park cause changes in activity levels?
 
+```{r}
+dmSquirrel <- Daily_Merge %>% 
+  filter(Species == "Eastern Gray Squirrel")
 
+dmDeer <- Daily_Merge %>% 
+  filter(Species == "White-tailed Deer") 
+```
 
 
 \newpage
