@@ -52,7 +52,7 @@ Monthly_Merge <- read.csv(
 
 # Rationale and Research Questions
 
-The upcoming analyses seek to answer the following research questions: Does the overall activity (daily and monthly) for mammalian species differ across three Davidson County parks (Beaman, Bells Bend, and Mill Creek)? And do any park attributes (i.e., classification, size and disruptive activities) have a significant impact on the activity of the two most common species? Assuming null hypotheses, there is no significant difference between overall daily and monthly activity for mammals in the three parks, and none of the tested park attributes significantly impact the activity of eastern gray squirrels and white-tailed deer. 
+The upcoming analyses seek to answer the following research questions: Does the overall activity (daily and monthly) for mammalian species differ across three Davidson County parks (Beaman, Bells Bend, and Mill Creek)? And do any park attributes (i.e., classification, size and disruptive activities) have a significant impact on the activity of the two most common species? Assuming null hypotheses, there is no significant difference between overall daily and monthly activity for mammals in the three parks, and none of the tested park attributes significantly impact animal activity. 
 
 To describe the motivation behind this research, we are interested in understanding how different factors influence mammalian species activity in urban parks. Parks like Beaman, Bells Bend, and Mill Creek not only provide essential green spaces for humans but also serve as critical habitats for wildlife. Our curiosity lies in exploring how park attributes, such as size and unique features, shape species behavior over time. By understanding these dynamics, we hope to foster greater appreciation for biodiversity in urban environments and support park management practices. 
 
@@ -61,18 +61,21 @@ To describe the motivation behind this research, we are interested in understand
 
 # Dataset Information
 
-The datasets we used were collected from wildlife insights and the Nashville open data portal (https://data.nashville.gov/). The wildlife insights data was the camera trap data collected for each park. It is from Professor Malu Jorge's lab at Vanderbilt University. This data contains deployments from 2019-2022, but we focused on the deployments from 2021-2022 because the target parks 
+The datasets we used were collected from wildlife insights and the Nashville open data portal (https://data.nashville.gov/). The wildlife insights data was the camera trap data collected for each park. It is from Professor Malu Jorge's lab at Vanderbilt University. This data contains deployments from 2019-2022, but we focused on the deployments from 2021-2022 because that was the time period with the longest consecutive data collection. 2019 to 2020 had more gaps in the data or shorter timeframes that would be less representative of long term trends. We chose to focus on Bell's Bend, Mill Creek, and Beaman park because they had the longest consecutive data collection within the same time periods. 
 
 ```{r}
 names(Daily_Species_Counts)
 summary(Daily_Species_Counts)
+
+names(Daily_Merge)
+summary(Daily_Merge)
 ```
 
 \newpage
 
 # Exploratory Analysis 
 
-The reason we picked the target parks is...
+Prior to analysis, we combined the data from wildlife insights and the parks information. **More info needed**
 
 
 To answer our second question, we needed to know which species were most abundant at the target parks. To do this, we aggregated the data to add up the adjusted counts for each species. Once we did this, we sorted it in descending order and looked at which species were the two most abundant.
@@ -231,6 +234,7 @@ D_t_test_disrupt2
 \newpage
 
 # Summary and Conclusions
+
 
 
 \newpage
