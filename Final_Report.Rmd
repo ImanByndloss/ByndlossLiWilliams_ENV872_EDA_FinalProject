@@ -83,6 +83,8 @@ Question 1: The first question we wanted to answer is whether daily and monthly 
 
 Does species' daily and monthly activity differ between parks?  
 
+#Daily Analysis
+
 ```{r}
 # Perform the two-way ANOVA with interaction
 daily_anova_result <- aov(CountAdjusted ~ ParkName * Species, data = Daily_Species_Counts)
@@ -111,18 +113,104 @@ daily_significant_tukey <- subset(daily_tukey_df, `p adj` < 0.05)
 # Print the top 10 significant results
 head(daily_significant_tukey, 10)
 ```
+
+#Monthly Analysis
+
+```{r}
+# Perform the two-way ANOVA with interaction
+monthly_anova_result <- aov(CountAdjusted ~ ParkName * Species, data = Monthly_Species_Counts)
+
+# View the ANOVA summary
+summary(monthly_anova_result)
+```
+
+```{r}
+# If the interaction term is significant, perform a post-hoc test
+Monthly_Species_Counts$ParkName <- as.factor(Monthly_Species_Counts$ParkName)
+Monthly_Species_Counts$Species <- as.factor(Monthly_Species_Counts$Species)
+
+# Tukey's HSD test for the interaction term (ParkName * Species)
+library(agricolae)
+monthly_tukey_result <- TukeyHSD(monthly_anova_result, "ParkName:Species")
+
+# Extract significant results
+monthly_tukey_df <- as.data.frame(monthly_tukey_result$`ParkName:Species`)
+monthly_tukey_df$Comparison <- rownames(monthly_tukey_result$`ParkName:Species`)
+rownames(monthly_tukey_df) <- NULL
+
+# Filter significant comparisons
+monthly_significant_tukey <- subset(monthly_tukey_df, `p adj` < 0.05)
+
+# Print the top 10 significant results
+head(monthly_significant_tukey, 10)
+```
+
 Question 2: The second question we wanted to answer is what factors might be causing different activity levels between parks. This study focused on the size, classification, and disruptive activities of each park. We used Deer and squirrels for this analysis because they were the most abundant species at all three parks. 
 
 What factors might be causing different activity levels between parks for WHite-tailed Deer and Grey Squirrels? Does classification, size, or disruptive activities at each park cause changes in activity levels?
 
+#Creating Daily and Monthly merged sets for Deer and Squirrels
 ```{r}
 dmSquirrel <- Daily_Merge %>% 
   filter(Species == "Eastern Gray Squirrel")
 
 dmDeer <- Daily_Merge %>% 
   filter(Species == "White-tailed Deer") 
+  
+mmSquirrel <- Monthly_Merge %>%
+  filter(Species == "Eastern Gray Squirrel")
+  
+mmDeer <- Monthly_Merge %>%
+  filter(Species == "White-tailed Deer")
 ```
 
+#Daily t-tests
+```{r}
+#Classification t-tests: 
+SQ_t_test_class <- t.test(CountAdjusted ~ Classification, data = dmSquirrel)
+SQ_t_test_class
+
+D_t_test_class <- t.test(CountAdjusted ~ Classification, data = dmDeer)
+D_t_test_class
+
+#Park Size t-tests
+SQ_t_test_size <- t.test(CountAdjusted ~ Size, data = dmSquirrel)
+SQ_t_test_size
+
+D_t_test_size <- t.test(CountAdjusted ~ Size, data = dmDeer)
+D_t_test_size
+
+#Disruption t-tests
+SQ_t_test_disrupt <- t.test(CountAdjusted ~ DisruptiveActivities, data = dmSquirrel)
+SQ_t_test_disrupt
+
+D_t_test_disrupt <- t.test(CountAdjusted ~ DisruptiveActivities, data = dmDeer)
+D_t_test_disrupt
+```
+
+#Monthly t-tests
+```{r}
+#Classification t-test
+SQ_t_test_class2 <- t.test(CountAdjusted ~ Classification, data = mmSquirrel)
+SQ_t_test_class2
+
+D_t_test_class2 <- t.test(CountAdjusted ~ Classification, data = mmDeer)
+D_t_test_class2
+
+#Park size t-tests
+SQ_t_test_size2 <- t.test(CountAdjusted ~ Size, data = mmSquirrel)
+SQ_t_test_size2
+
+D_t_test_size2 <- t.test(CountAdjusted ~ Size, data = mmDeer)
+D_t_test_size2
+
+#Disruption t-tests
+SQ_t_test_disrupt2 <- t.test(CountAdjusted ~ DisruptiveActivities, data = mmSquirrel)
+SQ_t_test_disrupt2
+
+D_t_test_disrupt2 <- t.test(CountAdjusted ~ DisruptiveActivities, data = mmDeer)
+D_t_test_disrupt2
+```
 
 \newpage
 
