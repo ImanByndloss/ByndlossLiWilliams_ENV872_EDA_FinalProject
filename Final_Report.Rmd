@@ -72,6 +72,9 @@ summary(Daily_Species_Counts)
 
 # Exploratory Analysis 
 
+The reason we picked the target parks is...
+
+
 To answer our second question, we needed to know which species were most abundant at the target parks. To do this, we aggregated the data to add up the adjusted counts for each species. Once we did this, we sorted it in descending order and looked at which species were the two most abundant.
 
 ```{r}
