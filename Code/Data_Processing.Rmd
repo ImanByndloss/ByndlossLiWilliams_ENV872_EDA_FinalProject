@@ -101,7 +101,7 @@ MillCreekDeploy <- deployments %>%
            deployment_id == "mill.creek-s4-c11-y22" |
            deployment_id == "mill.creek-s5-c3-y22")
 
-# Count the cameras deployed at each part for every day in the time frame
+# Count the cameras deployed at each park for every day in the time frame
 BeamanCameraCount<-vector()
 for(i in 1:length(Days)) {
   BeamanCameraCount[i]<-0
