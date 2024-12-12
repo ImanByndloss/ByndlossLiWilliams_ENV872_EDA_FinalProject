@@ -175,7 +175,9 @@ plot_grid(BM.plot, BBM.plot, MCM.plot,
 ```
 
 ### Adjusted Deer Count Graphs
+
 ```{r}
+# Filter data for species
 Daily_Deer_Counts <- Daily_Species_Counts %>%
   filter(Species == "White-tailed Deer") %>%
    mutate(Date = as.Date(Date)) 
@@ -184,12 +186,14 @@ Monthly_Deer_Counts <- Monthly_Species_Counts %>%
   filter(Species == "White-tailed Deer") %>%
    mutate(Month = as.Date(Month)) 
 
+# Graphs for species counts over time
+# with coloring for species that matches the graphs above
 ggplot(Daily_Deer_Counts, aes(x= Date, y= CountAdjusted, color = Species)) +
   geom_line() +
   scale_color_manual(values = species_colors) +
   facet_wrap(~ ParkName, ncol = 1) + 
   theme(legend.position = "none") +
-  labs(title = "Daily adjusted white-tailed deer counts over time", 
+  labs(title = "Daily Adjusted White-tailed Deer Counts Over Time", 
        y = "Species Count")
 
 ggplot(Monthly_Deer_Counts, aes(x= Month, y= CountAdjusted, color = Species)) +
@@ -197,11 +201,49 @@ ggplot(Monthly_Deer_Counts, aes(x= Month, y= CountAdjusted, color = Species)) +
   scale_color_manual(values = species_colors) +
   facet_wrap(~ ParkName, ncol = 1) + 
   theme(legend.position = "none") +
-  labs(title = "Monthly adjusted white-tailed deer counts over time", 
+  labs(title = "Monthly Adjusted White-tailed Deer Counts Over Time", 
        y = "Species Count") 
+
+# Combined graphs in which coloring is based on park
+DailyDeer.plot <- ggplot(Daily_Deer_Counts, aes(x= Date, y= CountAdjusted, 
+                                  color = ParkName)) +
+  geom_line() + 
+  theme(legend.position = "none") +
+  labs(title = "Daily Adjusted White-tailed Deer Counts Over Time", 
+       y = "Species Count",
+       color = "Park Name")
+
+MonthlyDeer.plot <- ggplot(Monthly_Deer_Counts, aes(x= Month, y= CountAdjusted, 
+                                    color = ParkName)) +
+  geom_line() +  
+  theme(legend.position = "none") +
+  labs(title = "Monthly Adjusted White-tailed Deer Counts Over Time", 
+       y = "Species Count",
+       color = "Park Name") 
+
+# Extract the legend
+legend <- cowplot::get_legend(
+  ggplot(Monthly_Deer_Counts, aes(x = Month, y = CountAdjusted, 
+                                  color = ParkName)) +
+    geom_line() +
+    theme_minimal() +
+    theme(
+      legend.key.size = unit(0.5, "cm"),
+      legend.text = element_text(size = 6),
+      legend.title = element_text(size = 7)
+    ) +
+    labs(color = "Park Name"))
+
+# Display daily and monthly plots together
+plot_grid(DailyDeer.plot, MonthlyDeer.plot, legend,
+          ncol = 1, #vertical alignment of plots
+          rel_heights = c(1, 1, 0.4)) 
 ```
+
 ### Adjusted Squirrel Count Graphs
+
 ```{r}
+# Filter data for species
 Daily_Squirrel_Counts <- Daily_Species_Counts %>%
   filter(Species == "Eastern Gray Squirrel") %>%
    mutate(Date = as.Date(Date)) 
@@ -210,12 +252,14 @@ Monthly_Squirrel_Counts <- Monthly_Species_Counts %>%
   filter(Species == "Eastern Gray Squirrel") %>%
    mutate(Month = as.Date(Month)) 
 
+# Graphs for species counts over time
+# with coloring for species that matches the graphs above
 ggplot(Daily_Squirrel_Counts, aes(x= Date, y= CountAdjusted, color = Species)) +
   geom_line() +
   scale_color_manual(values = species_colors) +
   facet_wrap(~ ParkName, ncol = 1) + 
   theme(legend.position = "none") +
-  labs(title = "Daily adjusted white-tailed deer counts over time", 
+  labs(title = "Daily Adjusted Eastern Gray Squirrel Counts Over Time", 
        y = "Species Count")
 
 ggplot(Monthly_Squirrel_Counts, aes(x= Month, y= CountAdjusted, color = Species)) +
@@ -223,9 +267,47 @@ ggplot(Monthly_Squirrel_Counts, aes(x= Month, y= CountAdjusted, color = Species)
   scale_color_manual(values = species_colors) +
   facet_wrap(~ ParkName, ncol = 1) + 
   theme(legend.position = "none") +
-  labs(title = "Monthly adjusted eastern gray squirrel counts over time", 
+  labs(title = "Monthly Adjusted Eastern Gray Squirrel Counts Over Time", 
        y = "Species Count") 
+
+# Combined graphs in which coloring is based on park
+DailySquirrel.plot <- ggplot(Daily_Squirrel_Counts, aes(x= Date, 
+                                                        y= CountAdjusted, 
+                                                        color = ParkName)) +
+  geom_line() + 
+  theme(legend.position = "none") +
+  labs(title = "Daily Adjusted Eastern Gray Squirrel Counts Over Time", 
+       y = "Species Count",
+       color = "Park Name")
+
+MonthlySquirrel.plot <- ggplot(Monthly_Squirrel_Counts, aes(x= Month, 
+                                                            y= CountAdjusted, 
+                                                            color = ParkName)) +
+  geom_line() + 
+  theme(legend.position = "none") +
+  labs(title = "Monthly Adjusted Eastern Gray Squirrel Counts Over Time", 
+       y = "Species Count",
+       color = "Park Name") 
+
+# Extract the legend
+legend <- cowplot::get_legend(
+  ggplot(Monthly_Squirrel_Counts, aes(x = Month, y = CountAdjusted, 
+                                  color = ParkName)) +
+    geom_line() +
+    theme_minimal() +
+    theme(
+      legend.key.size = unit(0.5, "cm"),
+      legend.text = element_text(size = 6),
+      legend.title = element_text(size = 7)
+    ) +
+    labs(color = "Park Name"))
+
+# Display daily and monthly plots together
+plot_grid(DailySquirrel.plot, MonthlySquirrel.plot, legend,
+          ncol = 1, #vertical alignment of plots
+          rel_heights = c(1, 1, 0.4))
 ```
+
 ### Count adjusted per species
 
 ```{r}
@@ -234,7 +316,7 @@ FP.plot <- ggplot(Full_Period_Species_Counts, aes(x = Species,
                                                   y = CountAdjusted, 
                                                   color = ParkName)) +
   geom_col(position = "dodge") + #ensures bars do not overlap
-  labs(title = "Total Activity Levels for Mammal Species during Study Period",
+  labs(title = "Total Counts for Species Across Parks During the Study Period",
        x = "Species", 
        y = "Count Adjusted",
        color = "Park Name") +
