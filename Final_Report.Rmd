@@ -38,6 +38,10 @@ Monthly_Species_Counts <- read.csv(
   file = here("./Data/Processed/Monthly_Species_Counts.csv"),
   stringsAsFactors = TRUE) 
 
+Full_Period_Species_Counts <- read.csv(
+  file = here("./Data/Processed/Full_Period_Species_Counts.csv"),
+  stringsAsFactors = TRUE)
+
 Daily_Merge <- read.csv(
   file = here("./Data/Processed/Daily_Merge.csv"),
   stringsAsFactors = TRUE) 
@@ -45,8 +49,9 @@ Daily_Merge <- read.csv(
 Monthly_Merge <- read.csv(
   file = here("./Data/Processed/Monthly_Merge.csv"),
   stringsAsFactors = TRUE) 
-```
 
+Park_Attributes <- st_read(
+  '~/ByndlossLiWilliams/Data/Processed/Park_Attributes.shp')
 ```
 
 
@@ -77,8 +82,36 @@ summary(Daily_Merge)
 
 Prior to analysis, we combined the data from wildlife insights and the parks information. **More info needed**
 
+## Map of park boundaries
 
-To answer our second question, we needed to know which species were most abundant at the target parks. To do this, we aggregated the data to add up the adjusted counts for each species. Once we did this, we sorted it in descending order and looked at which species were the two most abundant.
+To visually represent these three parks spatially, we created an interactive map of each park's boundary with information on its attributes stored in the associated popup.
+
+```{r}
+# Map parks with attributes with color code based on park name
+mapView(Park_Attributes, zcol = "Name", legend.title = "Park Name")
+```
+
+## Total adjusted counts
+
+To consider how the total counts for each species compared across parks, we created a bar graph.
+
+```{r}
+# Graph full period data
+FP.plot <- ggplot(Full_Period_Species_Counts, aes(x = Species, 
+                                                  y = CountAdjusted, 
+                                                  color = ParkName)) +
+  geom_col(position = "dodge") + #ensures bars do not overlap
+  labs(title = "Total Counts for Species Across Parks During the Study Period",
+       x = "Species", 
+       y = "Count Adjusted",
+       color = "Park Name") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) #tilts species names
+FP.plot
+```
+
+> ????????????
+
+Given that the total counts of species is particularly relevant to answer our second question, in which we need to know the two most common species. To address this topic, we aggregated the data to add up the adjusted counts for each species to confirm which species are have the highest adjusted counts regardless of park. Once we did this, we sorted it in descending order and looked at which species were the two most abundant.
 
 ```{r}
 aggregated_data <- Daily_Species_Counts %>%
@@ -92,19 +125,242 @@ most_abundant_species <- head(sorted_data, 5)
 
 kable(most_abundant_species, caption = "Most Abundant Species")
 ```
-According to these results, White-tailed deer and Eastern Gray Squirrels were the top two most abundant species. 
+
+> According to these results, white-tailed deer and eastern gray squirrel are the top two most abundant species. 
+
+## Adjusted counts over time
+
+To graph adjusted counts over time for all species in each park, we created line graphs from daily and monthly data.
+
+```{r}
+# Ensure the Date and Month columns are classed correctly
+Daily_Species_Counts$Date <- as.Date(Daily_Species_Counts$Date)
+Monthly_Species_Counts$Month <- as.Date(paste0(Monthly_Species_Counts$Month, 
+                                               "-01"))
+
+# Ensure species in alphabetical order
+# Generate and assign rainbow colors
+# Apply sorted species factor to data sets
+all_species <- sort(unique(Daily_Species_Counts$Species))
+species_colors_rainbow <- rainbow(length(all_species))
+species_colors <- setNames(species_colors_rainbow, all_species)
+Daily_Species_Counts$Species <- factor(Daily_Species_Counts$Species, 
+                                       levels = all_species)
+Monthly_Species_Counts$Species <- factor(Monthly_Species_Counts$Species,
+                                         levels = all_species)
+
+# Filter daily and monthly data for each park
+Beaman_Daily <- Daily_Species_Counts %>% filter(
+  ParkName == "Alvin G. Beaman Park")
+Beaman_Monthly <- Monthly_Species_Counts %>% filter(
+  ParkName == "Alvin G. Beaman Park")
+  
+BellsBend_Daily <- Daily_Species_Counts %>% filter(
+  ParkName == "Bells Bend Park")
+BellsBend_Monthly <- Monthly_Species_Counts %>% filter(
+  ParkName == "Bells Bend Park")
+  
+MillCreek_Daily <- Daily_Species_Counts %>% filter(
+  ParkName == "Mill Creek Park")
+MillCreek_Monthly <- Monthly_Species_Counts %>% filter(
+  ParkName == "Mill Creek Park")
+
+# Graph daily and monthly data for each park
+BD.plot <- ggplot(Beaman_Daily, aes(x = Date, 
+                                    y = CountAdjusted, 
+                                    color = Species)) +
+  geom_line() +
+  scale_color_manual(values = species_colors) +
+  labs(title = "Daily Activity Levels for Mammal Species in Beaman Park",
+       x = "Date", 
+       y = "Count Adjusted",
+       color = "Species")
+BM.plot <- ggplot(Beaman_Monthly, aes(x = Month, 
+                                      y = CountAdjusted, 
+                                      color = Species)) +
+  geom_line() +
+  scale_color_manual(values = species_colors) +
+  labs(title = "Monthly Activity Levels for Mammal Species in Beaman Park",
+       x = "Date", 
+       y = "Count Adjusted",
+       color = "Species")
+
+BBD.plot <- ggplot(BellsBend_Daily, aes(x = Date, 
+                                        y = CountAdjusted, 
+                                        color = Species)) +
+  geom_line() +
+  scale_color_manual(values = species_colors) +
+  labs(title = "Daily Activity Levels for Mammal Species in Bells Bend Park",
+       x = "Date", 
+       y = "Count Adjusted",
+       color = "Species")
+BBM.plot <- ggplot(BellsBend_Monthly, aes(x = Month, 
+                                          y = CountAdjusted, 
+                                          color = Species)) +
+  geom_line() +
+  scale_color_manual(values = species_colors) +
+  labs(title = "Monthly Activity Levels for Mammal Species in Bells Bend Park",
+       x = "Date", 
+       y = "Count Adjusted",
+       color = "Species")
+
+MCD.plot <- ggplot(MillCreek_Daily, aes(x = Date, 
+                                        y = CountAdjusted, 
+                                        color = Species)) +
+  geom_line() +
+  scale_color_manual(values = species_colors) +
+  labs(title = "Daily Activity Levels for Mammal Species in Mill Creek Park",
+       x = "Date", 
+       y = "Count Adjusted",
+       color = "Species")
+MCM.plot <- ggplot(MillCreek_Monthly, aes(x = Month, 
+                                          y = CountAdjusted, 
+                                          color = Species)) +
+  geom_line() +
+  scale_color_manual(values = species_colors) +
+  labs(title = "Monthly Activity Levels for Mammal Species in Mill Creek Park",
+       x = "Date", 
+       y = "Count Adjusted",
+       color = "Species")
+
+# Create a function to reduce label sizes
+adjust_labels <- function(plot) {
+  plot +
+    theme(plot.title = element_text(size = 8),
+          axis.title.x = element_text(size = 6),
+          axis.title.y = element_text(size = 6),
+          axis.text.x = element_text(size = 6),
+          axis.text.y = element_text(size = 6))
+}
+
+# Apply label adjustments to all plots
+BD.plot <- adjust_labels(BD.plot)
+BM.plot <- adjust_labels(BM.plot)
+BBD.plot <- adjust_labels(BBD.plot)
+BBM.plot <- adjust_labels(BBM.plot)
+MCD.plot <- adjust_labels(MCD.plot)
+MCM.plot <- adjust_labels(MCM.plot)
+
+# Create a function to reduce legend size
+adjust_legend <- function(plot) {
+  plot +
+    theme(legend.key.size = unit(0.2, "cm"),
+          legend.text = element_text(size = 4),
+          legend.title = element_text(size = 5))
+}
+
+# Apply legend adjustments to all plots
+BD.plot <- adjust_legend(BD.plot)
+BM.plot <- adjust_legend(BM.plot)
+BBD.plot <- adjust_legend(BBD.plot)
+BBM.plot <- adjust_legend(BBM.plot)
+MCD.plot <- adjust_legend(MCD.plot)
+MCM.plot <- adjust_legend(MCM.plot)
+
+# Display daily and monthly plots together
+plot_grid(BD.plot, BBD.plot, MCD.plot,
+          ncol = 1) #vertical alignment of plots
+plot_grid(BM.plot, BBM.plot, MCM.plot, 
+          ncol = 1) #vertical alignment of plots
+```
+
+> ???????????
+
+To highlight the species of interest regarding the second research question, we graphed the daily and monthly adjusted counts for white-tailed deer and eastern gray squirrel in each park over time.
+
+```{r}
+# Filter data for species
+Daily_Deer_Counts <- Daily_Species_Counts %>%
+  filter(Species == "White-tailed Deer") %>%
+   mutate(Date = as.Date(Date)) 
+
+Monthly_Deer_Counts <- Monthly_Species_Counts %>%
+  filter(Species == "White-tailed Deer") %>%
+   mutate(Month = as.Date(Month)) 
+
+Daily_Squirrel_Counts <- Daily_Species_Counts %>%
+  filter(Species == "Eastern Gray Squirrel") %>%
+   mutate(Date = as.Date(Date)) 
+
+Monthly_Squirrel_Counts <- Monthly_Species_Counts %>%
+  filter(Species == "Eastern Gray Squirrel") %>%
+   mutate(Month = as.Date(Month)) 
+
+# Graphs for each species counts over time in which coloring is based on park
+DailyDeer.plot <- ggplot(Daily_Deer_Counts, aes(x= Date, y= CountAdjusted, 
+                                  color = ParkName)) +
+  geom_line() + 
+  theme(legend.position = "none") +
+  labs(title = "Daily Adjusted White-tailed Deer Counts Over Time", 
+       y = "Species Count",
+       color = "Park Name")
+
+MonthlyDeer.plot <- ggplot(Monthly_Deer_Counts, aes(x= Month, y= CountAdjusted, 
+                                    color = ParkName)) +
+  geom_line() + 
+  theme(legend.position = "none") +
+  labs(title = "Monthly Adjusted White-tailed Deer Counts Over Time", 
+       y = "Species Count",
+       color = "Park Name") 
+
+DailySquirrel.plot <- ggplot(Daily_Squirrel_Counts, aes(x= Date, 
+                                                        y= CountAdjusted, 
+                                                        color = ParkName)) +
+  geom_line() + 
+  theme(legend.position = "none") +
+  labs(title = "Daily Adjusted Eastern Gray Squirrel Counts Over Time", 
+       y = "Species Count",
+       color = "Park Name")
+
+MonthlySquirrel.plot <- ggplot(Monthly_Squirrel_Counts, aes(x= Month, 
+                                                            y= CountAdjusted, 
+                                                            color = ParkName)) +
+  geom_line() + 
+  theme(legend.position = "none") +
+  labs(title = "Monthly Adjusted Eastern Gray Squirrel Counts Over Time", 
+       y = "Species Count",
+       color = "Park Name")
+
+# Extract the legend
+legend <- cowplot::get_legend(
+  ggplot(Monthly_Deer_Counts, aes(x = Month, y = CountAdjusted, 
+                                  color = ParkName)) +
+    geom_line() +
+    theme_minimal() +
+    theme(
+      legend.key.size = unit(0.5, "cm"),
+      legend.text = element_text(size = 6),
+      legend.title = element_text(size = 7)
+    ) +
+    labs(color = "Park Name"))
+
+# Display daily and monthly plots together
+plot_grid(DailyDeer.plot, MonthlyDeer.plot,
+          ncol = 1, #vertical alignment of plots
+          rel_heights = c(1, 1, 0.4))
+plot_grid(DailySquirrel.plot, MonthlySquirrel.plot, 
+          ncol = 1, #vertical alignment of plots
+          rel_heights = c(1, 1, 0.4))
+```
+
+> ??????
+
 
 \newpage
 
 # Analysis
 
-<Question 1: The first question we wanted to answer is whether daily and monthly species activity differs between the target parks. We looked at Beaman, Bell's Bend, and Mill's Creek Park.>
+The upcoming analyses seek to answer the following research questions: Does the overall activity (daily and monthly) for mammalian species differ across three Davidson County parks (Beaman, Bells Bend, and Mill Creek)? And do any park attributes (i.e., classification, size and disruptive activities) have a significant impact on the activity of the two most common species? Assuming null hypotheses, there is no significant difference between overall daily and monthly activity for mammals in the three parks, and none of the tested park attributes significantly impact the activity of eastern gray squirrels and white-tailed deer. 
 
-Does species' daily and monthly activity differ between parks?  
+## Two-way ANOVA Test 
 
-#Daily Analysis
+Question 1: Does the overall activity (daily and monthly) for mammalian species differ across three Davidson County parks (Beaman, Bells Bend, and Mill Creek)?
 
-```{r}
+These two-way anova seek to determine if the overall activity (daily and monthly) for mammalian species significantly differ between Beaman Park, Bells Bend Park, and Mill Creek Park. 
+
+### Daily Species Activity (Park and Species)
+
+```{r, First ANOVA, message = FALSE, warning=FALSE}
 # Perform the two-way ANOVA with interaction
 daily_anova_result <- aov(CountAdjusted ~ ParkName * Species, data = Daily_Species_Counts)
 
@@ -112,7 +368,15 @@ daily_anova_result <- aov(CountAdjusted ~ ParkName * Species, data = Daily_Speci
 summary(daily_anova_result)
 ```
 
-```{r}
+> ANOVA Result Interpretation:
+
+> The two-way ANOVA analysis here evaluated the effects of park and species, as well as their interaction, on daily activity levels (measured as adjusted counts). In terms of the main effects, the results revealed daily activity levels differ significantly across parks (Df = 2, F-value = 99.91, p-value = <2e-16) and species (Df = 15, F-value = 142.86, p-value = <2e-16). In terms of the interaction effect, the interaction between park and species was also significant (Df = 19, F-value = 127.19, p-value = <2e-16). This finding highlights that the effect of park on daily activity is not consistent across all species and the effect of species on daily activity is not consistent across all parks. 
+
+> These results suggest that both park-specific factors (e.g., habitat type, management practices) and species-specific traits (e.g., behavior, ecological preferences) play critical roles in determining daily activity levels. Moreover, the significant interaction effect emphasizes the importance of considering the combined influence of these two factors when analyzing daily activity.
+
+#### Post-Hoc Test
+
+```{r, Post-Hoc Test after ANOVA, message = FALSE, warning=FALSE}
 # If the interaction term is significant, perform a post-hoc test
 Daily_Species_Counts$ParkName <- as.factor(Daily_Species_Counts$ParkName)
 Daily_Species_Counts$Species <- as.factor(Daily_Species_Counts$Species)
@@ -133,9 +397,25 @@ daily_significant_tukey <- subset(daily_tukey_df, `p adj` < 0.05)
 head(daily_significant_tukey, 10)
 ```
 
-#Monthly Analysis
+>Post-Hoc Result Interpretation:
 
-```{r}
+> In total,  the post-hoc test for daily activity levels revealed 214 significant comparisons.
+
+> The top 10 most significant results are between 1) Beaman Park eastern gray squirrel and Bells Bend Park American beaver, 2) Bells Bend Park eastern gray squirrel and Bells Bend Park American beaver, 3) Mill Creek Park eastern gray squirrel and Bells Bend Park American beaver, 4) Bells Bend Park nine-banded armadillo and Bells Bend Park American beaver, 5) Bells Bend Park northern raccoon and Bells Bend Park American beaver, 6) Mill Creek Park northern raccon and Bells Bend Park American beaver, 7) Beaman Park white-tailed deer and Bells Bend Park American beaver, 8) Bells Bend Park white-tailed deer and Bells Bend Park American beaver, 9) Beaman Park eastern gray squirrel and Mill Creek Park American beaver, and 10) Bells Bend eastern gray squirrel and Mill Creek Park American beaver. 
+
+> To examine these results in more detail... NEED TO REDO AFTER THIS!!!!!!!!!!!!!!!!!!
+
+>1. Species Differences Between Parks: The activity of "Nine-banded Armadillos" exhibited notable variation between parks.  For instance, their activity was significantly lower in Bells Bend Park compared to Mill Creek Park # (diff = -1.53, 95% CI [-1.71, -1.35], p adj < 0.001). Similarly, their activity in Alvin G. Beaman Park was also significantly lower compared to Mill Creek Park  (diff = -1.81, 95% CI [-1.99, -1.63], p adj < 0.001). These results suggest that the habitat or environmental factors in Mill Creek Park are more conducive to higher activity levels for this species.
+
+>2.Within-Park Differences Between Species: In Mill Creek Park, "Muskrat" activity was significantly lower than that of "Eastern Gray Squirrels" (diff = -1.81, 95% CI [-1.99, -1.63], p adj < 0.001). This could indicate competitive dynamics, differences in habitat preference,  or time-specific activity patterns between these species.
+
+>3. Activity Peaks for White-Tailed Deer: The White-tailed Deer in Bells Bend Park showed significantly higher activity compared to other species within the park (diff = 1.15, 95% CI [0.97, 1.32], p adj < 0.001). This finding suggests that this species might be particularly dominant in this park, potentially due to favorable environmental or ecological conditions.
+
+>4. Notable Inter-Park Variation in Woodchuck Activity: The activity of "Woodchucks" was significantly lower in Alvin G. Beaman Park compared to Bells Bend Park (diff = -1.33, 95% CI [-1.51, -1.15], p adj < 0.001). This highlights how habitat differences between parks may influence the presence or detectability of certain species.  Interpretation: These results reveal substantial variation in species activity both within and between parks. Certain species, such as "Nine-banded Armadillos" and "White-tailed Deer," exhibit pronounced activity trends influenced by the park's environmental conditions. The findings emphasize the importance of localized habitat characteristics and interspecies dynamics in shaping activity patterns.
+
+### Monthly Species Activity (Park and Species)
+
+```{r, Second ANOVA, message = FALSE, warning=FALSE}
 # Perform the two-way ANOVA with interaction
 monthly_anova_result <- aov(CountAdjusted ~ ParkName * Species, data = Monthly_Species_Counts)
 
@@ -143,7 +423,15 @@ monthly_anova_result <- aov(CountAdjusted ~ ParkName * Species, data = Monthly_S
 summary(monthly_anova_result)
 ```
 
-```{r}
+> ANOVA Result Interpretation:
+
+> The two-way ANOVA analysis here evaluated the effects of park and species, as well as their interaction, on monthly activity levels (measured as adjusted counts). In terms of the main effects, the results revealed daily activity levels differ significantly across parks (Df = 2, F-value = 11.81, p-value = 1.11e-05) and species (Df = 15, F-value = 16.88, p-value = <2e-16). In terms of the interaction effect, the interaction between park and species was also significant (Df = 19, F-value = 15.03, p-value = <2e-16). 
+
+> With these results being similar to the results for daily activity, it can be understood that the effects of park-specific, species-specific, and interactive factors are consistent over longer time scales. 
+
+#### Post-Hoc Test
+
+```{r, Post-Hoc Test after second ANOVA, message = FALSE, warning=FALSE}
 # If the interaction term is significant, perform a post-hoc test
 Monthly_Species_Counts$ParkName <- as.factor(Monthly_Species_Counts$ParkName)
 Monthly_Species_Counts$Species <- as.factor(Monthly_Species_Counts$Species)
@@ -164,42 +452,76 @@ monthly_significant_tukey <- subset(monthly_tukey_df, `p adj` < 0.05)
 head(monthly_significant_tukey, 10)
 ```
 
-Question 2: The second question we wanted to answer is what factors might be causing different activity levels between parks. This study focused on the size, classification, and disruptive activities of each park. We used Deer and squirrels for this analysis because they were the most abundant species at all three parks. 
+>Post-Hoc Result Interpretation:
 
-What factors might be causing different activity levels between parks for WHite-tailed Deer and Grey Squirrels? Does classification, size, or disruptive activities at each park cause changes in activity levels?
+> In total, the post-hoc test for monthly activity levels revealed 70 significant comparisons, a notably smaller number than the 214 significant comparisons for daily activity levels. These results suggest there are differences in the resolution and variability of the data at these two time scales, with daily data being more granular and sesitive to short-term differences while monthly data reflect broader patterns. 
 
-#Creating Daily and Monthly merged sets for Deer and Squirrels
+> The top 10 most significant results are between 1) Mill Creek Park eastern gray squirrel and Bells Bend Park American beaver, 2) Bells Bend Park white-tailed deer and Bells Bend Park American beaver, 3) Mill Creek Park white-tailed deer and Mill Creek Park American beaver, 4) Bells Bend Park white-tailed deer and Mill Creek Park American beaver, 5) Mill Creek Park eastern gray squirrel and Beaman Park bobcat, 6) Bells Bend Park white-tailed deer and Beaman Park bobcat, 7) Mill Creek Park eastern gray squirrel and Bells Bend Park bobcat, 8) Bells Bend Park white-tailed deer and Bells Bend Park bobcat, 9) Mill Creek Park eastern gray squirrel and Beaman Park coyote, and 10) Bells Bend Park white-tailed deer and Beaman Park coyote.
+
+> To examine these results in more detail... NEED TO REDO AFTER THIS!!!!!!!!!!!!!!!!!!
+
+>The Tukey test results on the monthly species activity dataset reveal significant differences in activity levels between species and parks. For instance, the activity of "Eastern Gray Squirrel" in Mill Creek Park was significantly higher compared to "American Beaver" in Bells Bend Park (difference: 50.58, 95% confidence interval: [36.02, 65.14], adjusted p-value: < 0.001). Similarly, "White-tailed Deer" in Bells Bend Park exhibited significantly higher activity compared to "American Beaver" in the same park (difference: 36.93, 95% confidence interval: [22.37, 51.49], adjusted p-value: < 0.001).
+
+>Within Bells Bend Park, "White-tailed Deer" consistently showed higher activity levels compared to other species. For example, their activity was significantly greater than "Bobcat" (difference: 34.83, 95% confidence interval: [20.27, 49.39], adjusted p-value: < 0.001) and "Virginia Opossum" (difference: 36.43, 95% confidence interval: [22.17, 50.99], adjusted p-value: < 0.001). These results indicate that "White-tailed Deer" dominate activity levels within this park.
+
+>Interspecies comparisons across parks also highlighted notable patterns. The activity of "Virginia Opossum" in Bells Bend Park was significantly lower than "Eastern Gray Squirrel" in Mill Creek Park (difference: -47.67, 95% confidence interval: [-62.22, -33.11], adjusted p-value: < 0.001). Similarly, within Mill Creek Park, "White-tailed Deer" showed higher activity compared to "Muskrat" (difference: 36.68, 95% confidence interval: [22.12, 51.24], adjusted p-value: < 0.001).
+
+>Overall, species such as "Eastern Gray Squirrel" in Mill Creek Park and "White-tailed Deer" in Bells Bend Park exhibited the highest activity levels. This may be attributed to favorable environmental conditions or species-specific behaviors in these parks. Conversely, species like "Virginia Opossum" and "American Beaver" consistently exhibited lower activity levels. These findings suggest that ecological or habitat-specific factors significantly influence species activity patterns across parks.
+
+## Two-sample T-test
+
+Question 2: Do any park attributes (i.e., classification, size and disruptive activities) have a significant impact on the activity of the two most common species?  
+
+To help explain why species activity differs between parks, these two-sample T-tests seek to determine if the park's classification, size, or disruptive activities have a significant impact on the daily and monthly activity of eastern gray squirrel and white-tailed deer. To be more specific, for classification, Mill Creek (a community park) will be compared to the regional parks; for size, Beaman (a park more than 1000 acres) will be compared to the parks that are less than 1000 acres; and for disruptive activities, Bells Bend (a park that allows mountain biking, camping, and fishing) will be compared to parks without these disruptive activities. 
+
+Before analysis, it is important to note that a larger sample size in the future would be needed to confirm any results, especially given the fact that only three parks are being compared (one park against two others). It is also possible that some other unforeseen characteristics are influencing the results.
+
+### Daily Species Activity 
+
 ```{r}
+# Independently filter for three potentially important species: Eastern Gray Squirrel, White-tailed Deer, and Coyote
 dmSquirrel <- Daily_Merge %>% 
   filter(Species == "Eastern Gray Squirrel")
 
 dmDeer <- Daily_Merge %>% 
   filter(Species == "White-tailed Deer") 
-  
-mmSquirrel <- Monthly_Merge %>%
-  filter(Species == "Eastern Gray Squirrel")
-  
-mmDeer <- Monthly_Merge %>%
-  filter(Species == "White-tailed Deer")
 ```
 
-#Daily t-tests
+#### Park Classification (Regional vs Community)
 ```{r}
-#Classification t-tests: 
+# Run a t-test for each species
 SQ_t_test_class <- t.test(CountAdjusted ~ Classification, data = dmSquirrel)
 SQ_t_test_class
 
 D_t_test_class <- t.test(CountAdjusted ~ Classification, data = dmDeer)
 D_t_test_class
+```
 
-#Park Size t-tests
+> T-test Result Interpretation:
+
+> For the daily activity of eastern gray squirrel, community and regional parks have statistically different means (p-value < 2.2e-16). The sample estimate for community parks is about 1.82 while the sample estimate for regional parks is 0.201. Ultimately, the results show the daily activity of eastern gray squirrel to be higher in community parks than regional parks.
+
+> For the daily activity of white-tailed deer, community and regional parks have statistically different means (p-value < 2.2e-16). The sample estimate for community parks is about 0.176 while the sample estimate for regional parks is 0.853. Ultimately, the results show the daily activity of white-tailed deer to be lower in community parks than regional parks.
+
+#### Park Size (>1000ac vs <1000ac)
+```{r}
+# Run a t-test for each species
 SQ_t_test_size <- t.test(CountAdjusted ~ Size, data = dmSquirrel)
 SQ_t_test_size
 
 D_t_test_size <- t.test(CountAdjusted ~ Size, data = dmDeer)
 D_t_test_size
+```
 
-#Disruption t-tests
+> T-test Result Interpretation:
+
+> For the daily activity of eastern gray squirrel, parks less than 1000 acres and parks more than 1000 acres have statistically different means (p-value < 2.2e-16). The sample estimate for parks less than 1000 acres is about 1.00 while the sample estimate for parks more than 1000 acres is 0.215. Ultimately, the results show the daily activity of eastern gray squirrel to be higher in parks less than 1000 acres than parks more than 1000 acres.
+
+> For the daily activity of white-tailed deer, parks less than 1000 acres and parks more than 1000 acres have statistically different means (p-value = 6.312e-07). The sample estimate for parks less than 1000 acres is about 0.754 while the sample estimate for parks more than 1000 acres is 0.374. Ultimately, the results show the daily activity of white-tailed deer to be higher in parks less than 1000 acres than parks more than 1000 acres.
+
+#### Disruptive Activity, i.e., mountain biking, camping and fishing (Yes vs No)
+```{r}
+# Run a t-test for each species
 SQ_t_test_disrupt <- t.test(CountAdjusted ~ DisruptiveActivities, data = dmSquirrel)
 SQ_t_test_disrupt
 
@@ -207,29 +529,66 @@ D_t_test_disrupt <- t.test(CountAdjusted ~ DisruptiveActivities, data = dmDeer)
 D_t_test_disrupt
 ```
 
-#Monthly t-tests
+> T-test Result Interpretation:
+
+> For the daily activity of eastern gray squirrel, parks without disruptive activities and parks with disruptive activities have statistically different means (p-value < 2.2e-16). The sample estimate for parks without disruptive activities is about 1.02 while the sample estimate for parks without disruptive activities is 0.187. Ultimately, the results show the daily activity of eastern gray squirrel to be higher in parks without disruptive activities than parks with disruptive activities.
+
+> For the daily activity of white-tailed deer, parks without disruptive activities and parks with disruptive activities have statistically different means (p-value < 2.2e-16). The sample estimate for parks without disruptive activities is about 0.275 while the sample estimate for parks with disruptive activities is 1.33. Ultimately, the results show the daily activity of white-tailed deer to be lower in parks without disruptive activities than parks with disruptive activities.
+
+#### Monthly species activity
 ```{r}
-#Classification t-test
+mmSquirrel <- Monthly_Merge %>%
+  filter(Species == "Eastern Gray Squirrel")
+  
+mmDeer <- Monthly_Merge %>%
+  filter(Species == "White-tailed Deer")
+```
+
+#### Park Classification (Regional vs. Community)
+```{r}
 SQ_t_test_class2 <- t.test(CountAdjusted ~ Classification, data = mmSquirrel)
 SQ_t_test_class2
 
 D_t_test_class2 <- t.test(CountAdjusted ~ Classification, data = mmDeer)
 D_t_test_class2
+```
 
-#Park size t-tests
+> T-test Result Interpretation:
+
+> Similar to the daily activity results, for the monthly activity of eastern gray squirrel, community and regional parks have statistically different means (p-value = 0.004491). The sample estimate for community parks is about 50.7 while the sample estimate for regional parks is 5.58. Ultimately, the results show the monthly activity of eastern gray squirrel to be higher in community parks than regional parks.
+
+> Similar to the daily activity results, for the monthly activity of white-tailed deer, community and regional parks have statistically different means (p-value = 0.001046). The sample estimate for community parks is about 4.89 while the sample estimate for regional parks is 23.7. Ultimately, the results show the monthly activity of white-tailed deer to be lower in community parks than regional parks.
+
+#### Park Size (>1000ac vs <1000ac)
+```{r}
 SQ_t_test_size2 <- t.test(CountAdjusted ~ Size, data = mmSquirrel)
 SQ_t_test_size2
 
 D_t_test_size2 <- t.test(CountAdjusted ~ Size, data = mmDeer)
 D_t_test_size2
+```
 
-#Disruption t-tests
+> T-test Result Interpretation:
+
+> Similar to the daily activity results, for the monthly activity of eastern gray squirrel, parks less than 1000 acres and parks more than 1000 acres have statistically different means (p-value = 0.01198). The sample estimate for parks less than 1000 acres is about 27.9 while the sample estimate for parks more than 1000 acres is 5.98. Ultimately, the results show the monthly activity of eastern gray squirrel to be higher in parks less than 1000 acres than parks more than 1000.
+
+> Unlike the daily activity results, for the monthly activity of white-tailed deer, parks less than 1000 acres and parks more than 1000 acres have statistically the same means (p-value = 0.07912). The sample estimate for parks less than 1000 acres is about 21.0 while the sample estimate for parks more than 1000 acres is 10.4. The fact that monthly activity does not display the same significance as daily activity highlights the importance of temporal scale, suggesting activity in this case may be related to the short-term factors that relate to daily fluctuations.
+
+#### Disruptive Activity, i.e., mountain biking, camping and fishing (Yes vs No)
+```{r}
 SQ_t_test_disrupt2 <- t.test(CountAdjusted ~ DisruptiveActivities, data = mmSquirrel)
 SQ_t_test_disrupt2
 
 D_t_test_disrupt2 <- t.test(CountAdjusted ~ DisruptiveActivities, data = mmDeer)
 D_t_test_disrupt2
 ```
+
+> T-test Result Interpretation:
+
+> Similar to the daily activity results, for the monthly activity of eastern gray squirrel, parks without disruptive activities and parks with disruptive activities have statistically different means (p-value = 0.008249). The sample estimate for parks without disruptive activities is about 28.3 while the sample estimate for parks without disruptive activities is 5.19. Ultimately, the results show the monthly activity of eastern gray squirrel to be higher in parks without disruptive activities than parks with disruptive activities.
+
+> Similar to the daily activity results, for the monthly activity of white-tailed deer, parks without disruptive activities and parks with disruptive activities have statistically different means (p-value = 0.001368). The sample estimate for parks without disruptive activities is about 7.65 while the sample estimate for parks with disruptive activities is 37.0. Ultimately, the results show the monthly activity of eastern gray squirrel to be lower in parks without disruptive activities than parks with disruptive activities.
+
 
 \newpage
 
