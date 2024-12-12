@@ -1,15 +1,17 @@
 ---
-title: 'Final Report'
-author: "Iman Byndloss, Leah Li, and Rachel Williams" 
+title: "Final Report"
+author: "Iman Byndloss, Leah Li, and Rachel Williams"
 date: "12/09/2024"
-output: pdf_document
-toc: true
+output:
+  html_document:
+    df_print: paged
+    toc: true
 ---
 \tableofcontents 
 \newpage
-\listoftables 
+##listoftables 
 \newpage
-\listoffigures 
+##listoffigures 
 \newpage
 
 ```{r setup, include=FALSE}
@@ -23,6 +25,9 @@ library(dplyr)
 library(here)
 library(ggplot2)
 library(knitr)
+library(sf)
+library(mapview)
+library(cowplot)
 
 here()
 
