@@ -594,22 +594,9 @@ D_t_test_disrupt2
 
 # Summary and Conclusions
 
-Overall, we found that daily and monthly activity levels significantly differed 
-between parks. This suggests that the effects that cause changes are consistent
-over longer time scales. We also found that the amount of disruptive activities
-present in parks caused statistically different means in squirrel and deer activity. 
-Gray squirrels tended to be more active in smaller parks in both monthly and daily analysis. A possible reason for this is their small size might make them harder 
-to spot on camera in a larger area. Deer were significantly more active in smaller 
-parks when looking at daily trends but there was no significant difference with 
-monthly trends, which suggests short term events might have a bigger effect on 
-activity level. Squirrels were more active in community parks while deer were more active in regional parks. This likely reflects the different ranges of the two 
-species. Deer need more space and typically roam more than squirrels do, making
-large parks more suitable to them. 
+>Overall, we found that daily and monthly activity levels significantly differed between parks. This suggests that the effects that cause changes are consistentover longer time scales. We also found that the amount of disruptive activitiespresent in parks caused statistically different means in squirrel and deer activity. Gray squirrels tended to be more active in smaller parks in both monthly and daily analysis. A possible reason for this is their small size might make them harder to spot on camera in a larger area. Deer were significantly more active in smaller parks when looking at daily trends but there was no significant difference with monthly trends, which suggests short term events might have a bigger effect on activity level. Squirrels were more active in community parks while deer were more active in regional parks. This likely reflects the different ranges of the two species. Deer need more space and typically roam more than squirrels do, making large parks more suitable for them. 
 
-In the future, more camera trap data should be taken to see if these trends holds 
-true for other years. If there are any major population shifts, changing the amount 
-and location of disruptive park activities might be a good way to ensure a safe
-habitat for wild mammals. 
+>In the future, more camera trap data should be taken to see if these trends holds true for other years. If there are any major population shifts, changing the amount and location of disruptive park activities might be a good way to ensure a safe habitat for wild mammals. 
 
 
 \newpage
