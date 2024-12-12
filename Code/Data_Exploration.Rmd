@@ -151,7 +151,7 @@ BBM.plot <- adjust_labels(BBM.plot)
 MCD.plot <- adjust_labels(MCD.plot)
 MCM.plot <- adjust_labels(MCM.plot)
 
-# Create a function to reduce ledgend size
+# Create a function to reduce legend size
 adjust_legend <- function(plot) {
   plot +
     theme(legend.key.size = unit(0.2, "cm"),
@@ -176,23 +176,55 @@ plot_grid(BM.plot, BBM.plot, MCM.plot,
 
 ### Adjusted Deer Count Graphs
 ```{r}
-
-Deer_Counts <- Daily_Merge %>%
+Daily_Deer_Counts <- Daily_Species_Counts %>%
   filter(Species == "White-tailed Deer") %>%
    mutate(Date = as.Date(Date)) 
 
-ggplot(Deer_Counts, aes(x=Date, y=CountAdjusted)) +
-  geom_line(col='red') + facet_wrap(~ ParkName, ncol = 1) + labs(title = "Adjusted Deer Counts over Time", y = "Species Count") 
+Monthly_Deer_Counts <- Monthly_Species_Counts %>%
+  filter(Species == "White-tailed Deer") %>%
+   mutate(Month = as.Date(Month)) 
+
+ggplot(Daily_Deer_Counts, aes(x= Date, y= CountAdjusted, color = Species)) +
+  geom_line() +
+  scale_color_manual(values = species_colors) +
+  facet_wrap(~ ParkName, ncol = 1) + 
+  theme(legend.position = "none") +
+  labs(title = "Daily adjusted white-tailed deer counts over time", 
+       y = "Species Count")
+
+ggplot(Monthly_Deer_Counts, aes(x= Month, y= CountAdjusted, color = Species)) +
+  geom_line() +
+  scale_color_manual(values = species_colors) +
+  facet_wrap(~ ParkName, ncol = 1) + 
+  theme(legend.position = "none") +
+  labs(title = "Monthly adjusted white-tailed deer counts over time", 
+       y = "Species Count") 
 ```
 ### Adjusted Squirrel Count Graphs
 ```{r}
-Squirrel_Counts <- Daily_Merge %>%
+Daily_Squirrel_Counts <- Daily_Species_Counts %>%
   filter(Species == "Eastern Gray Squirrel") %>%
-  mutate(Date = as.Date(Date))
+   mutate(Date = as.Date(Date)) 
 
-ggplot(Squirrel_Counts, aes(x=Date, y=CountAdjusted)) +
-  geom_line(col='blue') + facet_wrap(~ ParkName, ncol = 1) + labs(title = "Adjusted Squirrel Counts over Time", y = "Species Count")
+Monthly_Squirrel_Counts <- Monthly_Species_Counts %>%
+  filter(Species == "Eastern Gray Squirrel") %>%
+   mutate(Month = as.Date(Month)) 
 
+ggplot(Daily_Squirrel_Counts, aes(x= Date, y= CountAdjusted, color = Species)) +
+  geom_line() +
+  scale_color_manual(values = species_colors) +
+  facet_wrap(~ ParkName, ncol = 1) + 
+  theme(legend.position = "none") +
+  labs(title = "Daily adjusted white-tailed deer counts over time", 
+       y = "Species Count")
+
+ggplot(Monthly_Squirrel_Counts, aes(x= Month, y= CountAdjusted, color = Species)) +
+  geom_line() +
+  scale_color_manual(values = species_colors) +
+  facet_wrap(~ ParkName, ncol = 1) + 
+  theme(legend.position = "none") +
+  labs(title = "Monthly adjusted eastern gray squirrel counts over time", 
+       y = "Species Count") 
 ```
 ### Count adjusted per species
 
