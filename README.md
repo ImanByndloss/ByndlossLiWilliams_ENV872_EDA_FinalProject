@@ -350,3 +350,13 @@ $Summary_Stats
 ## Scripts and code
 
 <list any software scripts/code contained in the repository and a description of their purpose.>
+
+The following can be found within the code folder in this repository:
+
+1. Data_Processing.Rmd (data processing in which raw data was loaded in and processed data was externally saved)
+2. Data_Exploration.Rmd (data exploration in which several visualizations of the data were created)
+3. Data_Exploration.html (html version of above rmd file)
+4. Data_Analysis.Rmd (data analysis in which processed data was analyzed through anovas and t-tests to answer research questions)
+5. Data_Analysis.html (html version of above rmd file)
+6. Final_Report.Rmd (final report containing summarized information on all other code files and additional comments)
+7. Final_Report.html (html version of above rmd file)
