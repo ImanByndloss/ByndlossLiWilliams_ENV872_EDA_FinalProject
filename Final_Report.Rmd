@@ -145,6 +145,7 @@ FP.plot <- ggplot(Full_Period_Species_Counts, aes(x = Species,
        color = "Park Name") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) #tilts species names
 FP.plot
+ggsave(filename="Output/FP.plot_data.pdf", plot= FP.plot)
 ```
 
 > It becomes clear that species activities across the three parks are distinct. For example, while there is no species that appears more in Beaman than any other park (the most common species in Beaman is the white-tailed deer), Bells Bend and Mill Creek respectively have the most white-tailed deer and eastern gray squirrel activity out of the three parks. Also, not all species appear in all the parks, like the woodchuck and stripped skunk only appearing in Beaman and the muskrat only appear in Mill Creek (although counts for these species are extremely limited).
@@ -162,6 +163,7 @@ sorted_data <- aggregated_data %>%
 most_abundant_species <- head(sorted_data, 5)
 
 kable(most_abundant_species, caption = "Most Abundant Species")
+
 ```
 
 > According to these results, eastern gray squirrel and white-tailed deer are the top two most abundant species, with around 618.43 and 523.21 adjusted counts respectively. These species are followed by northern raccoon (225.73), nine-banded armadillo (84.07), and virginia opposum (71.67).
@@ -192,16 +194,16 @@ Beaman_Daily <- Daily_Species_Counts %>% filter(
   ParkName == "Alvin G. Beaman Park")
 Beaman_Monthly <- Monthly_Species_Counts %>% filter(
   ParkName == "Alvin G. Beaman Park")
-  
+
 BellsBend_Daily <- Daily_Species_Counts %>% filter(
   ParkName == "Bells Bend Park")
 BellsBend_Monthly <- Monthly_Species_Counts %>% filter(
   ParkName == "Bells Bend Park")
-  
+         
 MillCreek_Daily <- Daily_Species_Counts %>% filter(
   ParkName == "Mill Creek Park")
 MillCreek_Monthly <- Monthly_Species_Counts %>% filter(
-  ParkName == "Mill Creek Park")
+  ParkName == "Mill Creek Park") 
 
 # Graph daily and monthly data for each park
 BD.plot <- ggplot(Beaman_Daily, aes(x = Date, 
@@ -213,6 +215,7 @@ BD.plot <- ggplot(Beaman_Daily, aes(x = Date,
        x = "Date", 
        y = "Count Adjusted",
        color = "Species")
+
 BM.plot <- ggplot(Beaman_Monthly, aes(x = Month, 
                                       y = CountAdjusted, 
                                       color = Species)) +
@@ -232,6 +235,7 @@ BBD.plot <- ggplot(BellsBend_Daily, aes(x = Date,
        x = "Date", 
        y = "Count Adjusted",
        color = "Species")
+
 BBM.plot <- ggplot(BellsBend_Monthly, aes(x = Month, 
                                           y = CountAdjusted, 
                                           color = Species)) +
@@ -251,6 +255,7 @@ MCD.plot <- ggplot(MillCreek_Daily, aes(x = Date,
        x = "Date", 
        y = "Count Adjusted",
        color = "Species")
+
 MCM.plot <- ggplot(MillCreek_Monthly, aes(x = Month, 
                                           y = CountAdjusted, 
                                           color = Species)) +
