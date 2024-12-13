@@ -36,19 +36,16 @@ Daily_Species_Counts <- read.csv(
   file = here("./Data/Processed/Daily_Species_Counts.csv"),
   stringsAsFactors = TRUE) 
 
-write.csv(Daily_Species_Counts, "Output/Daily_Species_Counts.csv", row.names=FALSE)
 
 Monthly_Species_Counts <- read.csv(
   file = here("./Data/Processed/Monthly_Species_Counts.csv"),
   stringsAsFactors = TRUE) 
 
-write.csv(Monthly_Species_Counts, "Output/Monthly_Species_Counts.csv", row.names=FALSE)
 
 Full_Period_Species_Counts <- read.csv(
   file = here("./Data/Processed/Full_Period_Species_Counts.csv"),
   stringsAsFactors = TRUE)
 
-write.csv(Full_Period_Species_Counts, "Output/Full_Period_Species_Counts.csv", row.names=FALSE)
 
 Park_Attributes <- st_read(
   '~/ByndlossLiWilliams/Data/Processed/Park_Attributes.shp')
@@ -57,14 +54,11 @@ Daily_Merge <- read.csv(
   file = here("./Data/Processed/Daily_Merge.csv"),
   stringsAsFactors = TRUE) 
 
-write.csv(Daily_Merge, "Output/Daily_Merge.csv", row.names=FALSE)
-
 
 Monthly_Merge <- read.csv(
   file = here("./Data/Processed/Monthly_Merge.csv"),
   stringsAsFactors = TRUE) 
 
-write.csv(Monthly_Merge, "Output/Monthly_Merge.csv", row.names=FALSE)
 ```
 
 
