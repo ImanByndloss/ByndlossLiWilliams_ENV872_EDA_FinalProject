@@ -24,14 +24,13 @@ amenities. >
 
 ## Folder structure, file formats, and naming conventions 
 
-<describe the folders contained in the repository, including what type of files they contain
 Code: Contains Rmd files for Data Analysis, Data Exploration, and Data Processing. 
 Data: Contains the processed and raw datasets used for analysis. Includes camera deployments, park properties (.cpg, .dbf, .prj, .shp, and .shx), and wildlife insights data from 2021-2022. All files except Parks_properties and the Parks_view .geojson file are .csv files. Also has a metadata Rmd file.
-Tukey_Test_Results.csv: Excel file containing Tukey test results for the target parks.>
+Tukey_Test_Results.csv: Excel file containing Tukey test results for the target parks.
+Final_Report_files: Holds figure-latex folder with graphs from the final report. 
+Files are in a pdf format.
 
-<describe the formats of files for the various purposes contained in the repository>
 
-<describe your file naming conventions>
 
 ## Metadata
 
