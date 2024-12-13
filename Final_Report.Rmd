@@ -36,16 +36,13 @@ Daily_Species_Counts <- read.csv(
   file = here("./Data/Processed/Daily_Species_Counts.csv"),
   stringsAsFactors = TRUE) 
 
-
 Monthly_Species_Counts <- read.csv(
   file = here("./Data/Processed/Monthly_Species_Counts.csv"),
   stringsAsFactors = TRUE) 
 
-
 Full_Period_Species_Counts <- read.csv(
   file = here("./Data/Processed/Full_Period_Species_Counts.csv"),
   stringsAsFactors = TRUE)
-
 
 Park_Attributes <- st_read(
   '~/ByndlossLiWilliams/Data/Processed/Park_Attributes.shp')
@@ -54,11 +51,9 @@ Daily_Merge <- read.csv(
   file = here("./Data/Processed/Daily_Merge.csv"),
   stringsAsFactors = TRUE) 
 
-
 Monthly_Merge <- read.csv(
   file = here("./Data/Processed/Monthly_Merge.csv"),
   stringsAsFactors = TRUE) 
-
 ```
 
 
@@ -89,7 +84,7 @@ The fifth section merges the daily and monthly species data frames with the park
 
 The sixth and final section simply saves the final processed data frames into the "Processed" folder, which is within the "Data" folder of this project. There are six data frames within that folder, which we loaded into this report during set up. Below is more information on those data frames.
 
-```{r}
+```{r dataset information}
 # For the data sets developed during the first through third sections...
 # Retrieve the names of the columns and generate a summary of the data frames
 names(Daily_Species_Counts)
@@ -124,7 +119,7 @@ summary(Monthly_Merge)
 
 To visually represent these three parks spatially, we created an interactive map of each park's boundary with information on its attributes stored in the associated popup.
 
-```{r}
+```{r map of park boundaries}
 # Map parks with attributes with color code based on park name
 mapView(Park_Attributes, zcol = "Name", legend.title = "Park Name")
 ```
@@ -133,7 +128,7 @@ mapView(Park_Attributes, zcol = "Name", legend.title = "Park Name")
 
 To consider how the total counts for each species compared across parks, we created a bar graph.
 
-```{r}
+```{r total adjusted counts}
 # Graph full period data
 FP.plot <- ggplot(Full_Period_Species_Counts, aes(x = Species, 
                                                   y = CountAdjusted, 
@@ -172,7 +167,7 @@ kable(most_abundant_species, caption = "Most Abundant Species")
 
 To graph adjusted counts over time for all species in each park, we created line graphs from daily and monthly data.
 
-```{r}
+```{r adjusted counts over time}
 # Ensure the Date and Month columns are classed correctly
 Daily_Species_Counts$Date <- as.Date(Daily_Species_Counts$Date)
 Monthly_Species_Counts$Month <- as.Date(paste0(Monthly_Species_Counts$Month, 
@@ -311,7 +306,7 @@ plot_grid(BM.plot, BBM.plot, MCM.plot,
 
 To highlight the species of interest regarding the second research question, we graphed the daily and monthly adjusted counts for white-tailed deer and eastern gray squirrel in each park over time.
 
-```{r}
+```{r adjusted counts over time for only squirrel and deer}
 # Filter data for species
 Daily_Deer_Counts <- Daily_Species_Counts %>%
   filter(Species == "White-tailed Deer") %>%
@@ -518,7 +513,7 @@ To help explain why species activity differs between parks, these two-sample T-t
 
 ### Daily Species Activity 
 
-```{r}
+```{r daily merge filter}
 # Independently filter for three potentially important species: Eastern Gray Squirrel, White-tailed Deer, and Coyote
 dmSquirrel <- Daily_Merge %>% 
   filter(Species == "Eastern Gray Squirrel")
@@ -528,7 +523,7 @@ dmDeer <- Daily_Merge %>%
 ```
 
 #### Park Classification (Regional vs Community)
-```{r}
+```{r daily class}
 # Run a t-test for each species
 SQ_t_test_class <- t.test(CountAdjusted ~ Classification, data = dmSquirrel)
 SQ_t_test_class
@@ -544,7 +539,7 @@ D_t_test_class
 > For the daily activity of white-tailed deer, community and regional parks have statistically different means (p-value < 2.2e-16). The sample estimate for community parks is about 0.176 while the sample estimate for regional parks is 0.853. Ultimately, the results show the daily activity of white-tailed deer to be lower in community parks than regional parks.
 
 #### Park Size (>1000ac vs <1000ac)
-```{r}
+```{r daily size}
 # Run a t-test for each species
 SQ_t_test_size <- t.test(CountAdjusted ~ Size, data = dmSquirrel)
 SQ_t_test_size
@@ -560,7 +555,7 @@ D_t_test_size
 > For the daily activity of white-tailed deer, parks less than 1000 acres and parks more than 1000 acres have statistically different means (p-value = 6.312e-07). The sample estimate for parks less than 1000 acres is about 0.754 while the sample estimate for parks more than 1000 acres is 0.374. Ultimately, the results show the daily activity of white-tailed deer to be higher in parks less than 1000 acres than parks more than 1000 acres.
 
 #### Disruptive Activity, i.e., mountain biking, camping and fishing (Yes vs No)
-```{r}
+```{r daily disruptive activity}
 # Run a t-test for each species
 SQ_t_test_disrupt <- t.test(CountAdjusted ~ DisruptiveActivities, data = dmSquirrel)
 SQ_t_test_disrupt
@@ -576,7 +571,7 @@ D_t_test_disrupt
 > For the daily activity of white-tailed deer, parks without disruptive activities and parks with disruptive activities have statistically different means (p-value < 2.2e-16). The sample estimate for parks without disruptive activities is about 0.275 while the sample estimate for parks with disruptive activities is 1.33. Ultimately, the results show the daily activity of white-tailed deer to be lower in parks without disruptive activities than parks with disruptive activities.
 
 #### Monthly species activity
-```{r}
+```{r monthly merge filter}
 mmSquirrel <- Monthly_Merge %>%
   filter(Species == "Eastern Gray Squirrel")
   
@@ -585,7 +580,7 @@ mmDeer <- Monthly_Merge %>%
 ```
 
 #### Park Classification (Regional vs. Community)
-```{r}
+```{r monthly class}
 SQ_t_test_class2 <- t.test(CountAdjusted ~ Classification, data = mmSquirrel)
 SQ_t_test_class2
 
@@ -600,7 +595,7 @@ D_t_test_class2
 > Similar to the daily activity results, for the monthly activity of white-tailed deer, community and regional parks have statistically different means (p-value = 0.001046). The sample estimate for community parks is about 4.89 while the sample estimate for regional parks is 23.7. Ultimately, the results show the monthly activity of white-tailed deer to be lower in community parks than regional parks.
 
 #### Park Size (>1000ac vs <1000ac)
-```{r}
+```{r monthly size}
 SQ_t_test_size2 <- t.test(CountAdjusted ~ Size, data = mmSquirrel)
 SQ_t_test_size2
 
@@ -615,7 +610,7 @@ D_t_test_size2
 > Unlike the daily activity results, for the monthly activity of white-tailed deer, parks less than 1000 acres and parks more than 1000 acres have statistically the same means (p-value = 0.07912). The sample estimate for parks less than 1000 acres is about 21.0 while the sample estimate for parks more than 1000 acres is 10.4. The fact that monthly activity does not display the same significance as daily activity highlights the importance of temporal scale, suggesting activity in this case may be related to the short-term factors that relate to daily fluctuations. Also, it likely reflects the reality that as larger species deer likely have distinct spatial requirements than smaller species, like squirrels, but still, the results suggest otherwise on the daily level for 1000 acres. It is important to mention that deer activity being more in regional parks likely relates to the previous point, as park size is a factor in classification, with the distinction between sizes being not as extreme as 1000 acres.
 
 #### Disruptive Activity, i.e., mountain biking, camping and fishing (Yes vs No)
-```{r}
+```{r monthly disruptive activity}
 SQ_t_test_disrupt2 <- t.test(CountAdjusted ~ DisruptiveActivities, data = mmSquirrel)
 SQ_t_test_disrupt2
 
