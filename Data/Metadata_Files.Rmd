@@ -14,8 +14,9 @@ knitr::opts_chunk$set(echo = TRUE)
 # Load libraries
 library(readr)
 library(httr)
+library(sf)
 
-# Load the dataset
+# Load raw data
 file_path1 <- "./Data/Raw/Wildlife Insights (2021-2022).csv"
 wildlife_data <- read_csv(file_path1)
 
@@ -24,6 +25,25 @@ deployment_data <- read_csv(file_path2)
 
 file_path3 <- "./Data/Raw/Parks_Properties.shp"
 park_data <- st_read(file_path3)
+
+# Load processed data
+file_path5 <- "./Data/Processed/Daily_Species_Counts.csv"
+daily_data <- read_csv(file_path5)
+
+file_path6 <- "./Data/Processed/Monthly_Species_Counts.csv"
+monthly_data <- read_csv(file_path6)
+
+file_path7 <- "./Data/Processed/Full_Period_Species_Counts.csv"
+fullperiod_data <- read_csv(file_path7)
+
+file_path8 <- "./Data/Processed/Park_Attributes.shp"
+park_attributes_data <- st_read(file_path8)
+
+file_path9 <- "./Data/Processed/Daily_Merge.csv"
+daily_merge_data <- read_csv(file_path9)
+
+file_path10 <- "./Data/Processed/Monthly_Merge.csv"
+monthly_merge_data <- read_csv(file_path10)
 
 # Create function
 create_metadata <- function(data, source, description) {
@@ -37,7 +57,9 @@ create_metadata <- function(data, source, description) {
 }
 ```
 
-## Metadata for Wildlife Insights.csv
+## Metadata for raw data
+
+### Wildlife Insights.csv
 
 ```{r, metadata info, message=FALSE, warning=FALSE}
 # Create Metadata
@@ -48,7 +70,7 @@ metadata_wildlife_insights <- create_metadata(
 )
 ```
 
-## Metadata for All Deployments (2019-2022).csv
+### All Deployments (2019-2022).csv
 
 ```{r, metadata info, message=FALSE, warning=FALSE}
 # Create Metadata
@@ -59,13 +81,82 @@ metadata_all_deployments <- create_metadata(
 )
 ```
 
-## Metadata for Park_Properties.shp
+### Park_Properties.shp
 
 ```{r, metadata info, message=FALSE, warning=FALSE}
 # Create Metadata
-metadata_all_deployments <- create_metadata(
+metadata_park_properties <- create_metadata(
   data = park_data,
   source = "Nashville Open Data Portal (https://data.nashville.gov/)",
   description = "Dataset of local park boundaries with relevant information."
+)
+```
+
+
+## Metadata for processed data
+
+### Daily_Species_Counts.csv"
+
+```{r}
+# Create Metadata
+metadata_daily <- create_metadata(
+  data = daily_data,
+  source = "Originally from Prof. Malu Jorge's Lab at Vanderbilt University",
+  description = "Processed dataset of daily camera trap data from 2021 to 2022."
+)
+```
+
+### Monthly_Species_Counts.csv"
+
+```{r}
+# Create Metadata
+metadata_monthly <- create_metadata(
+  data = monthly_data,
+  source = "Originally from Prof. Malu Jorge's Lab at Vanderbilt University",
+  description = "Processed dataset of monthly camera trap data from 2021 to 2022."
+)
+```
+
+### Full_Period_Species_Counts.csv"
+
+```{r}
+# Create Metadata
+metadata_fullperiod <- create_metadata(
+  data = fullperiod_data,
+  source = "Originally from Prof. Malu Jorge's Lab at Vanderbilt University",
+  description = "Processed dataset of full period camera trap data from 2021 to 2022."
+)
+```
+
+### Park_Attributes.csv"
+
+```{r}
+# Create Metadata
+metadata_park_attributes <- create_metadata(
+  data = park_attributes_data,
+  source = "Originally from Nashville Open Data Portal",
+  description = "Filtered dataset of local park boundaries."
+)
+```
+
+### Daily_Merge.csv"
+
+```{r}
+# Create Metadata
+metadata_daily_merge <- create_metadata(
+  data = daily_merge_data,
+  source = "Originally from Nashville Open Data Portal & Prof. Malu Jorge's Lab",
+  description = "Merged dataset of park attributes and monthly species counts."
+)
+```
+
+### Monthly_Merge.csv"
+
+```{r}
+# Create Metadata
+metadata_monthly_merge <- create_metadata(
+  data = monthly_merge_data,
+  source = "Originally from Nashville Open Data Portal & Prof. Malu Jorge's Lab",
+  description = "Merged dataset of park attributes and monthly species counts."
 )
 ```
