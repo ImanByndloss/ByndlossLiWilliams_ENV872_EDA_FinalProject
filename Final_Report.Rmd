@@ -31,10 +31,7 @@ library(cowplot)
 
 here()
 
-# Set your ggplot theme
-my_theme <- 
-
-# Load your datasets
+# Load your data sets
 Daily_Species_Counts <- read.csv(
   file = here("./Data/Processed/Daily_Species_Counts.csv"),
   stringsAsFactors = TRUE) 
@@ -47,6 +44,9 @@ Full_Period_Species_Counts <- read.csv(
   file = here("./Data/Processed/Full_Period_Species_Counts.csv"),
   stringsAsFactors = TRUE)
 
+Park_Attributes <- st_read(
+  '~/ByndlossLiWilliams/Data/Processed/Park_Attributes.shp')
+
 Daily_Merge <- read.csv(
   file = here("./Data/Processed/Daily_Merge.csv"),
   stringsAsFactors = TRUE) 
@@ -54,9 +54,6 @@ Daily_Merge <- read.csv(
 Monthly_Merge <- read.csv(
   file = here("./Data/Processed/Monthly_Merge.csv"),
   stringsAsFactors = TRUE) 
-
-Park_Attributes <- st_read(
-  '~/ByndlossLiWilliams/Data/Processed/Park_Attributes.shp')
 ```
 
 
@@ -71,21 +68,52 @@ To describe the motivation behind this research, we are interested in understand
 
 # Dataset Information
 
-The datasets we used were collected from wildlife insights and the Nashville open data portal (https://data.nashville.gov/). The wildlife insights data was the camera trap data collected for each park. It is from Professor Malu Jorge's lab at Vanderbilt University. This data contains deployments from 2019-2022, but we focused on the deployments from 2021-2022 because that was the time period with the longest consecutive data collection. 2019 to 2020 had more gaps in the data or shorter timeframes that would be less representative of long term trends. We chose to focus on Bell's Bend, Mill Creek, and Beaman park because they had the longest consecutive data collection within the same time periods. 
+Before uploading any data sets into RStudio, the relevant csv files were examined in Excel. The two csv files used in this project are from Prof. Malu Jorge at Vanderbilt University. Prof. Malu Jorge identifies 06/28/2021 to 05/19/22 as one of the longest time periods of consistent data collection by her lab. Although nine parks are listed within "cluster.name" of "Wildlife Insights (2021-2022).csv", only three parks cover the majority of the aforementioned time period based on the earliest "start_date" and latest "end_date" for each park in "All Deployments (2019-2022).csv". Those parks include Beaman (06/29/2021-12/31/2022), Bells Bend (06/28/2021-05/19/2022), and Mills Creek(07/20/2021-04/23/2022). To establish a consistent study period for this project in accordance with these three parks, the following time period will be used: 07/20/2021-4/23/2022 (278 days). During this study period, GardePro A3, Browning Strike Force HD ProX, and HAPIMP PH770-8D trail cameras were used; these models have motion detectors and were programmed to have a delay between consecutive triggers. Lab members placed camera traps at various sites (one camera per site) within the forested areas of these parks. 
+
+In RStudio, the data wrangling process involved six main sections: 1) Wildlife IDs from Prof. Malu Jorge's Lab at Vanderbilt University, 2) Camera Counts Per Day (i.e., sampling effort), 3) Species Data (filtered, adjusted, and totals), 4) Spatial Data, 5) Merging Data Frames (species and spatial data), and 6) Save Processed Data.
+
+In the first section (which involves "Wildlife Insights (2021-2022).csv"), we added columns for date and time based on a pre-existing combined date-time column and independently isolated camera trap data for the parks of interest.
+
+In the second section (which involves "All Deployments (2019-2022).csv"), we independently isolated deployment data for the parks of interest before counting the cameras deployed at each park for every day during the study period.
+
+The third section includes 1) filtering by hour, 2) adjusting counts based on sampling effort, and 3) calculating monthly and full period totals in wildlife IDs. To explain, first, the daily wildlife IDs for each species must be filtered by hour at every camera trap separately to remove repeated counts of the same individual(s). Second, to account for sampling effort, the daily wildlife IDs for each species need to be divided by the number of cameras out each day to standardize the data. Third, monthly and full time period totals are calculated to compare data between parks; in this case, totals can be used rather than averages or rolling averages since sampling effort is already accounted for, a consistent time period is already established across parks, and counts are not guaranteed each day.
+
+The fourth section includes spatial data on parks in Nashville, TN (retrieved from Nashville Open Data at the following link: https://datanashvillegov-nashville.hub.arcgis.com/datasets/13c1aa2bafdd43f4b3cd132e7256a172_0/explore?location=36.167341%2C-86.763938%2C9.17). The csv version of this shapefile was examined in Excel prior to uploading to RStudio. From that initial examination, it became clear that numerous similarities exist between these three parks (e.g., being open daily, not allowing horseback riding, and not having any sports fields or courts available). Still, there are certain attributes that make each of these three parks unique from one another. To briefly explain, Beaman (a regional park established in 1996) is the largest of the three parks at 2170.89186 acres, open dawn to 11pm, and more restrictive with no walking or jogging on certain trails. Bells Bend (a regional park established in 2007) is an intermediate size at 809.59 acres, has a more restrictive schedule being open dawn to dusk, and allows more activities, including mountain biking, camping, and fishing. Lastly, Mill Creek (a community park established in 2013) is the smallest of the three parks at 85.62 acres, open dawn to 11pm, and has no hiking trails.
+
+The fifth section merges the daily and monthly species data frames with the park attributes data frame. These merges are completed in preparation for a series of two-sample t-tests. By selecting three unique park characteristics (i.e., park classification, size, and disruptive activities), each park gets the opportunity to be compared against the other two parks. Notably, although there are other characteristics that distinguish these parks from one another (as mentioned in the previous section), we expect the three chosen characteristics to have the largest influences on species activity. It is also important to mention that while park classification takes into account the size of the park, it also relates to other factors, like who the park serves.
+
+The sixth and final section simply saves the final processed data frames into the "Processed" folder, which is within the "Data" folder of this project. There are six data frames within that folder, which we loaded into this report during set up. Below is more information on those data frames.
 
 ```{r}
+# For the data sets developed during the first through third sections...
+# Retrieve the names of the columns and generate a summary of the data frames
 names(Daily_Species_Counts)
 summary(Daily_Species_Counts)
 
+names(Monthly_Species_Counts)
+summary(Monthly_Species_Counts)
+
+names(Full_Period_Species_Counts)
+summary(Full_Period_Species_Counts)
+
+# For the data set developed during the fourth section...
+# Retrieve the names of the columns and generate a summary of the data frames
+names(Park_Attributes)
+summary(Park_Attributes)
+
+# For the data sets developed during the fifth section...
+# Retrieve the names of the columns and generate a summary of the data frames
 names(Daily_Merge)
 summary(Daily_Merge)
+
+names(Monthly_Merge)
+summary(Monthly_Merge)
 ```
+
 
 \newpage
 
 # Exploratory Analysis 
-
-Prior to analysis, we combined the data from wildlife insights and the parks information. **More info needed**
 
 ## Map of park boundaries
 
@@ -114,7 +142,7 @@ FP.plot <- ggplot(Full_Period_Species_Counts, aes(x = Species,
 FP.plot
 ```
 
-> ????????????
+> It becomes clear that species activities across the three parks are distinct. For example, while there is no species that appears more in Beaman than any other park (the most common species in Beaman is the white-tailed deer), Bells Bend and Mill Creek respectively have the most white-tailed deer and eastern gray squirrel activity out of the three parks. Also, not all species appear in all the parks, like the woodchuck and stripped skunk only appearing in Beaman and the muskrat only appear in Mill Creek (although counts for these species are extremely limited).
 
 Given that the total counts of species is particularly relevant to answer our second question, in which we need to know the two most common species. To address this topic, we aggregated the data to add up the adjusted counts for each species to confirm which species are have the highest adjusted counts regardless of park. Once we did this, we sorted it in descending order and looked at which species were the two most abundant.
 
@@ -131,7 +159,7 @@ most_abundant_species <- head(sorted_data, 5)
 kable(most_abundant_species, caption = "Most Abundant Species")
 ```
 
-> According to these results, white-tailed deer and eastern gray squirrel are the top two most abundant species. 
+> According to these results, eastern gray squirrel and white-tailed deer are the top two most abundant species, with around 618.43 and 523.21 adjusted counts respectively. These species are followed by northern raccoon (225.73), nine-banded armadillo (84.07), and virginia opposum (71.67).
 
 ## Adjusted counts over time
 
@@ -269,7 +297,7 @@ plot_grid(BM.plot, BBM.plot, MCM.plot,
           ncol = 1) #vertical alignment of plots
 ```
 
-> ???????????
+> Once again, the distinct of species activities across the three parks are emphasized in this graph. Looking at the scale of the y-axes within the daily graphs, Beaman has the smallest range of values, reaching not much more than 3 counts adjusted, and Bells Bend has the largest range of values, reaching more than 20 counts adjusted. Similarly, looking at the scale of the y-axes within the monthly graphs, Beaman still has the smallest range of values, reaching around 30 counts adjusted, but in this case, Mill Creek has the largest range of values, reaching more than 90 counts adjusted. It is important to mention that daily activity fluctuates more than monthly activity, an expected reality that tends to occur as a result of the variability of short-term factors, like weather, human activity, and animal behaviors.
 
 To highlight the species of interest regarding the second research question, we graphed the daily and monthly adjusted counts for white-tailed deer and eastern gray squirrel in each park over time.
 
@@ -340,15 +368,15 @@ legend <- cowplot::get_legend(
     labs(color = "Park Name"))
 
 # Display daily and monthly plots together
-plot_grid(DailyDeer.plot, MonthlyDeer.plot,
+plot_grid(DailyDeer.plot, MonthlyDeer.plot, legend,
           ncol = 1, #vertical alignment of plots
           rel_heights = c(1, 1, 0.4))
-plot_grid(DailySquirrel.plot, MonthlySquirrel.plot, 
+plot_grid(DailySquirrel.plot, MonthlySquirrel.plot, legend,
           ncol = 1, #vertical alignment of plots
           rel_heights = c(1, 1, 0.4))
 ```
 
-> ??????
+> With a visual representation of eastern gray squirrel and white-tailed deer activity across the three parks, it is clear Mill Creek has considerably more eastern gray squirrel activity than the other parks and Bells Bend has considerably more white-tailed deer activity than the other parks. Notably, looking at the scales of the y-axes, while the highest record of daily activity for white-tailed deer is more than eastern gray squirrel, reaching more than 20 counts adjusted compared to not much more than 11 counts adjusted. Contrastingly, the highest record of monthly activity for eastern gray squirrel is more than white-tailed deer, reaching more than 90 counts adjusted compared to around 70 counts adjusted.
 
 
 \newpage
@@ -477,9 +505,9 @@ head(monthly_significant_tukey, 10)
 
 Question 2: Do any park attributes (i.e., classification, size and disruptive activities) have a significant impact on the activity of the two most common species?  
 
-To help explain why species activity differs between parks, these two-sample T-tests seek to determine if the park's classification, size, or disruptive activities have a significant impact on the daily and monthly activity of eastern gray squirrel and white-tailed deer. To be more specific, for classification, Mill Creek (a community park) will be compared to the regional parks; for size, Beaman (a park more than 1000 acres) will be compared to the parks that are less than 1000 acres; and for disruptive activities, Bells Bend (a park that allows mountain biking, camping, and fishing) will be compared to parks without these disruptive activities. 
+To help explain why species activity differs between parks, these two-sample T-tests seek to determine if the park's classification, size, or disruptive activities have a significant impact on the daily and monthly activity of eastern gray squirrel and white-tailed deer. To be more specific, for classification, Mill Creek (a community park) will be compared to the other two parks which are regional; for size, Beaman (a park more than 1000 acres) will be compared to the other two parks parks that are less than 1000 acres; and for disruptive activities, Bells Bend (a park that allows mountain biking, camping, and fishing) will be compared to the other two parks without these disruptive activities. 
 
-Before analysis, it is important to note that a larger sample size in the future would be needed to confirm any results, especially given the fact that only three parks are being compared (one park against two others). It is also possible that some other unforeseen characteristics are influencing the results.
+Before analysis, it is important to note that a larger sample size in the future would be needed to confirm any results, especially given the fact that only three parks are being compared (one park against two others). It is also possible that some other unforeseen characteristics are influencing the results. 
 
 ### Daily Species Activity 
 
@@ -599,9 +627,9 @@ D_t_test_disrupt2
 
 # Summary and Conclusions
 
->Overall, we found that daily and monthly activity levels significantly differed between parks. This suggests that the effects that cause changes are consistentover longer time scales. We also found that the amount of disruptive activitiespresent in parks caused statistically different means in squirrel and deer activity. Gray squirrels tended to be more active in smaller parks in both monthly and daily analysis. A possible reason for this is their small size might make them harder to spot on camera in a larger area. Deer were significantly more active in smaller parks when looking at daily trends but there was no significant difference with monthly trends, which suggests short term events might have a bigger effect on activity level. Squirrels were more active in community parks while deer were more active in regional parks. This likely reflects the different ranges of the two species. Deer need more space and typically roam more than squirrels do, making large parks more suitable for them. 
+Overall, we found that daily and monthly activity levels significantly differed between parks. This suggests that the effects that cause changes are consistentover longer time scales. We also found that the amount of disruptive activitiespresent in parks caused statistically different means in squirrel and deer activity. Gray squirrels tended to be more active in smaller parks in both monthly and daily analysis. A possible reason for this is their small size might make them harder to spot on camera in a larger area. Deer were significantly more active in smaller parks when looking at daily trends but there was no significant difference with monthly trends, which suggests short term events might have a bigger effect on activity level. Squirrels were more active in community parks while deer were more active in regional parks. This likely reflects the different ranges of the two species. Deer need more space and typically roam more than squirrels do, making large parks more suitable for them. 
 
->In the future, more camera trap data should be taken to see if these trends holds true for other years. If there are any major population shifts, changing the amount and location of disruptive park activities might be a good way to ensure a safe habitat for wild mammals. 
+In the future, more camera trap data should be taken to see if these trends holds true for other years. If there are any major population shifts, changing the amount and location of disruptive park activities might be a good way to ensure a safe habitat for wild mammals. 
 
 
 \newpage
