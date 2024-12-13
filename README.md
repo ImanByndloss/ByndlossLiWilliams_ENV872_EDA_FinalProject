@@ -3,7 +3,7 @@ ENV872 Course Project
 ## Summary
 
 
-The purpose of this repository is to explore how species activity changes between Nashville parks. We focused on the Mills Creek, Bells Bend, and Beaman because they had similar timeframes for data collection. The goal of the study is to find if daily, monthly, and full study period activity are different between the parks and which park attributes might cause these changes. We looked at attribute affects on the two most common mammal species. The species data was collected using camera traps set out in the parks from 2019-2022. >
+<The purpose of this repository is to explore how species activity changes between Nashville parks. We focused on the Mills Creek, Bells Bend, and Beaman because they had similar time frames for data collection. The goal of the study is to find if daily, monthly, and full study period activity are different between the parks and which park attributes might cause these changes. We looked at attribute affects on the two most common mammal species. The species data was collected using camera traps set out in the parks from 2019-2022.>
 
 ## Investigators
 
@@ -34,44 +34,315 @@ Files are in a pdf format.
 ## Metadata
 
 <For each data file in the repository, describe the data contained in each column. Include the column name, a description of the information, the class of data, and any units associated with the data. Create a list or table for each data file.> 
-## Metadata for Wildlife Insights.csv
 
-Wildlife insights: 
+## Metadata for Wildlife Insights.csv
+$Source
+[1] "Prof. Malu Jorge's Lab at Vanderbilt University"
 
 $Description
 [1] "Dataset detailing camera trap data from 2021 to 2022."
 
 $Columns
-[1] "cluster.name"  "site.n"   "cam.n"  "deployment.id" "date.time"   "species"  
-
-The columns include camera and site numbers, deployment ID, the date and time,
-and species captured. 
+[1] "cluster.name"  "site.n"        "cam.n"         "deployment.id" "date.time"    
+[6] "species"      
 
 $Data_Types
  cluster.name        site.n         cam.n deployment.id     date.time       species 
   "character"     "numeric"     "numeric"   "character"   "character"   "character" 
 
-There are no relevent units to the data because most of it is categorical. 
+$Summary_Stats
+ cluster.name           site.n           cam.n       deployment.id       date.time        
+ Length:26380       Min.   : 1.000   Min.   : 2.00   Length:26380       Length:26380      
+ Class :character   1st Qu.: 2.000   1st Qu.:15.00   Class :character   Class :character  
+ Mode  :character   Median : 3.000   Median :34.00   Mode  :character   Mode  :character  
+                    Mean   : 3.601   Mean   :30.14                                        
+                    3rd Qu.: 5.000   3rd Qu.:43.00                                        
+                    Max.   :10.000   Max.   :51.00                                        
+   species         
+ Length:26380      
+ Class :character  
+ Mode  :character  
+
+To briefly explain a couple components, the columns include cluster name (identifies park), camera and site numbers, deployment ID, combined date and time, and species captured.  It is important to note that date columns are incorrectly recognized as characters, which was corrected for in data processing. Also, there are no relevant units to the data because most of it is categorical. 
 
 
 ## Metadata for All Deployments (2019-2022).csv
+
+$Source
+[1] "Prof. Malu Jorge's Lab at Vanderbilt University"
 
 $Description
 [1] "Dataset of deployment IDs with their start and end dates."
 
 $Columns
-[1] "deployment_id" "start_date"    "end_date" 
-
-These columns include deployment ID, start date, and end date of deployment. 
+[1] "deployment_id" "start_date"    "end_date"     
 
 $Data_Types
 deployment_id    start_date      end_date 
   "character"   "character"   "character" 
 
-There are no relevant units for this dataset. 
+$Summary_Stats
+ deployment_id       start_date          end_date        
+ Length:70          Length:70          Length:70         
+ Class :character   Class :character   Class :character  
+ Mode  :character   Mode  :character   Mode  :character 
+ 
+ To briefly explain a couple components, the columns include deployment ID, start date, and end date of deployment. It is important to note that date columns are incorrectly recognized as characters, which was corrected for in data processing. Also, there are no relevant units for this dataset. 
 
 ## Metadata for Park_Properties.shp
 
+$Source
+[1] "Nashville Open Data Portal (https://data.nashville.gov/)"
+
+$Description
+[1] "Dataset of local park boundaries with relevant information."
+
+$Columns
+ [1] "Name"       "PARK_ID"    "Latitude"   "Longitude"  "YearEstabl" "Acres"      "DaysOpen"  
+ [8] "Hours"      "Phone"      "Webstie"    "Address"    "Restroom"   "CommunityC" "NatureCent"
+[15] "ADA"        "Concession" "DogPark"    "Baseball"   "BasketBall" "MountainBi" "Boating"   
+[22] "Camping"    "DiscGolf"   "Fishing"    "GolfCourse" "Hiking"     "HistoricSi" "HorsebackR"
+[29] "Lake"       "Picnic"     "PicnicShel" "Playground" "SchoolSite" "Soccer"     "SprayPark" 
+[36] "SkatePark"  "Swimming"   "Tennis2"    "WalkJog"    "Email"      "Descriptio" "Status"    
+[43] "Volleyball" "FootballMu" "CanoeLaunc" "CommunityG" "CommonName" "Classifica" "City"      
+[50] "State"      "ZipCode"    "GlobalID"   "geometry"  
+
+$Data_Types
+$Data_Types$Name
+[1] "character"
+
+$Data_Types$PARK_ID
+[1] "character"
+
+$Data_Types$Latitude
+[1] "numeric"
+
+$Data_Types$Longitude
+[1] "numeric"
+
+$Data_Types$YearEstabl
+[1] "numeric"
+
+$Data_Types$Acres
+[1] "numeric"
+
+$Data_Types$DaysOpen
+[1] "character"
+
+$Data_Types$Hours
+[1] "character"
+
+$Data_Types$Phone
+[1] "character"
+
+$Data_Types$Webstie
+[1] "character"
+
+$Data_Types$Address
+[1] "character"
+
+$Data_Types$Restroom
+[1] "character"
+
+$Data_Types$CommunityC
+[1] "character"
+
+$Data_Types$NatureCent
+[1] "character"
+
+$Data_Types$ADA
+[1] "character"
+
+$Data_Types$Concession
+[1] "character"
+
+$Data_Types$DogPark
+[1] "character"
+
+$Data_Types$Baseball
+[1] "character"
+
+$Data_Types$BasketBall
+[1] "character"
+
+$Data_Types$MountainBi
+[1] "character"
+
+$Data_Types$Boating
+[1] "character"
+
+$Data_Types$Camping
+[1] "character"
+
+$Data_Types$DiscGolf
+[1] "character"
+
+$Data_Types$Fishing
+[1] "character"
+
+$Data_Types$GolfCourse
+[1] "character"
+
+$Data_Types$Hiking
+[1] "character"
+
+$Data_Types$HistoricSi
+[1] "character"
+
+$Data_Types$HorsebackR
+[1] "character"
+
+$Data_Types$Lake
+[1] "character"
+
+$Data_Types$Picnic
+[1] "character"
+
+$Data_Types$PicnicShel
+[1] "numeric"
+
+$Data_Types$Playground
+[1] "character"
+
+$Data_Types$SchoolSite
+[1] "character"
+
+$Data_Types$Soccer
+[1] "character"
+
+$Data_Types$SprayPark
+[1] "character"
+
+$Data_Types$SkatePark
+[1] "character"
+
+$Data_Types$Swimming
+[1] "character"
+
+$Data_Types$Tennis2
+[1] "character"
+
+$Data_Types$WalkJog
+[1] "character"
+
+$Data_Types$Email
+[1] "character"
+
+$Data_Types$Descriptio
+[1] "character"
+
+$Data_Types$Status
+[1] "character"
+
+$Data_Types$Volleyball
+[1] "character"
+
+$Data_Types$FootballMu
+[1] "character"
+
+$Data_Types$CanoeLaunc
+[1] "character"
+
+$Data_Types$CommunityG
+[1] "character"
+
+$Data_Types$CommonName
+[1] "character"
+
+$Data_Types$Classifica
+[1] "character"
+
+$Data_Types$City
+[1] "character"
+
+$Data_Types$State
+[1] "character"
+
+$Data_Types$ZipCode
+[1] "character"
+
+$Data_Types$GlobalID
+[1] "character"
+
+$Data_Types$geometry
+[1] "sfc_MULTIPOLYGON" "sfc"             
+
+
+$Summary_Stats
+     Name             PARK_ID             Latitude       Longitude        YearEstabl  
+ Length:198         Length:198         Min.   : 0.00   Min.   :-87.03   Min.   :   0  
+ Class :character   Class :character   1st Qu.: 0.00   1st Qu.:-86.79   1st Qu.:1964  
+ Mode  :character   Mode  :character   Median :36.12   Median :-86.73   Median :2000  
+                                       Mean   :26.30   Mean   :-62.22   Mean   :1855  
+                                       3rd Qu.:36.18   3rd Qu.:  0.00   3rd Qu.:2002  
+                                       Max.   :36.34   Max.   : 86.90   Max.   :2021  
+     Acres           DaysOpen            Hours              Phone             Webstie         
+ Min.   :   0.10   Length:198         Length:198         Length:198         Length:198        
+ 1st Qu.:   0.10   Class :character   Class :character   Class :character   Class :character  
+ Median :   6.01   Mode  :character   Mode  :character   Mode  :character   Mode  :character  
+ Mean   : 111.12                                                                              
+ 3rd Qu.:  21.75                                                                              
+ Max.   :3765.79                                                                              
+   Address            Restroom          CommunityC         NatureCent            ADA           
+ Length:198         Length:198         Length:198         Length:198         Length:198        
+ Class :character   Class :character   Class :character   Class :character   Class :character  
+ Mode  :character   Mode  :character   Mode  :character   Mode  :character   Mode  :character  
+                                                                                               
+                                                                                               
+                                                                                               
+  Concession          DogPark            Baseball          BasketBall         MountainBi       
+ Length:198         Length:198         Length:198         Length:198         Length:198        
+ Class :character   Class :character   Class :character   Class :character   Class :character  
+ Mode  :character   Mode  :character   Mode  :character   Mode  :character   Mode  :character  
+                                                                                               
+                                                                                               
+                                                                                               
+   Boating            Camping            DiscGolf           Fishing           GolfCourse       
+ Length:198         Length:198         Length:198         Length:198         Length:198        
+ Class :character   Class :character   Class :character   Class :character   Class :character  
+ Mode  :character   Mode  :character   Mode  :character   Mode  :character   Mode  :character  
+                                                                                               
+                                                                                               
+                                                                                               
+    Hiking           HistoricSi         HorsebackR            Lake              Picnic         
+ Length:198         Length:198         Length:198         Length:198         Length:198        
+ Class :character   Class :character   Class :character   Class :character   Class :character  
+ Mode  :character   Mode  :character   Mode  :character   Mode  :character   Mode  :character  
+                                                                                               
+                                                                                               
+                                                                                               
+   PicnicShel       Playground         SchoolSite           Soccer           SprayPark        
+ Min.   : 0.0000   Length:198         Length:198         Length:198         Length:198        
+ 1st Qu.: 0.0000   Class :character   Class :character   Class :character   Class :character  
+ Median : 0.0000   Mode  :character   Mode  :character   Mode  :character   Mode  :character  
+ Mean   : 0.5505                                                                              
+ 3rd Qu.: 0.7500                                                                              
+ Max.   :13.0000                                                                              
+  SkatePark           Swimming           Tennis2            WalkJog             Email          
+ Length:198         Length:198         Length:198         Length:198         Length:198        
+ Class :character   Class :character   Class :character   Class :character   Class :character  
+ Mode  :character   Mode  :character   Mode  :character   Mode  :character   Mode  :character  
+                                                                                               
+                                                                                               
+                                                                                               
+  Descriptio           Status           Volleyball         FootballMu         CanoeLaunc       
+ Length:198         Length:198         Length:198         Length:198         Length:198        
+ Class :character   Class :character   Class :character   Class :character   Class :character  
+ Mode  :character   Mode  :character   Mode  :character   Mode  :character   Mode  :character  
+                                                                                               
+                                                                                               
+                                                                                               
+  CommunityG         CommonName         Classifica            City              State          
+ Length:198         Length:198         Length:198         Length:198         Length:198        
+ Class :character   Class :character   Class :character   Class :character   Class :character  
+ Mode  :character   Mode  :character   Mode  :character   Mode  :character   Mode  :character  
+                                                                                               
+                                                                                               
+                                                                                               
+   ZipCode            GlobalID                  geometry  
+ Length:198         Length:198         MULTIPOLYGON :198  
+ Class :character   Class :character   epsg:2274    :  0  
+ Mode  :character   Mode  :character   +proj=lcc ...:  0  
 
 
 ## Scripts and code
