@@ -638,6 +638,3 @@ In this report, we sought to answer two questions: Does the overall activity (da
 
 
 \newpage
-
-# References
-<add references here if relevant, otherwise delete this section>
