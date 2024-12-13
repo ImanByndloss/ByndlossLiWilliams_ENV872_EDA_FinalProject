@@ -2,7 +2,6 @@
 ENV872 Course Project
 ## Summary
 
-
 <The purpose of this repository is to explore how species activity changes between Nashville parks. We focused on the Mills Creek, Bells Bend, and Beaman because they had similar time frames for data collection. The goal of the study is to find if daily, monthly, and full study period activity are different between the parks and which park attributes might cause these changes. We looked at attribute affects on the two most common mammal species. The species data was collected using camera traps set out in the parks from 2019-2022.>
 
 ## Investigators
