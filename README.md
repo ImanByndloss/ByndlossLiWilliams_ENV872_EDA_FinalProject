@@ -35,7 +35,9 @@ Files are in a pdf format.
 
 <For each data file in the repository, describe the data contained in each column. Include the column name, a description of the information, the class of data, and any units associated with the data. Create a list or table for each data file.> 
 
-## Metadata for Wildlife Insights.csv
+### Raw Data 
+
+#### Wildlife Insights.csv
 $Source
 [1] "Prof. Malu Jorge's Lab at Vanderbilt University"
 
@@ -66,7 +68,7 @@ $Summary_Stats
 To briefly explain a couple components, the columns include cluster name (identifies park), camera and site numbers, deployment ID, combined date and time, and species captured.  It is important to note that date columns are incorrectly recognized as characters, which was corrected for in data processing. Also, there are no relevant units to the data because most of it is categorical. 
 
 
-## Metadata for All Deployments (2019-2022).csv
+#### All Deployments (2019-2022).csv
 
 $Source
 [1] "Prof. Malu Jorge's Lab at Vanderbilt University"
@@ -89,7 +91,7 @@ $Summary_Stats
  
  To briefly explain a couple components, the columns include deployment ID, start date, and end date of deployment. It is important to note that date columns are incorrectly recognized as characters, which was corrected for in data processing. Also, there are no relevant units for this dataset. 
 
-## Metadata for Park_Properties.shp
+#### Park_Properties.shp
 
 $Source
 [1] "Nashville Open Data Portal (https://data.nashville.gov/)"
