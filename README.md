@@ -31,7 +31,6 @@ Final_Report_files: Holds figure-latex folder with graphs from the final report.
 Files are in a pdf format.
 
 
-
 ## Metadata
 
 <For each data file in the repository, describe the data contained in each column. Include the column name, a description of the information, the class of data, and any units associated with the data. Create a list or table for each data file.> 
